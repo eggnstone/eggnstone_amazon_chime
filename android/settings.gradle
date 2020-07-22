@@ -1,0 +1,2 @@
+rootProject.name = 'chime'
+include ':android/amazon-chime-sdk-combined'

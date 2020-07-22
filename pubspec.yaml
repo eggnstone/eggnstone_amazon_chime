@@ -1,0 +1,26 @@
+name: eggnstone_amazon_chime
+copyright: 2020 Mark Eggenstein
+description: A wrapper for the Amazon Chime SDKs.
+homepage: https://eggnstone.dev
+version: 0.1.0
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+  flutter: ">=1.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: dev.eggnstone.chime
+        pluginClass: ChimePlugin
+      #ios:
+      #  pluginClass: ChimePlugin
