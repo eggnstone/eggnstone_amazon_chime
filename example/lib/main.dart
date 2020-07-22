@@ -444,6 +444,5 @@ class _AppState extends State<App>
         await Chime.unbindVideoView(tileId);
         _tileIdToViewIdMap.remove(tileId);
         _viewIdToTileIdMap.remove(viewId);
-        return;
     }
 }
