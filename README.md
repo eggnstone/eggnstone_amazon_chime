@@ -1,6 +1,6 @@
 # eggnstone_amazon_chime
 
-A wrapper for the Amazon Chime SDKs.
+A wrapper for the Amazon Chime SDKs. Allows to join Chime meetings using audio and video.
 
 ## Android
 

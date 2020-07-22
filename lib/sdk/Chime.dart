@@ -2,17 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+/// Main plugin class
 class Chime
 {
     static const MethodChannel _methodChannel = const MethodChannel('ChimePlugin');
-    static const EventChannel _eventChannel = EventChannel('ChimePluginEvents');
+    static const EventChannel _eventChannel = const EventChannel('ChimePluginEvents');
 
+    /// The version of the used Amazon Chime SDK.
     static Future<String> get version
     async
     {
         return _methodChannel.invokeMethod('getVersion');
     }
 
+    /// The event channel you can subscribe to with
+    /// Chime.eventChannel.receiveBroadcastStream().listen()
     static EventChannel get eventChannel
     => _eventChannel;
 

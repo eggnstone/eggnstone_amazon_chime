@@ -5,3 +5,7 @@
 ## 0.1.1 - 22.07.2020
 
 * Longer description and added link to Amazon Chime SDK. 
+
+## 0.1.2 - 22.07.2020
+
+* Adding documentation 
