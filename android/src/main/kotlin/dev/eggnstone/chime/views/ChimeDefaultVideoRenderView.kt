@@ -11,13 +11,13 @@ import io.flutter.plugin.platform.PlatformView
 
 class ChimeDefaultVideoRenderView internal constructor(context: Context?) : PlatformView, MethodCallHandler
 {
-    private val mDefaultVideoRenderView: DefaultVideoRenderView = DefaultVideoRenderView(context!!)
+    private val _defaultVideoRenderView: DefaultVideoRenderView = DefaultVideoRenderView(context!!)
 
-    val videoRenderView: VideoRenderView get() = mDefaultVideoRenderView
+    val videoRenderView: VideoRenderView get() = _defaultVideoRenderView
 
     override fun dispose() = Unit
 
-    override fun getView(): View = mDefaultVideoRenderView
+    override fun getView(): View = _defaultVideoRenderView
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) = result.notImplemented()
 }

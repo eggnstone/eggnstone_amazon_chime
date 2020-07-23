@@ -13,15 +13,15 @@ class ChimeDefaultVideoRenderViewFactory : PlatformViewFactory(StandardMessageCo
     {
         Log.d(TAG, "ChimeDefaultVideoRenderViewFactory.create: viewId=$viewId")
         val view = ChimeDefaultVideoRenderView(context)
-        mViewIdToViewMap[viewId] = view
+        _viewIdToViewMap[viewId] = view
         return view
     }
 
     companion object
     {
         private const val TAG = "ChimeDvrvFactory"
-        private val mViewIdToViewMap: MutableMap<Int, ChimeDefaultVideoRenderView> = HashMap()
+        private val _viewIdToViewMap: MutableMap<Int, ChimeDefaultVideoRenderView> = HashMap()
 
-        fun getViewById(id: Int): ChimeDefaultVideoRenderView? = mViewIdToViewMap[id]
+        fun getViewById(id: Int): ChimeDefaultVideoRenderView? = _viewIdToViewMap[id]
     }
 }

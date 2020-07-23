@@ -6,7 +6,7 @@ import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.VideoTileState
 import io.flutter.plugin.common.EventChannel.EventSink
 import org.json.JSONObject
 
-class ChimeVideoTileObserver(private val mEventSink: EventSink) : VideoTileObserver
+class ChimeVideoTileObserver(private val _eventSink: EventSink) : VideoTileObserver
 {
     override fun onVideoTileAdded(tileState: VideoTileState)
     {
@@ -18,7 +18,7 @@ class ChimeVideoTileObserver(private val mEventSink: EventSink) : VideoTileObser
             eventArguments.put("TileId", tileState.tileId)
             jsonObject.put("EventName", "onVideoTileAdded")
             jsonObject.put("EventArguments", eventArguments)
-            mEventSink.success(jsonObject.toString())
+            _eventSink.success(jsonObject.toString())
         }
         catch (e: Exception)
         {
@@ -41,7 +41,7 @@ class ChimeVideoTileObserver(private val mEventSink: EventSink) : VideoTileObser
             eventArguments.put("TileId", tileState.tileId)
             jsonObject.put("EventName", "onVideoTileRemoved")
             jsonObject.put("EventArguments", eventArguments)
-            mEventSink.success(jsonObject.toString())
+            _eventSink.success(jsonObject.toString())
         }
         catch (e: Exception)
         {
