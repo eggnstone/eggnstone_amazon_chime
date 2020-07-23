@@ -23,9 +23,9 @@ class _AppState extends State<App>
 {
     String _version = 'Unknown';
     String _createMeetingSessionResult = 'createMeetingSession: Unknown';
-    String _audioVideoResult = 'audioVideoStart: Unknown';
-    String _audioVideoLocalVideoResult = 'audioVideoStartLocalVideo: Unknown';
-    String _audioVideoRemoteVideoResult = 'audioVideoStartRemoteVideo: Unknown';
+    String _audioVideoStartResult = 'audioVideoStart: Unknown';
+    String _audioVideoStartLocalVideoResult = 'audioVideoStartLocalVideo: Unknown';
+    String _audioVideoStartRemoteVideoResult = 'audioVideoStartRemoteVideo: Unknown';
 
     List<ChimeDefaultVideoRenderView> _chimeViews;
     Map<int, int> _viewIdToTileIdMap = Map<int, int>();
@@ -80,7 +80,7 @@ class _AppState extends State<App>
                                 )
                             ]
                         ),
-                        Text(_audioVideoResult),
+                        Text(_audioVideoStartResult),
                         SizedBox(height: 8),
                         Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -98,7 +98,7 @@ class _AppState extends State<App>
                                 )
                             ]
                         ),
-                        Text(_audioVideoLocalVideoResult),
+                        Text(_audioVideoStartLocalVideoResult),
                         SizedBox(height: 8),
                         Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -116,7 +116,7 @@ class _AppState extends State<App>
                                 )
                             ]
                         ),
-                        Text(_audioVideoRemoteVideoResult),
+                        Text(_audioVideoStartRemoteVideoResult),
                         SizedBox(height: 8),
                         Expanded(child: chimeViewColumn),
                     ]
@@ -262,7 +262,7 @@ class _AppState extends State<App>
         if (mounted)
             setState(()
             {
-                _audioVideoResult = result;
+                _audioVideoStartResult = result;
             });
     }
 
@@ -287,7 +287,7 @@ class _AppState extends State<App>
         if (mounted)
             setState(()
             {
-                _audioVideoResult = result;
+                _audioVideoStartResult = result;
             });
     }
 
@@ -312,7 +312,7 @@ class _AppState extends State<App>
         if (mounted)
             setState(()
             {
-                _audioVideoLocalVideoResult = result;
+                _audioVideoStartLocalVideoResult = result;
             });
     }
 
@@ -337,7 +337,7 @@ class _AppState extends State<App>
         if (mounted)
             setState(()
             {
-                _audioVideoLocalVideoResult = result;
+                _audioVideoStartLocalVideoResult = result;
             });
     }
 
@@ -362,7 +362,7 @@ class _AppState extends State<App>
         if (mounted)
             setState(()
             {
-                _audioVideoRemoteVideoResult = result;
+                _audioVideoStartRemoteVideoResult = result;
             });
     }
 
@@ -387,7 +387,7 @@ class _AppState extends State<App>
         if (mounted)
             setState(()
             {
-                _audioVideoRemoteVideoResult = result;
+                _audioVideoStartRemoteVideoResult = result;
             });
     }
 
