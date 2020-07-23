@@ -105,7 +105,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         _audioVideoFacade!!.addDeviceChangeObserver(ChimeDeviceChangeObserver())
         _audioVideoFacade!!.addVideoTileObserver(ChimeVideoTileObserver(_eventSink!!))
 
-        result.success("createMeetingSession OK")
+        result.success("OK")
     }
 
     private fun handleAudioVideoStart(result: MethodChannel.Result)
@@ -114,7 +114,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             return
 
         _audioVideoFacade!!.start()
-        result.success("handleAudioVideoStart OK")
+        result.success("OK")
     }
 
     private fun handleAudioVideoStop(result: MethodChannel.Result)
@@ -123,7 +123,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             return
 
         _audioVideoFacade!!.stop()
-        result.success("handleAudioVideoStop OK")
+        result.success("OK")
     }
 
     private fun handleAudioVideoStartLocalVideo(result: MethodChannel.Result)
@@ -132,7 +132,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             return
 
         _audioVideoFacade!!.startLocalVideo()
-        result.success("handleAudioVideoStartLocalVideo OK")
+        result.success("OK")
     }
 
     private fun handleAudioVideoStopLocalVideo(result: MethodChannel.Result)
@@ -141,7 +141,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             return
 
         _audioVideoFacade!!.stopLocalVideo()
-        result.success("handleAudioVideoStopLocalVideo OK")
+        result.success("OK")
     }
 
     private fun handleAudioVideoStartRemoteVideo(result: MethodChannel.Result)
@@ -150,7 +150,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             return
 
         _audioVideoFacade!!.startRemoteVideo()
-        result.success("handleAudioVideoStartRemoteVideo OK")
+        result.success("OK")
     }
 
     private fun handleAudioVideoStopRemoteVideo(result: MethodChannel.Result)
@@ -159,7 +159,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             return
 
         _audioVideoFacade!!.stopRemoteVideo()
-        result.success("handleAudioVideoStopRemoteVideo OK")
+        result.success("OK")
     }
 
     private fun handleBindVideoView(call: MethodCall, result: MethodChannel.Result)
@@ -172,7 +172,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
         val videoRenderView: VideoRenderView = ChimeDefaultVideoRenderViewFactory.getViewById(viewId)!!.videoRenderView
         _audioVideoFacade!!.bindVideoView(videoRenderView, tileId)
-        result.success("bindVideoView OK")
+        result.success("OK")
     }
 
     private fun handleUnbindVideoView(call: MethodCall, result: MethodChannel.Result)
@@ -183,7 +183,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         val tileId = call.argument<Int>("TileId")!!
 
         _audioVideoFacade!!.unbindVideoView(tileId)
-        result.success("unbindVideoView OK")
+        result.success("OK")
     }
 
     private fun checkAudioVideoFacade(result: MethodChannel.Result, source: String): Boolean

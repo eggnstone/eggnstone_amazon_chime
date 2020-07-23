@@ -28,7 +28,6 @@ class _AppState extends State<App>
     String _audioVideoRemoteVideoResult = 'audioVideoStartRemoteVideo: Unknown';
 
     List<ChimeDefaultVideoRenderView> _chimeViews;
-
     Map<int, int> _viewIdToTileIdMap = Map<int, int>();
     Map<int, int> _tileIdToViewIdMap = Map<int, int>();
 
