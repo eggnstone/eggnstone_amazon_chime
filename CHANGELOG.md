@@ -10,6 +10,6 @@
 
 * Adding documentation 
 
-## 0.1.3 - .07.2020
+## 0.1.3 - 24.07.2020
 
-*  
+* Updated homepage / link to github 
