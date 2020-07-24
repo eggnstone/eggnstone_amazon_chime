@@ -1,50 +1,67 @@
 package dev.eggnstone.chime.observers
 
-import android.util.Log
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.AttendeeInfo
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.SignalUpdate
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.VolumeUpdate
 import com.amazonaws.services.chime.sdk.meetings.realtime.RealtimeObserver
+import io.flutter.plugin.common.EventChannel.EventSink
+import org.json.JSONObject
 
-class ChimeRealtimeObserver : RealtimeObserver
+class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserver
 {
-    override fun onAttendeesDropped(attendeeInfo: Array<AttendeeInfo>)
+    override fun onAttendeesDropped(attendeeInfos: Array<AttendeeInfo>)
     {
-        Log.d(TAG, "onAttendeesDropped: attendeeInfo=$attendeeInfo")
+        // TODO: params
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onAttendeesDropped")
+        _eventSink.success(jsonObject.toString())
     }
 
-    override fun onAttendeesJoined(attendeeInfo: Array<AttendeeInfo>)
+    override fun onAttendeesJoined(attendeeInfos: Array<AttendeeInfo>)
     {
-        Log.d(TAG, "onAttendeesJoined: attendeeInfo=$attendeeInfo")
+        // TODO: params
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onAttendeesJoined")
+        _eventSink.success(jsonObject.toString())
     }
 
-    override fun onAttendeesLeft(attendeeInfo: Array<AttendeeInfo>)
+    override fun onAttendeesLeft(attendeeInfos: Array<AttendeeInfo>)
     {
-        Log.d(TAG, "onAttendeesLeft: attendeeInfo=$attendeeInfo")
+        // TODO: params
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onAttendeesLeft")
+        _eventSink.success(jsonObject.toString())
     }
 
-    override fun onAttendeesMuted(attendeeInfo: Array<AttendeeInfo>)
+    override fun onAttendeesMuted(attendeeInfos: Array<AttendeeInfo>)
     {
-        Log.d(TAG, "onAttendeesMuted: attendeeInfo=$attendeeInfo")
+        // TODO: params
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onAttendeesMuted")
+        _eventSink.success(jsonObject.toString())
     }
 
-    override fun onAttendeesUnmuted(attendeeInfo: Array<AttendeeInfo>)
+    override fun onAttendeesUnmuted(attendeeInfos: Array<AttendeeInfo>)
     {
-        Log.d(TAG, "onAttendeesUnmuted: attendeeInfo=$attendeeInfo")
+        // TODO: params
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onAttendeesUnmuted")
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onSignalStrengthChanged(signalUpdates: Array<SignalUpdate>)
     {
-        Log.d(TAG, "onSignalStrengthChanged: signalUpdates=$signalUpdates")
+        // TODO: params
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onSignalStrengthChanged")
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onVolumeChanged(volumeUpdates: Array<VolumeUpdate>)
     {
-        //Log.d(TAG, "onVolumeChanged: volumeUpdates=" + volumeUpdates);
-    }
-
-    companion object
-    {
-        private const val TAG = "ChimeRealtimeObserver"
+        // TODO: params
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onVolumeChanged")
+        _eventSink.success(jsonObject.toString())
     }
 }

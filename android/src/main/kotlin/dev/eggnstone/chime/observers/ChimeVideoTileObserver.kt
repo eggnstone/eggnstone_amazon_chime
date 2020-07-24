@@ -1,6 +1,5 @@
 package dev.eggnstone.chime.observers
 
-import android.util.Log
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.VideoTileObserver
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.VideoTileState
 import io.flutter.plugin.common.EventChannel.EventSink
@@ -10,52 +9,41 @@ class ChimeVideoTileObserver(private val _eventSink: EventSink) : VideoTileObser
 {
     override fun onVideoTileAdded(tileState: VideoTileState)
     {
-        Log.d(TAG, "onVideoTileAdded: tileState=$tileState")
-        try
-        {
-            val jsonObject = JSONObject()
-            val eventArguments = JSONObject()
-            eventArguments.put("TileId", tileState.tileId)
-            jsonObject.put("EventName", "onVideoTileAdded")
-            jsonObject.put("EventArguments", eventArguments)
-            _eventSink.success(jsonObject.toString())
-        }
-        catch (e: Exception)
-        {
-            e.printStackTrace()
-        }
+        val jsonObject = JSONObject()
+        val eventArguments = JSONObject()
+        eventArguments.put("TileId", tileState.tileId)
+        jsonObject.put("EventName", "onVideoTileAdded")
+        jsonObject.put("EventArguments", eventArguments)
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onVideoTilePaused(tileState: VideoTileState)
     {
-        Log.d(TAG, "onVideoTilePaused: tileState=$tileState")
+        val jsonObject = JSONObject()
+        val eventArguments = JSONObject()
+        eventArguments.put("TileId", tileState.tileId)
+        jsonObject.put("EventName", "onVideoTilePaused")
+        jsonObject.put("EventArguments", eventArguments)
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onVideoTileRemoved(tileState: VideoTileState)
     {
-        Log.d(TAG, "onVideoTileRemoved: tileState=$tileState")
-        try
-        {
-            val jsonObject = JSONObject()
-            val eventArguments = JSONObject()
-            eventArguments.put("TileId", tileState.tileId)
-            jsonObject.put("EventName", "onVideoTileRemoved")
-            jsonObject.put("EventArguments", eventArguments)
-            _eventSink.success(jsonObject.toString())
-        }
-        catch (e: Exception)
-        {
-            e.printStackTrace()
-        }
+        val jsonObject = JSONObject()
+        val eventArguments = JSONObject()
+        eventArguments.put("TileId", tileState.tileId)
+        jsonObject.put("EventName", "onVideoTileRemoved")
+        jsonObject.put("EventArguments", eventArguments)
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onVideoTileResumed(tileState: VideoTileState)
     {
-        Log.d(TAG, "onVideoTileResumed: tileState=$tileState")
-    }
-
-    companion object
-    {
-        private const val TAG = "ChimeVideoTileObserver"
+        val jsonObject = JSONObject()
+        val eventArguments = JSONObject()
+        eventArguments.put("TileId", tileState.tileId)
+        jsonObject.put("EventName", "onVideoTileResumed")
+        jsonObject.put("EventArguments", eventArguments)
+        _eventSink.success(jsonObject.toString())
     }
 }

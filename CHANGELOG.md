@@ -13,3 +13,7 @@
 ## 0.1.3 - 24.07.2020
 
 * Updated homepage / link to github 
+
+## 0.1.4 - 24.07.2020
+
+* Added all AudioVideoFacade events. 

@@ -1,63 +1,94 @@
 package dev.eggnstone.chime.observers
 
-import android.util.Log
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.AudioVideoObserver
 import com.amazonaws.services.chime.sdk.meetings.session.MeetingSessionStatus
+import io.flutter.plugin.common.EventChannel.EventSink
+import org.json.JSONObject
 
-class ChimeAudioVideoObserver : AudioVideoObserver
+class ChimeAudioVideoObserver(private val _eventSink: EventSink) : AudioVideoObserver
 {
     override fun onAudioSessionCancelledReconnect()
     {
-        Log.d(TAG, "onAudioSessionCancelledReconnect")
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onAudioSessionCancelledReconnect")
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onAudioSessionDropped()
     {
-        Log.d(TAG, "onAudioSessionDropped")
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onAudioSessionDropped")
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onAudioSessionStarted(reconnecting: Boolean)
     {
-        Log.d(TAG, "onAudioSessionStarted: reconnecting=$reconnecting")
+        val jsonObject = JSONObject()
+        val eventArguments = JSONObject()
+        eventArguments.put("Reconnecting", reconnecting)
+        jsonObject.put("EventName", "onAudioSessionStarted")
+        jsonObject.put("EventArguments", eventArguments)
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onAudioSessionStartedConnecting(reconnecting: Boolean)
     {
-        Log.d(TAG, "onAudioSessionStartedConnecting: reconnecting=$reconnecting")
+        val jsonObject = JSONObject()
+        val eventArguments = JSONObject()
+        eventArguments.put("Reconnecting", reconnecting)
+        jsonObject.put("EventName", "onAudioSessionStartedConnecting")
+        jsonObject.put("EventArguments", eventArguments)
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onAudioSessionStopped(sessionStatus: MeetingSessionStatus)
     {
-        Log.d(TAG, "onAudioSessionStopped: sessionStatus=$sessionStatus")
+        val jsonObject = JSONObject()
+        val eventArguments = JSONObject()
+        eventArguments.put("SessionStatusCode", sessionStatus.statusCode)
+        jsonObject.put("EventName", "onAudioSessionStopped")
+        jsonObject.put("EventArguments", eventArguments)
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onConnectionBecamePoor()
     {
-        Log.d(TAG, "onConnectionBecamePoor")
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onConnectionBecamePoor")
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onConnectionRecovered()
     {
-        Log.d(TAG, "onConnectionRecovered")
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onConnectionRecovered")
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onVideoSessionStarted(sessionStatus: MeetingSessionStatus)
     {
-        Log.d(TAG, "onVideoSessionStarted: meetingSessionStatus=$sessionStatus")
+        val jsonObject = JSONObject()
+        val eventArguments = JSONObject()
+        eventArguments.put("SessionStatusCode", sessionStatus.statusCode)
+        jsonObject.put("EventName", "onVideoSessionStarted")
+        jsonObject.put("EventArguments", eventArguments)
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onVideoSessionStartedConnecting()
     {
-        Log.d(TAG, "onVideoSessionStartedConnecting")
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onVideoSessionStartedConnecting")
+        _eventSink.success(jsonObject.toString())
     }
 
     override fun onVideoSessionStopped(sessionStatus: MeetingSessionStatus)
     {
-        Log.d(TAG, "onVideoSessionStopped: sessionStatus=$sessionStatus")
-    }
-
-    companion object
-    {
-        private const val TAG = "ChimeAudioVideoObserver"
+        val jsonObject = JSONObject()
+        val eventArguments = JSONObject()
+        eventArguments.put("SessionStatusCode", sessionStatus.statusCode)
+        jsonObject.put("EventName", "onVideoSessionStopped")
+        jsonObject.put("EventArguments", eventArguments)
+        _eventSink.success(jsonObject.toString())
     }
 }

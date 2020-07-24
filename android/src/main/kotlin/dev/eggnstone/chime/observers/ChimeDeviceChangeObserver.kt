@@ -1,18 +1,17 @@
 package dev.eggnstone.chime.observers
 
-import android.util.Log
 import com.amazonaws.services.chime.sdk.meetings.device.DeviceChangeObserver
 import com.amazonaws.services.chime.sdk.meetings.device.MediaDevice
+import io.flutter.plugin.common.EventChannel.EventSink
+import org.json.JSONObject
 
-class ChimeDeviceChangeObserver : DeviceChangeObserver
+class ChimeDeviceChangeObserver(private val _eventSink: EventSink) : DeviceChangeObserver
 {
     override fun onAudioDeviceChanged(freshAudioDeviceList: List<MediaDevice>)
     {
-        Log.d(TAG, "onAudioDeviceChanged: list=$freshAudioDeviceList")
-    }
-
-    companion object
-    {
-        private const val TAG = "ChimeDeviceChangeOb"
+        // TODO: params
+        val jsonObject = JSONObject()
+        jsonObject.put("EventName", "onAudioDeviceChanged")
+        _eventSink.success(jsonObject.toString())
     }
 }
