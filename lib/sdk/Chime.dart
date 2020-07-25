@@ -36,16 +36,16 @@ class Chime
     {
         var params =
         {
-            "MeetingId": meetingId,
-            "ExternalMeetingId": externalMeetingId,
-            "MediaRegion": mediaRegion,
-            "MediaPlacementAudioHostUrl": mediaPlacementAudioHostUrl,
-            "MediaPlacementAudioFallbackUrl": mediaPlacementAudioFallbackUrl,
-            "MediaPlacementSignalingUrl": mediaPlacementSignalingUrl,
-            "MediaPlacementTurnControlUrl": mediaPlacementTurnControlUrl,
-            "AttendeeId": attendeeId,
-            "ExternalUserId": externalUserId,
-            "JoinToken": joinToken
+            "meetingId": meetingId,
+            "externalMeetingId": externalMeetingId,
+            "mediaRegion": mediaRegion,
+            "mediaPlacementAudioHostUrl": mediaPlacementAudioHostUrl,
+            "mediaPlacementAudioFallbackUrl": mediaPlacementAudioFallbackUrl,
+            "mediaPlacementSignalingUrl": mediaPlacementSignalingUrl,
+            "mediaPlacementTurnControlUrl": mediaPlacementTurnControlUrl,
+            "attendeeId": attendeeId,
+            "externalUserId": externalUserId,
+            "joinToken": joinToken
         };
 
         return _methodChannel.invokeMethod('createMeetingSession', params);
@@ -92,8 +92,8 @@ class Chime
     {
         var params =
         {
-            "ViewId": viewId,
-            "TileId": tileId
+            "viewId": viewId,
+            "tileId": tileId
         };
 
         return _methodChannel.invokeMethod('bindVideoView', params);
@@ -104,7 +104,7 @@ class Chime
     {
         var params =
         {
-            "TileId": tileId
+            "tileId": tileId
         };
 
         return _methodChannel.invokeMethod('unbindVideoView', params);

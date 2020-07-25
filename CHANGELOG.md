@@ -21,3 +21,7 @@
 ## 0.2.0 - 25.07.2020
 
 * Added params to all AudioVideoFacade events. Breaking change: Changed event field names.  
+
+## 0.3.0 - 25.07.2020
+
+* Added all params to ChimeVideoTileObserver. Added onPlatformViewCreated to ChimeDefaultVideoRenderView. Breaking change: Changed command field names. Fixed mapping between views and tiles.

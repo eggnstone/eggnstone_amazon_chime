@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:chime_example/data/Mapping.dart';
+import 'package:chime_example/data/Mappings.dart';
 import 'package:eggnstone_amazon_chime/eggnstone_amazon_chime.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,26 +30,29 @@ class _AppState extends State<App>
     String _audioVideoStartRemoteVideoResult = 'audioVideoStartRemoteVideo: Unknown';
 
     List<ChimeDefaultVideoRenderView> _chimeViews;
-    Map<int, int> _viewIdToTileIdMap = Map<int, int>();
-    Map<int, int> _tileIdToViewIdMap = Map<int, int>();
+    Mappings _mappings = Mappings();
 
     @override
     void initState()
     {
         super.initState();
+
+        _chimeViews = List<ChimeDefaultVideoRenderView>();
+        for (int viewIndex = 0; viewIndex < MAX_VIEW_COUNT; viewIndex++)
+            _chimeViews.add(ChimeDefaultVideoRenderView(
+                onPlatformViewCreated: (int viewId)
+                {
+                    _mappings.add(viewIndex, viewId);
+                    print('ChimeView #$viewIndex: ViewId: $viewId');
+                })
+            );
+
         _startChime();
     }
 
     @override
     Widget build(BuildContext context)
     {
-        if (_chimeViews == null)
-        {
-            _chimeViews = List<ChimeDefaultVideoRenderView>();
-            for (int i = 0; i < MAX_VIEW_COUNT; i++)
-                _chimeViews.add(ChimeDefaultVideoRenderView());
-        }
-
         var children = List<Widget>();
         for (int i = 0; i < MAX_VIEW_COUNT; i++)
             children.add(Expanded(child: _chimeViews[i]));
@@ -394,32 +399,24 @@ class _AppState extends State<App>
     void _handleOnVideoTileAdded(dynamic arguments)
     async
     {
-        int viewId;
         int tileId = arguments['tileId'];
 
-        if (_tileIdToViewIdMap.containsKey(tileId))
+        Mapping mapping = _mappings.getByTileId(tileId);
+        if (mapping != null)
         {
-            viewId = _tileIdToViewIdMap[tileId];
-            print('_handleOnVideoTileAdded: Already mapped. TileId=$tileId => ViewId=$viewId => binding again');
-            await Chime.bindVideoView(viewId, tileId);
+            print('_handleOnVideoTileAdded: Already mapped. TileId=${mapping.tileId}] => ViewId=${mapping.viewId} => binding again');
+            await Chime.bindVideoView(mapping.viewId, mapping.tileId);
             return;
         }
 
-        if (_tileIdToViewIdMap.length >= MAX_VIEW_COUNT)
+        for (int viewIndex = 0; viewIndex < MAX_VIEW_COUNT; viewIndex++)
         {
-            print('Warning: _handleOnVideoTileAdded: All available views taken. Ignoring new video tile.');
-            return;
-        }
-
-        for (int i = 0; i < MAX_VIEW_COUNT; i++)
-        {
-            if (_viewIdToTileIdMap.containsKey(i) == false)
+            mapping = _mappings.getByViewIndex(viewIndex);
+            if (mapping.tileId == null)
             {
-                viewId = i;
-                _viewIdToTileIdMap[viewId] = tileId;
-                _tileIdToViewIdMap[tileId] = viewId;
-                print('_handleOnVideoTileAdded: New mapping: TileId=$tileId => ViewId=$viewId => binding');
-                await Chime.bindVideoView(viewId, tileId);
+                mapping.tileId = tileId;
+                print('_handleOnVideoTileAdded: New mapping: TileId=${mapping.tileId} => ViewId=${mapping.viewId} => binding');
+                await Chime.bindVideoView(mapping.viewId, mapping.tileId);
                 return;
             }
         }
@@ -432,16 +429,15 @@ class _AppState extends State<App>
     {
         int tileId = arguments['tileId'];
 
-        if (_tileIdToViewIdMap.containsKey(tileId) == false)
+        Mapping mapping = _mappings.getByTileId(tileId);
+        if (mapping == null)
         {
             print('Error: _handleOnVideoTileRemoved: Could not find mapping for TileId=$tileId');
             return;
         }
 
-        int viewId = _tileIdToViewIdMap[tileId];
-        print('_handleOnVideoTileRemoved: Found mapping: TileId=$tileId => ViewId=$viewId => unbinding');
+        print('_handleOnVideoTileRemoved: Found mapping: TileId=${mapping.tileId} => ViewId=${mapping.viewId} => unbinding');
+        mapping.tileId = null;
         await Chime.unbindVideoView(tileId);
-        _tileIdToViewIdMap.remove(tileId);
-        _viewIdToTileIdMap.remove(viewId);
     }
 }

@@ -40,14 +40,14 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         {
             override fun onListen(arguments: Any?, events: EventSink?)
             {
-                Log.d(TAG, "EventChannel.setStreamHandler/onListen: arguments=$arguments")
-                Log.d(TAG, "EventChannel.setStreamHandler/onListen: events=$events")
+                Log.d(TAG, "EventChannel.setStreamHandler()/onListen(): arguments=$arguments")
+                Log.d(TAG, "EventChannel.setStreamHandler()/onListen(): events=$events")
                 _eventSink = events
             }
 
             override fun onCancel(arguments: Any?)
             {
-                Log.d(TAG, "EventChannel.setStreamHandler/onCancel: arguments=$arguments")
+                Log.d(TAG, "EventChannel.setStreamHandler()/onCancel(): arguments=$arguments")
             }
         })
 
@@ -79,16 +79,16 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleCreateMeetingSession(call: MethodCall, result: MethodChannel.Result)
     {
-        val meetingId = call.argument<String>("MeetingId")
-        val externalMeetingId = call.argument<String>("ExternalMeetingId")
-        val mediaRegion = call.argument<String>("MediaRegion")
-        val mediaPlacementAudioHostUrl = call.argument<String>("MediaPlacementAudioHostUrl")
-        val mediaPlacementAudioFallbackUrl = call.argument<String>("MediaPlacementAudioFallbackUrl")
-        val mediaPlacementSignalingUrl = call.argument<String>("MediaPlacementSignalingUrl")
-        val mediaPlacementTurnControlUrl = call.argument<String>("MediaPlacementTurnControlUrl")
-        val attendeeId = call.argument<String>("AttendeeId")
-        val externalUserId = call.argument<String>("ExternalUserId")
-        val joinToken = call.argument<String>("JoinToken")
+        val meetingId = call.argument<String>("meetingId")
+        val externalMeetingId = call.argument<String>("externalMeetingId")
+        val mediaRegion = call.argument<String>("mediaRegion")
+        val mediaPlacementAudioHostUrl = call.argument<String>("mediaPlacementAudioHostUrl")
+        val mediaPlacementAudioFallbackUrl = call.argument<String>("mediaPlacementAudioFallbackUrl")
+        val mediaPlacementSignalingUrl = call.argument<String>("mediaPlacementSignalingUrl")
+        val mediaPlacementTurnControlUrl = call.argument<String>("mediaPlacementTurnControlUrl")
+        val attendeeId = call.argument<String>("attendeeId")
+        val externalUserId = call.argument<String>("externalUserId")
+        val joinToken = call.argument<String>("joinToken")
 
         val mediaPlacement = MediaPlacement(mediaPlacementAudioFallbackUrl!!, mediaPlacementAudioHostUrl!!, mediaPlacementSignalingUrl!!, mediaPlacementTurnControlUrl!!)
         val meeting = Meeting(externalMeetingId!!, mediaPlacement, mediaRegion!!, meetingId!!)
@@ -167,8 +167,8 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         if (!checkAudioVideoFacade(result, "bindVideoView"))
             return
 
-        val viewId = call.argument<Int>("ViewId")!!
-        val tileId = call.argument<Int>("TileId")!!
+        val viewId = call.argument<Int>("viewId")!!
+        val tileId = call.argument<Int>("tileId")!!
 
         val videoRenderView: VideoRenderView = ChimeDefaultVideoRenderViewFactory.getViewById(viewId)!!.videoRenderView
         _audioVideoFacade!!.bindVideoView(videoRenderView, tileId)
@@ -180,7 +180,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         if (!checkAudioVideoFacade(result, "unbindVideoView"))
             return
 
-        val tileId = call.argument<Int>("TileId")!!
+        val tileId = call.argument<Int>("tileId")!!
 
         _audioVideoFacade!!.unbindVideoView(tileId)
         result.success("OK")
