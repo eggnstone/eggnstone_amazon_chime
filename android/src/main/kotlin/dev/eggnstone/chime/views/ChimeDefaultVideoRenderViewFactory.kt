@@ -1,7 +1,6 @@
 package dev.eggnstone.chime.views
 
 import android.content.Context
-import android.util.Log
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
@@ -11,7 +10,6 @@ class ChimeDefaultVideoRenderViewFactory : PlatformViewFactory(StandardMessageCo
 {
     override fun create(context: Context?, viewId: Int, args: Any?): PlatformView
     {
-        Log.d(TAG, "ChimeDefaultVideoRenderViewFactory.create: viewId=$viewId")
         val view = ChimeDefaultVideoRenderView(context)
         _viewIdToViewMap[viewId] = view
         return view
@@ -19,7 +17,6 @@ class ChimeDefaultVideoRenderViewFactory : PlatformViewFactory(StandardMessageCo
 
     companion object
     {
-        private const val TAG = "ChimeDvrvFactory"
         private val _viewIdToViewMap: MutableMap<Int, ChimeDefaultVideoRenderView> = HashMap()
 
         fun getViewById(id: Int): ChimeDefaultVideoRenderView? = _viewIdToViewMap[id]

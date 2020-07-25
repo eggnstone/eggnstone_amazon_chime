@@ -11,9 +11,9 @@ class ChimeVideoTileObserver(private val _eventSink: EventSink) : VideoTileObser
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("TileId", tileState.tileId)
-        jsonObject.put("EventName", "onVideoTileAdded")
-        jsonObject.put("EventArguments", eventArguments)
+        eventArguments.put("tileId", tileState.tileId)
+        jsonObject.put("name", "onVideoTileAdded")
+        jsonObject.put("arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -21,9 +21,9 @@ class ChimeVideoTileObserver(private val _eventSink: EventSink) : VideoTileObser
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("TileId", tileState.tileId)
-        jsonObject.put("EventName", "onVideoTilePaused")
-        jsonObject.put("EventArguments", eventArguments)
+        eventArguments.put("tileId", tileState.tileId)
+        jsonObject.put("name", "onVideoTilePaused")
+        jsonObject.put("arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -31,9 +31,9 @@ class ChimeVideoTileObserver(private val _eventSink: EventSink) : VideoTileObser
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("TileId", tileState.tileId)
-        jsonObject.put("EventName", "onVideoTileRemoved")
-        jsonObject.put("EventArguments", eventArguments)
+        eventArguments.put("tileId", tileState.tileId)
+        jsonObject.put("name", "onVideoTileRemoved")
+        jsonObject.put("arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -41,9 +41,9 @@ class ChimeVideoTileObserver(private val _eventSink: EventSink) : VideoTileObser
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("TileId", tileState.tileId)
-        jsonObject.put("EventName", "onVideoTileResumed")
-        jsonObject.put("EventArguments", eventArguments)
+        eventArguments.put("tileId", tileState.tileId)
+        jsonObject.put("name", "onVideoTileResumed")
+        jsonObject.put("arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 }

@@ -160,31 +160,31 @@ class _AppState extends State<App>
                 (data)
             async
             {
-                print('Chime.eventChannel.receiveBroadcastStream().listen().onData');
-                print('Data: $data');
                 dynamic event = JsonDecoder().convert(data);
-                String eventName = event['EventName'];
-                dynamic arguments = event['EventArguments'];
+                String eventName = event['name'];
+                dynamic eventArguments = event['arguments'];
                 switch (eventName)
                 {
                     case 'onVideoTileAdded':
-                        _handleOnVideoTileAdded(arguments);
+                        _handleOnVideoTileAdded(eventArguments);
                         break;
                     case 'onVideoTileRemoved':
-                        _handleOnVideoTileRemoved(arguments);
+                        _handleOnVideoTileRemoved(eventArguments);
                         break;
                     default:
-                        print('Warning: unhandled event: $eventName');
+                        print('Chime.eventChannel.receiveBroadcastStream().listen()/onData()');
+                        print('Warning: Unhandled event: $eventName');
+                        print('Data: $data');
                         break;
                 }
             },
             onDone: ()
             {
-                print('Chime.eventChannel.receiveBroadcastStream().listen().onDone');
+                print('Chime.eventChannel.receiveBroadcastStream().listen()/onDone()');
             },
             onError: (e)
             {
-                print('Chime.eventChannel.receiveBroadcastStream().listen().onError');
+                print('Chime.eventChannel.receiveBroadcastStream().listen()/onError()');
             }
         );
     }
@@ -395,7 +395,7 @@ class _AppState extends State<App>
     async
     {
         int viewId;
-        int tileId = arguments['TileId'];
+        int tileId = arguments['tileId'];
 
         if (_tileIdToViewIdMap.containsKey(tileId))
         {
@@ -430,7 +430,7 @@ class _AppState extends State<App>
     void _handleOnVideoTileRemoved(dynamic arguments)
     async
     {
-        int tileId = arguments['TileId'];
+        int tileId = arguments['tileId'];
 
         if (_tileIdToViewIdMap.containsKey(tileId) == false)
         {

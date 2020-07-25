@@ -17,3 +17,7 @@
 ## 0.1.4 - 24.07.2020
 
 * Added all AudioVideoFacade events. 
+
+## 0.2.0 - 25.07.2020
+
+* Added params to all AudioVideoFacade events. Breaking change: Changed event field names.  

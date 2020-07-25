@@ -9,9 +9,21 @@ class ChimeMetricsObserver(private val _eventSink: EventSink) : MetricsObserver
 {
     override fun onMetricsReceived(metrics: Map<ObservableMetric, Any>)
     {
-        // TODO: params
         val jsonObject = JSONObject()
-        jsonObject.put("EventName", "onMetricsReceived")
+        val eventArguments = JSONObject()
+        eventArguments.put("metrics", convertMetricsToJson(metrics))
+        jsonObject.put("name", "onMetricsReceived")
+        jsonObject.put("arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
+    }
+
+    private fun convertMetricsToJson(metrics: Map<ObservableMetric, Any>): JSONObject
+    {
+        val jsonObject = JSONObject()
+
+        for (metric in metrics)
+            jsonObject.put(metric.key.toString(), metric.value.toString())
+
+        return jsonObject
     }
 }
