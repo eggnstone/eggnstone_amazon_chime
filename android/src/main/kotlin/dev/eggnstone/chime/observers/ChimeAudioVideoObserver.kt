@@ -10,14 +10,14 @@ class ChimeAudioVideoObserver(private val _eventSink: EventSink) : AudioVideoObs
     override fun onAudioSessionCancelledReconnect()
     {
         val jsonObject = JSONObject()
-        jsonObject.put("name", "onAudioSessionCancelledReconnect")
+        jsonObject.put("Name", "OnAudioSessionCancelledReconnect")
         _eventSink.success(jsonObject.toString())
     }
 
     override fun onAudioSessionDropped()
     {
         val jsonObject = JSONObject()
-        jsonObject.put("name", "onAudioSessionDropped")
+        jsonObject.put("Name", "OnAudioSessionDropped")
         _eventSink.success(jsonObject.toString())
     }
 
@@ -25,9 +25,9 @@ class ChimeAudioVideoObserver(private val _eventSink: EventSink) : AudioVideoObs
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("reconnecting", reconnecting)
-        jsonObject.put("name", "onAudioSessionStarted")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("Reconnecting", reconnecting)
+        jsonObject.put("Name", "OnAudioSessionStarted")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -35,9 +35,9 @@ class ChimeAudioVideoObserver(private val _eventSink: EventSink) : AudioVideoObs
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("reconnecting", reconnecting)
-        jsonObject.put("name", "onAudioSessionStartedConnecting")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("Reconnecting", reconnecting)
+        jsonObject.put("Name", "OnAudioSessionStartedConnecting")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -45,23 +45,23 @@ class ChimeAudioVideoObserver(private val _eventSink: EventSink) : AudioVideoObs
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("statusCode", sessionStatus.statusCode)
-        jsonObject.put("name", "onAudioSessionStopped")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("StatusCode", sessionStatus.statusCode)
+        jsonObject.put("Name", "OnAudioSessionStopped")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
     override fun onConnectionBecamePoor()
     {
         val jsonObject = JSONObject()
-        jsonObject.put("name", "onConnectionBecamePoor")
+        jsonObject.put("Name", "OnConnectionBecamePoor")
         _eventSink.success(jsonObject.toString())
     }
 
     override fun onConnectionRecovered()
     {
         val jsonObject = JSONObject()
-        jsonObject.put("name", "onConnectionRecovered")
+        jsonObject.put("Name", "OnConnectionRecovered")
         _eventSink.success(jsonObject.toString())
     }
 
@@ -69,16 +69,16 @@ class ChimeAudioVideoObserver(private val _eventSink: EventSink) : AudioVideoObs
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("statusCode", sessionStatus.statusCode)
-        jsonObject.put("name", "onVideoSessionStarted")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("StatusCode", sessionStatus.statusCode)
+        jsonObject.put("Name", "OnVideoSessionStarted")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
     override fun onVideoSessionStartedConnecting()
     {
         val jsonObject = JSONObject()
-        jsonObject.put("name", "onVideoSessionStartedConnecting")
+        jsonObject.put("Name", "OnVideoSessionStartedConnecting")
         _eventSink.success(jsonObject.toString())
     }
 
@@ -86,9 +86,9 @@ class ChimeAudioVideoObserver(private val _eventSink: EventSink) : AudioVideoObs
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("statusCode", sessionStatus.statusCode)
-        jsonObject.put("name", "onVideoSessionStopped")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("StatusCode", sessionStatus.statusCode)
+        jsonObject.put("Name", "OnVideoSessionStopped")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 }

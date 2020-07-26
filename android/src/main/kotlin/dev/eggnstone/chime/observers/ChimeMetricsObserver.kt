@@ -11,9 +11,9 @@ class ChimeMetricsObserver(private val _eventSink: EventSink) : MetricsObserver
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("metrics", convertMetricsToJson(metrics))
-        jsonObject.put("name", "onMetricsReceived")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("Metrics", convertMetricsToJson(metrics))
+        jsonObject.put("Name", "OnMetricsReceived")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 

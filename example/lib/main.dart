@@ -24,10 +24,10 @@ class App extends StatefulWidget
 class _AppState extends State<App>
 {
     String _version = 'Unknown';
-    String _createMeetingSessionResult = 'createMeetingSession: Unknown';
-    String _audioVideoStartResult = 'audioVideoStart: Unknown';
-    String _audioVideoStartLocalVideoResult = 'audioVideoStartLocalVideo: Unknown';
-    String _audioVideoStartRemoteVideoResult = 'audioVideoStartRemoteVideo: Unknown';
+    String _createMeetingSessionResult = 'CreateMeetingSession: Unknown';
+    String _audioVideoStartResult = 'AudioVideo: Unknown';
+    String _audioVideoStartLocalVideoResult = 'AudioVideoLocalVideo: Unknown';
+    String _audioVideoStartRemoteVideoResult = 'AudioVideoRemoteVideo: Unknown';
 
     List<ChimeDefaultVideoRenderView> _chimeViews;
     Mappings _mappings = Mappings();
@@ -41,10 +41,7 @@ class _AppState extends State<App>
         for (int viewIndex = 0; viewIndex < MAX_VIEW_COUNT; viewIndex++)
             _chimeViews.add(ChimeDefaultVideoRenderView(
                 onPlatformViewCreated: (int viewId)
-                {
-                    _mappings.add(viewIndex, viewId);
-                    print('ChimeView #$viewIndex: ViewId: $viewId');
-                })
+                => _mappings.add(viewIndex, viewId))
             );
 
         _startChime();
@@ -166,14 +163,14 @@ class _AppState extends State<App>
             async
             {
                 dynamic event = JsonDecoder().convert(data);
-                String eventName = event['name'];
-                dynamic eventArguments = event['arguments'];
+                String eventName = event['Name'];
+                dynamic eventArguments = event['Arguments'];
                 switch (eventName)
                 {
-                    case 'onVideoTileAdded':
+                    case 'OnVideoTileAdded':
                         _handleOnVideoTileAdded(eventArguments);
                         break;
-                    case 'onVideoTileRemoved':
+                    case 'OnVideoTileRemoved':
                         _handleOnVideoTileRemoved(eventArguments);
                         break;
                     default:
@@ -218,16 +215,16 @@ class _AppState extends State<App>
         try
         {
             meetingSessionState = await Chime.createMeetingSession(
-                meetingId: "Test-MeetingId",
-                externalMeetingId: "Test-ExternalMeetingId",
-                mediaRegion: "eu-central-1",
-                mediaPlacementAudioHostUrl: "SomeGuid.k.m1.ec1.app.chime.aws:3478",
-                mediaPlacementAudioFallbackUrl: "wss://haxrp.m1.ec1.app.chime.aws:443/calls/Test-MeetingId",
-                mediaPlacementSignalingUrl: "wss://signal.m1.ec1.app.chime.aws/control/Test-MeetingId",
-                mediaPlacementTurnControlUrl: "https://ccp.cp.ue1.app.chime.aws/v2/turn_sessions",
-                attendeeId: "Test-AttendeeId",
-                externalUserId: "Test-ExternalUserId-1",
-                joinToken: "Test-JoinToken"
+                meetingId: 'Test-MeetingId',
+                externalMeetingId: 'Test-ExternalMeetingId',
+                mediaRegion: 'eu-central-1',
+                mediaPlacementAudioHostUrl: 'SomeGuid.k.m1.ec1.app.chime.aws:3478',
+                mediaPlacementAudioFallbackUrl: 'wss://haxrp.m1.ec1.app.chime.aws:443/calls/Test-MeetingId',
+                mediaPlacementSignalingUrl: 'wss://signal.m1.ec1.app.chime.aws/control/Test-MeetingId',
+                mediaPlacementTurnControlUrl: 'https://ccp.cp.ue1.app.chime.aws/v2/turn_sessions',
+                attendeeId: 'Test-AttendeeId',
+                externalUserId: 'Test-ExternalUserId-1',
+                joinToken: 'Test-JoinToken'
             );
         }
         on PlatformException catch (e)
@@ -257,11 +254,11 @@ class _AppState extends State<App>
         }
         on PlatformException catch (e)
         {
-            result = 'audioVideoStart failed: PlatformException: $e';
+            result = 'AudioVideoStart failed: PlatformException: $e';
         }
         catch (e)
         {
-            result = 'audioVideoStart failed: Error: $e';
+            result = 'AudioVideoStart failed: Error: $e';
         }
 
         if (mounted)
@@ -282,11 +279,11 @@ class _AppState extends State<App>
         }
         on PlatformException catch (e)
         {
-            result = 'audioVideoStop failed: PlatformException: $e';
+            result = 'AudioVideoStop failed: PlatformException: $e';
         }
         catch (e)
         {
-            result = 'audioVideoStop failed: Error: $e';
+            result = 'AudioVideoStop failed: Error: $e';
         }
 
         if (mounted)
@@ -307,11 +304,11 @@ class _AppState extends State<App>
         }
         on PlatformException catch (e)
         {
-            result = 'audioVideoStartLocalVideo failed: PlatformException: $e';
+            result = 'AudioVideoStartLocalVideo failed: PlatformException: $e';
         }
         catch (e)
         {
-            result = 'audioVideoStartLocalVideo failed: Error: $e';
+            result = 'AudioVideoStartLocalVideo failed: Error: $e';
         }
 
         if (mounted)
@@ -332,11 +329,11 @@ class _AppState extends State<App>
         }
         on PlatformException catch (e)
         {
-            result = 'audioVideoStopLocalVideo failed: PlatformException: $e';
+            result = 'AudioVideoStopLocalVideo failed: PlatformException: $e';
         }
         catch (e)
         {
-            result = 'audioVideoStopLocalVideo failed: Error: $e';
+            result = 'AudioVideoStopLocalVideo failed: Error: $e';
         }
 
         if (mounted)
@@ -357,11 +354,11 @@ class _AppState extends State<App>
         }
         on PlatformException catch (e)
         {
-            result = 'audioVideoStartRemoteVideo failed: PlatformException: $e';
+            result = 'AudioVideoStartRemoteVideo failed: PlatformException: $e';
         }
         catch (e)
         {
-            result = 'audioVideoStartRemoteVideo failed: Error: $e';
+            result = 'AudioVideoStartRemoteVideo failed: Error: $e';
         }
 
         if (mounted)
@@ -382,11 +379,11 @@ class _AppState extends State<App>
         }
         on PlatformException catch (e)
         {
-            result = 'audioVideoStopRemoteVideo failed: PlatformException: $e';
+            result = 'AudioVideoStopRemoteVideo failed: PlatformException: $e';
         }
         catch (e)
         {
-            result = 'audioVideoStopRemoteVideo failed: Error: $e';
+            result = 'AudioVideoStopRemoteVideo failed: Error: $e';
         }
 
         if (mounted)
@@ -399,7 +396,7 @@ class _AppState extends State<App>
     void _handleOnVideoTileAdded(dynamic arguments)
     async
     {
-        int tileId = arguments['tileId'];
+        int tileId = arguments['TileId'];
 
         Mapping mapping = _mappings.getByTileId(tileId);
         if (mapping != null)
@@ -427,7 +424,7 @@ class _AppState extends State<App>
     void _handleOnVideoTileRemoved(dynamic arguments)
     async
     {
-        int tileId = arguments['tileId'];
+        int tileId = arguments['TileId'];
 
         Mapping mapping = _mappings.getByTileId(tileId);
         if (mapping == null)

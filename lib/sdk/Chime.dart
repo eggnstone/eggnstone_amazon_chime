@@ -12,7 +12,7 @@ class Chime
     static Future<String> get version
     async
     {
-        return _methodChannel.invokeMethod('getVersion');
+        return _methodChannel.invokeMethod('GetVersion');
     }
 
     /// The event channel you can subscribe to with
@@ -36,55 +36,55 @@ class Chime
     {
         var params =
         {
-            "meetingId": meetingId,
-            "externalMeetingId": externalMeetingId,
-            "mediaRegion": mediaRegion,
-            "mediaPlacementAudioHostUrl": mediaPlacementAudioHostUrl,
-            "mediaPlacementAudioFallbackUrl": mediaPlacementAudioFallbackUrl,
-            "mediaPlacementSignalingUrl": mediaPlacementSignalingUrl,
-            "mediaPlacementTurnControlUrl": mediaPlacementTurnControlUrl,
-            "attendeeId": attendeeId,
-            "externalUserId": externalUserId,
-            "joinToken": joinToken
+            "MeetingId": meetingId,
+            "ExternalMeetingId": externalMeetingId,
+            "MediaRegion": mediaRegion,
+            "MediaPlacementAudioHostUrl": mediaPlacementAudioHostUrl,
+            "MediaPlacementAudioFallbackUrl": mediaPlacementAudioFallbackUrl,
+            "MediaPlacementSignalingUrl": mediaPlacementSignalingUrl,
+            "MediaPlacementTurnControlUrl": mediaPlacementTurnControlUrl,
+            "AttendeeId": attendeeId,
+            "ExternalUserId": externalUserId,
+            "JoinToken": joinToken
         };
 
-        return _methodChannel.invokeMethod('createMeetingSession', params);
+        return _methodChannel.invokeMethod('CreateMeetingSession', params);
     }
 
     static Future<String> audioVideoStart()
     async
     {
-        return _methodChannel.invokeMethod('audioVideoStart');
+        return _methodChannel.invokeMethod('AudioVideoStart');
     }
 
     static Future<String> audioVideoStop()
     async
     {
-        return _methodChannel.invokeMethod('audioVideoStop');
+        return _methodChannel.invokeMethod('AudioVideoStop');
     }
 
     static Future<String> audioVideoStartLocalVideo()
     async
     {
-        return _methodChannel.invokeMethod('audioVideoStartLocalVideo');
+        return _methodChannel.invokeMethod('AudioVideoStartLocalVideo');
     }
 
     static Future<String> audioVideoStopLocalVideo()
     async
     {
-        return _methodChannel.invokeMethod('audioVideoStopLocalVideo');
+        return _methodChannel.invokeMethod('AudioVideoStopLocalVideo');
     }
 
     static Future<String> audioVideoStartRemoteVideo()
     async
     {
-        return _methodChannel.invokeMethod('audioVideoStartRemoteVideo');
+        return _methodChannel.invokeMethod('AudioVideoStartRemoteVideo');
     }
 
     static Future<String> audioVideoStopRemoteVideo()
     async
     {
-        return _methodChannel.invokeMethod('audioVideoStopRemoteVideo');
+        return _methodChannel.invokeMethod('AudioVideoStopRemoteVideo');
     }
 
     static Future<String> bindVideoView(int viewId, int tileId)
@@ -92,11 +92,11 @@ class Chime
     {
         var params =
         {
-            "viewId": viewId,
-            "tileId": tileId
+            "ViewId": viewId,
+            "TileId": tileId
         };
 
-        return _methodChannel.invokeMethod('bindVideoView', params);
+        return _methodChannel.invokeMethod('BindVideoView', params);
     }
 
     static Future<String> unbindVideoView(int tileId)
@@ -104,9 +104,9 @@ class Chime
     {
         var params =
         {
-            "tileId": tileId
+            "TileId": tileId
         };
 
-        return _methodChannel.invokeMethod('unbindVideoView', params);
+        return _methodChannel.invokeMethod('UnbindVideoView', params);
     }
 }

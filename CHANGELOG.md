@@ -20,8 +20,17 @@
 
 ## 0.2.0 - 25.07.2020
 
-* Added params to all AudioVideoFacade events. Breaking change: Changed event field names.  
+* Breaking change: Changed event field names.  
+* Added params to all AudioVideoFacade events. 
 
 ## 0.3.0 - 25.07.2020
 
-* Added all params to ChimeVideoTileObserver. Added onPlatformViewCreated to ChimeDefaultVideoRenderView. Breaking change: Changed command field names. Fixed mapping between views and tiles.
+* Breaking change: Changed command field names.
+* Added all params to ChimeVideoTileObserver. 
+* Added onPlatformViewCreated to ChimeDefaultVideoRenderView. 
+* Fixed mapping between views and tiles. 
+
+## 0.4.0 - 26.07.2020
+
+* Breaking change: Changed event and command field names.
+* Breaking change: Moved libc++_shared.so out of amazon-chime-sdk-combined.aar so that apps which already have libc++_shared.so can continue to work.
