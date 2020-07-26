@@ -14,8 +14,8 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 ```
 * If your app already uses libc++_shared.so then no further change necessary. 
 * If your app does not use libc++_shared.so then
- ** Copy the **folder** libc++_shared.so from example\android to your app's android folder
- ** Add ```implementation fileTree(dir: '../libc++_shared.so', include: ['libc++_shared.so.aar'])``` to the **dependencies** section of your app's android/app/build.gradle     
+  * Copy the **folder** libc++_shared.so from example\android to your app's android folder
+  * Add ```implementation fileTree(dir: '../libc++_shared.so', include: ['libc++_shared.so.aar'])``` to the **dependencies** section of your app's android/app/build.gradle     
 * I had to manually combine amazon-chime-sdk.aar and amazon-chime-sdk-media.aar because otherwise the contents clash. If anyone knows a better solution I'll be happy to use it!
 * Then I moved the libc++_shared.so out in order to be able to use the plugin in apps that already have that library. Again, if anyone knows a better solution I'll be happy to use it!
 
