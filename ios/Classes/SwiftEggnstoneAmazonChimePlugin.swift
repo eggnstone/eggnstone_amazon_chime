@@ -1,10 +1,10 @@
 import Flutter
 import UIKit
 
-public class SwiftChimePlugin: NSObject, FlutterPlugin {
+public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "chime", binaryMessenger: registrar.messenger())
-    let instance = SwiftChimePlugin()
+    let channel = FlutterMethodChannel(name: "eggnstone_amazon_chime", binaryMessenger: registrar.messenger())
+    let instance = SwiftEggnstoneAmazonChimePlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
