@@ -34,3 +34,7 @@
 
 * Breaking change: Changed event and command field names.
 * Breaking change: Moved libc++_shared.so out of amazon-chime-sdk-combined.aar so that apps which already have libc++_shared.so can continue to work.
+
+## 0.4.1 - 28.07.2020
+
+* Added more references to the README.md.

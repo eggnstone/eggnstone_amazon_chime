@@ -19,10 +19,7 @@ class _ChimeDefaultVideoRenderViewState extends State<ChimeDefaultVideoRenderVie
         return AndroidView(
             viewType: 'ChimeDefaultVideoRenderView',
             onPlatformViewCreated: (int viewId)
-            {
-                if (widget.onPlatformViewCreated != null)
-                    widget.onPlatformViewCreated(viewId);
-            }
+            => widget.onPlatformViewCreated?.call(viewId)
         );
     }
 }

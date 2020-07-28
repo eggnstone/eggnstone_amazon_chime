@@ -25,12 +25,20 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 
 **References**
 * https://github.com/aws/amazon-chime-sdk-android
+
 * https://aws.amazon.com/blogs/business-productivity/building-a-meeting-application-on-android-using-the-amazon-chime-sdk/
 
 ## iOS
 
 TODO
 
+**References**
+* https://github.com/aws/amazon-chime-sdk-ios
+
 ## Web
 
 TODO
+
+**References**
+* https://github.com/aws/amazon-chime-sdk-js
+* https://aws.github.io/amazon-chime-sdk-js/
