@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 /// Main plugin class
 class Chime {
   static const MethodChannel _methodChannel =
-      const MethodChannel('eggnstone_amazon_chime');
+      const MethodChannel('ChimePlugin');
   static const EventChannel _eventChannel =
       const EventChannel('ChimePluginEvents');
 
