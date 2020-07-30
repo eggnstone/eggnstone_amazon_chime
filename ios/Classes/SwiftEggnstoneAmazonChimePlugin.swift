@@ -10,9 +10,6 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     //var _applicationContext: Context?
     var _methodChannel: FlutterMethodChannel?
     var _audioVideoFacade: AudioVideoFacade?
-        
-    static var streamhandler : ExampleStreamHandler?
-        
     
   public static func register(with registrar: FlutterPluginRegistrar) {
 
@@ -20,10 +17,8 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     let instance = SwiftEggnstoneAmazonChimePlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
 
-    let streamhandler = ExampleStreamHandler()
-
     let eventChannel = FlutterEventChannel(name: "ChimePluginEvents", binaryMessenger: registrar.messenger())
-    eventChannel.setStreamHandler(streamhandler)
+    eventChannel.setStreamHandler(ExampleStreamHandler.get())
 
     let viewFactory = ChimeDefaultVideoRenderViewFactory()
     registrar.register(viewFactory, withId: "ChimeDefaultVideoRenderView")
@@ -81,7 +76,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             _audioVideoFacade = _meetingSession?.audioVideo
             
             
-            let eventSink = ExampleStreamHandler.get().getEventSink()
+            let eventSink = ExampleStreamHandler.get().getEventSink()!
             _audioVideoFacade?.addAudioVideoObserver(observer: ChimeAudioVideoObserver(eventSink: eventSink))
             _audioVideoFacade?.addMetricsObserver(observer: ChimeMetricsObserver(eventSink: eventSink))
             _audioVideoFacade?.addRealtimeObserver(observer: ChimeRealtimeObserver(eventSink: eventSink))
@@ -195,7 +190,7 @@ class ExampleStreamHandler: NSObject, FlutterStreamHandler {
     }
     
     public func getEventSink() -> FlutterEventSink? {
-        return _eventSink
+        return _eventSink!
     }
         
     
