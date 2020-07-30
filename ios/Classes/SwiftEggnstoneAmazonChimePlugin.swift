@@ -10,11 +10,9 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     //var _applicationContext: Context?
     var _methodChannel: FlutterMethodChannel?
     var _audioVideoFacade: AudioVideoFacade?
-    var _eventSink: FlutterEventSink?
-    
-    override init() {
         
-    }
+    static var streamhandler : ExampleStreamHandler?
+        
     
   public static func register(with registrar: FlutterPluginRegistrar) {
 
@@ -22,8 +20,10 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     let instance = SwiftEggnstoneAmazonChimePlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
 
+    let streamhandler = ExampleStreamHandler()
+
     let eventChannel = FlutterEventChannel(name: "ChimePluginEvents", binaryMessenger: registrar.messenger())
-    eventChannel.setStreamHandler(ExampleStreamHandler())
+    eventChannel.setStreamHandler(streamhandler)
 
     let viewFactory = ChimeDefaultVideoRenderViewFactory()
     registrar.register(viewFactory, withId: "ChimeDefaultVideoRenderView")
@@ -79,11 +79,14 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             
             _meetingSession = DefaultMeetingSession(configuration: configuration, logger: AmazonChimeSDK.ConsoleLogger(name: "debug"))
             _audioVideoFacade = _meetingSession?.audioVideo
-            _audioVideoFacade?.addAudioVideoObserver(observer: ChimeAudioVideoObserver())
-            _audioVideoFacade?.addMetricsObserver(observer: ChimeMetricsObserver())
-            _audioVideoFacade?.addRealtimeObserver(observer: ChimeRealtimeObserver())
-            _audioVideoFacade?.addDeviceChangeObserver(observer: ChimeDeviceChangeObserver())
-            _audioVideoFacade?.addVideoTileObserver(observer: ChimeVideoTileObserver())
+            
+            
+            let eventSink = ExampleStreamHandler.get().getEventSink()
+            _audioVideoFacade?.addAudioVideoObserver(observer: ChimeAudioVideoObserver(eventSink: eventSink))
+            _audioVideoFacade?.addMetricsObserver(observer: ChimeMetricsObserver(eventSink: eventSink))
+            _audioVideoFacade?.addRealtimeObserver(observer: ChimeRealtimeObserver(eventSink: eventSink))
+            _audioVideoFacade?.addDeviceChangeObserver(observer: ChimeDeviceChangeObserver(eventSink: eventSink))
+            _audioVideoFacade?.addVideoTileObserver(observer: ChimeVideoTileObserver(eventSink: eventSink))
             
             result("OK")
         }
@@ -177,15 +180,35 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
 }
 
 class ExampleStreamHandler: NSObject, FlutterStreamHandler {
-  private var _eventSink: FlutterEventSink?
+    private static var _exampleStreamHandler : ExampleStreamHandler?
+    
+    private var _eventSink: FlutterEventSink?
 
+    public static func get() -> ExampleStreamHandler {
+        if _exampleStreamHandler != nil {
+            return _exampleStreamHandler!
+        }
+        else {
+            _exampleStreamHandler = ExampleStreamHandler()
+            return _exampleStreamHandler!
+        }
+    }
+    
+    public func getEventSink() -> FlutterEventSink? {
+        return _eventSink
+    }
+        
+    
   func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+    print("ExampleStreamHandler onListen")
       _eventSink = events
       return nil
   }
 
   func onCancel(withArguments arguments: Any?) -> FlutterError? {
       _eventSink = nil
+        print("ExampleStreamHandler onCancel")
       return nil
   }
+
 }

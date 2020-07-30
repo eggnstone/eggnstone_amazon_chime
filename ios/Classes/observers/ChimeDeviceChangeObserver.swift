@@ -9,9 +9,29 @@ import Foundation
 import AmazonChimeSDK
 
 public class ChimeDeviceChangeObserver : DeviceChangeObserver {
-    public func audioDeviceDidChange(freshAudioDeviceList: [MediaDevice]) {
-        
+    let _eventSink: FlutterEventSink
+    
+    init(eventSink: @escaping FlutterEventSink) {
+        self._eventSink = eventSink
     }
     
+    public func audioDeviceDidChange(freshAudioDeviceList: [MediaDevice]) {
+        _eventSink(convertMediaDevicesToJson(freshAudioDeviceList: freshAudioDeviceList))
+    }
     
+    func convertMediaDevicesToJson(freshAudioDeviceList: [MediaDevice]) -> String {
+        return """
+        [
+        \(freshAudioDeviceList.map({ (device: MediaDevice) -> String in
+            return """
+            {
+            "Label": "\(device.label)",
+            "Type": "\(device.type)"
+            }
+            """
+        
+        }))
+        ]
+    """
+    }
 }
