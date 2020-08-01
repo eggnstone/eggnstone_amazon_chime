@@ -61,7 +61,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
     {
         when (call.method)
         {
-            "GetVersion" -> result.success("Amazon Chime SDK " + sdkVersion())
+            "GetVersion" -> result.success("Chime SDK " + sdkVersion())
             "CreateMeetingSession" -> handleCreateMeetingSession(call, result)
             "AudioVideoStart" -> handleAudioVideoStart(result)
             "AudioVideoStop" -> handleAudioVideoStop(result)
