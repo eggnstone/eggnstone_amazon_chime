@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:chime_example/data/Mapping.dart';
 import 'package:chime_example/data/Mappings.dart';
+import 'package:device_info/device_info.dart';
 import 'package:eggnstone_amazon_chime/eggnstone_amazon_chime.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,6 +33,7 @@ class _AppState extends State<App>
 
     List<ChimeDefaultVideoRenderView> _chimeViews;
     Mappings _mappings = Mappings();
+    bool _isAndroidEmulator = false;
 
     @override
     void initState()
@@ -56,6 +59,75 @@ class _AppState extends State<App>
 
         var chimeViewColumn = Column(children: children);
 
+        Widget content = _isAndroidEmulator
+            ? Padding(
+            padding: const EdgeInsets.all(16),
+            child: Center(
+                child: Text('Chime does not support Android emulators (x86 devices).\n\nIf you see the SDK version above then the connection to the SDK works though.')
+            )
+        )
+            : Column(
+            children: [
+                Text(_createMeetingSessionResult),
+                SizedBox(height: 8),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                        Text('Audio/Video:'),
+                        RaisedButton(
+                            child: Text('Start'),
+                            onPressed: ()
+                            => _audioVideoStart()
+                        ),
+                        RaisedButton(
+                            child: Text('Stop'),
+                            onPressed: ()
+                            => _audioVideoStop()
+                        )
+                    ]
+                ),
+                Text(_audioVideoStartResult),
+                SizedBox(height: 8),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                        Text('Local Video:'),
+                        RaisedButton(
+                            child: Text('Start'),
+                            onPressed: ()
+                            => _audioVideoStartLocalVideo()
+                        ),
+                        RaisedButton(
+                            child: Text('Stop'),
+                            onPressed: ()
+                            => _audioVideoStopLocalVideo()
+                        )
+                    ]
+                ),
+                Text(_audioVideoStartLocalVideoResult),
+                SizedBox(height: 8),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                        Text('Remote Video:'),
+                        RaisedButton(
+                            child: Text('Start'),
+                            onPressed: ()
+                            => _audioVideoStartRemoteVideo()
+                        ),
+                        RaisedButton(
+                            child: Text('Stop'),
+                            onPressed: ()
+                            => _audioVideoStopRemoteVideo()
+                        )
+                    ]
+                ),
+                Text(_audioVideoStartRemoteVideoResult),
+                SizedBox(height: 8),
+                Expanded(child: chimeViewColumn)
+            ]
+        );
+
         return MaterialApp(
             home: Scaffold(
                 appBar: AppBar(title: Text('ChimePlugin')),
@@ -64,63 +136,7 @@ class _AppState extends State<App>
                         SizedBox(height: 8),
                         Text(_version),
                         SizedBox(height: 8),
-                        Text(_createMeetingSessionResult),
-                        SizedBox(height: 8),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                                Text('Audio/Video:'),
-                                RaisedButton(
-                                    child: Text('Start'),
-                                    onPressed: ()
-                                    => _audioVideoStart()
-                                ),
-                                RaisedButton(
-                                    child: Text('Stop'),
-                                    onPressed: ()
-                                    => _audioVideoStop()
-                                )
-                            ]
-                        ),
-                        Text(_audioVideoStartResult),
-                        SizedBox(height: 8),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                                Text('Local Video:'),
-                                RaisedButton(
-                                    child: Text('Start'),
-                                    onPressed: ()
-                                    => _audioVideoStartLocalVideo()
-                                ),
-                                RaisedButton(
-                                    child: Text('Stop'),
-                                    onPressed: ()
-                                    => _audioVideoStopLocalVideo()
-                                )
-                            ]
-                        ),
-                        Text(_audioVideoStartLocalVideoResult),
-                        SizedBox(height: 8),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                                Text('Remote Video:'),
-                                RaisedButton(
-                                    child: Text('Start'),
-                                    onPressed: ()
-                                    => _audioVideoStartRemoteVideo()
-                                ),
-                                RaisedButton(
-                                    child: Text('Stop'),
-                                    onPressed: ()
-                                    => _audioVideoStopRemoteVideo()
-                                )
-                            ]
-                        ),
-                        Text(_audioVideoStartRemoteVideoResult),
-                        SizedBox(height: 8),
-                        Expanded(child: chimeViewColumn),
+                        Expanded(child: content)
                     ]
                 )
             )
@@ -131,8 +147,29 @@ class _AppState extends State<App>
     async
     {
         await _getVersion();
-        _addListener();
-        await _createMeetingSession();
+
+        if (Platform.isAndroid)
+        {
+            DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+            AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+            if (androidInfo.isPhysicalDevice)
+            {
+                _addListener();
+                await _createMeetingSession();
+            }
+            else
+            {
+                setState(()
+                {
+                    _isAndroidEmulator = true;
+                });
+            }
+        }
+        else
+        {
+            _addListener();
+            await _createMeetingSession();
+        }
     }
 
     Future<void> _getVersion()

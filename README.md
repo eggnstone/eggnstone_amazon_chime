@@ -4,6 +4,10 @@ A wrapper for the Amazon Chime SDKs. Allows to join Chime meetings using audio a
 
 ## Android
 
+* **Chime does not work on Android emulators!** 
+https://github.com/aws/amazon-chime-sdk-android
+```"NOTE: Please make sure that you are running on ARM supported devices (real devices) or simulator with arm supported. We do not support x86 currently, so simulators with x86 will not work."```
+
 * Min SDK version is 21
 * Add the following lines to your android/app/build.gradle in the **dependencies** section:
 ```
