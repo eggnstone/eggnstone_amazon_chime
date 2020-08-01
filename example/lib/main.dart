@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:chime_example/MeetingSessionCreator.dart';
 import 'package:chime_example/data/Mapping.dart';
 import 'package:chime_example/data/Mappings.dart';
 import 'package:device_info/device_info.dart';
@@ -251,18 +252,7 @@ class _AppState extends State<App>
 
         try
         {
-            meetingSessionState = await Chime.createMeetingSession(
-                meetingId: 'Test-MeetingId',
-                externalMeetingId: 'Test-ExternalMeetingId',
-                mediaRegion: 'eu-central-1',
-                mediaPlacementAudioHostUrl: 'SomeGuid.k.m1.ec1.app.chime.aws:3478',
-                mediaPlacementAudioFallbackUrl: 'wss://haxrp.m1.ec1.app.chime.aws:443/calls/Test-MeetingId',
-                mediaPlacementSignalingUrl: 'wss://signal.m1.ec1.app.chime.aws/control/Test-MeetingId',
-                mediaPlacementTurnControlUrl: 'https://ccp.cp.ue1.app.chime.aws/v2/turn_sessions',
-                attendeeId: 'Test-AttendeeId',
-                externalUserId: 'Test-ExternalUserId-1',
-                joinToken: 'Test-JoinToken'
-            );
+            meetingSessionState = await MeetingSessionCreator().create();
         }
         on PlatformException catch (e)
         {

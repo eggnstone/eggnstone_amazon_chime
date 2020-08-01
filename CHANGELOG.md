@@ -40,3 +40,7 @@
 * Added more references to the README.md.
 * Added documentation about Chime not running on Android emulators (no x86 devices supported).
 * Adjusted example so that it shows a note when running on an Android emulator. 
+
+## 0.4.2 - 01.08.2020
+
+* Adjusted example so that it can receive proper authenticated meeting data. 
