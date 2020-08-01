@@ -2,9 +2,6 @@ import 'package:eggnstone_amazon_chime/eggnstone_amazon_chime.dart';
 
 class MeetingSessionCreator
 {
-    /// Adjust this function to supply your proper authenticated meeting data.
-    /// This requires you to have an AWS account and Chime being set up there.
-    /// This file is to be ignored by git so that your private changes never get committed.
     Future<String> create()
     {
         return Chime.createMeetingSession(

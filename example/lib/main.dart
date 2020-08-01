@@ -252,7 +252,11 @@ class _AppState extends State<App>
 
         try
         {
-            // Copy the file DefaultMeetingSessionCreator.dart to MeetingSessionCreator.dart and adjust to get proper meeting authentication using your own AWS account.
+            // Copy the file DefaultMeetingSessionCreator.dart to MeetingSessionCreator.dart.
+            // Adjust MeetingSessionCreator to supply your proper authenticated meeting data.
+            // (You can leave the dummy values but you will not be able to join a real meeting.)
+            // This requires you to have an AWS account and Chime being set up there.
+            // MeetingSessionCreator.dart is to be ignored by git so that your private data never gets committed.
             meetingSessionState = await MeetingSessionCreator().create();
         }
         on PlatformException catch (e)
