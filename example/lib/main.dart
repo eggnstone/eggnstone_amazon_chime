@@ -252,6 +252,7 @@ class _AppState extends State<App>
 
         try
         {
+            // Copy the file DefaultMeetingSessionCreator.dart to MeetingSessionCreator.dart and adjust to get proper meeting authentication using your own AWS account.
             meetingSessionState = await MeetingSessionCreator().create();
         }
         on PlatformException catch (e)
