@@ -4,7 +4,8 @@ A wrapper for the Amazon Chime SDKs. Allows to join Chime meetings using audio a
 
 ## Android
 
-* **Chime does not work on Android emulators!**  
+* **Chime does not work on Android emulators!**
+
 https://github.com/aws/amazon-chime-sdk-android  
 ```"NOTE: Please make sure that you are running on ARM supported devices (real devices) or simulator with arm supported. We do not support x86 currently, so simulators with x86 will not work."```
 
@@ -29,7 +30,6 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 
 **References**
 * https://github.com/aws/amazon-chime-sdk-android
-
 * https://aws.amazon.com/blogs/business-productivity/building-a-meeting-application-on-android-using-the-amazon-chime-sdk/
 
 ## iOS
