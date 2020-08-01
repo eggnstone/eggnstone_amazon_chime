@@ -8,7 +8,8 @@ A wrapper for the Amazon Chime SDKs. Allows to join Chime meetings using audio a
 
 https://github.com/aws/amazon-chime-sdk-android  
 ```"NOTE: Please make sure that you are running on ARM supported devices (real devices) or simulator with arm supported. We do not support x86 currently, so simulators with x86 will not work."```  
-The example works on Android emulators as far as showing the version of the SDK. Anything else will trigger an UnsatisfiedLinkError for libc++_shared.so.
+The example works on Android emulators as far as showing the version of the SDK.  
+Anything else will trigger an UnsatisfiedLinkError for libc++_shared.so.
 
 * Min SDK version is 21
 * Add the following lines to your android/app/build.gradle in the **dependencies** section:
@@ -20,7 +21,7 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 ```
 * If your app already uses libc++_shared.so then no further change necessary. 
 * If your app does not use libc++_shared.so then
-  * Copy the **folder** libc++_shared.so from example\android to your app's android folder
+  * Copy the **folder** libc++_shared.so from example\android to your app's **android** folder
   * Add ```implementation fileTree(dir: '../libc++_shared.so', include: ['libc++_shared.so.aar'])``` to the **dependencies** section of your app's android/app/build.gradle
   
 **Request for help**     
