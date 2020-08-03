@@ -252,7 +252,7 @@ class _AppState extends State<App>
 
         try
         {
-            // Copy the file DefaultMeetingSessionCreator.dart to MeetingSessionCreator.dart.
+            // Copy the file MeetingSessionCreator.dart.template to MeetingSessionCreator.dart.
             // Adjust MeetingSessionCreator to supply your proper authenticated meeting data.
             // (You can leave the dummy values but you will not be able to join a real meeting.)
             // This requires you to have an AWS account and Chime being set up there.
