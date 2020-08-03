@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-/// Main plugin class
 class Chime
 {
     static const MethodChannel _methodChannel = const MethodChannel('ChimePlugin');

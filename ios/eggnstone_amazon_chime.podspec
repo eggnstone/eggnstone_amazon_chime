@@ -1,9 +1,9 @@
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint chime.podspec' to validate before publishing.
+# Run `pod lib lint eggnstone_amazon_chime.podspec' to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'chime'
+  s.name             = 'eggnstone_amazon_chime'
   s.version          = '0.0.1'
   s.summary          = 'A new flutter plugin project.'
   s.description      = <<-DESC
@@ -20,4 +20,8 @@ A new flutter plugin project.
   # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS[sdk=iphonesimulator*]' => 'x86_64' }
   s.swift_version = '5.0'
+
+  s.preserve_paths = 'AmazonChimeSDK.framework', 'AmazonChimeSDKMedia.framework'
+  s.xcconfig = { 'OTHER_LDFLAGS' => '-framework AmazonChimeSDK -framework AmazonChimeSDKMedia' }
+  s.vendored_frameworks = 'AmazonChimeSDK.framework', 'AmazonChimeSDKMedia.framework'
 end
