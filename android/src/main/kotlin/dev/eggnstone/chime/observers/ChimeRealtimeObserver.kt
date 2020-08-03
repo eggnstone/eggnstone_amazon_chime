@@ -14,9 +14,9 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("attendeeInfos", convertAttendeeInfosToJson(attendeeInfos))
-        jsonObject.put("name", "onAttendeesDropped")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("AttendeeInfos", convertAttendeeInfosToJson(attendeeInfos))
+        jsonObject.put("Name", "OnAttendeesDropped")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -24,9 +24,9 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("attendeeInfos", convertAttendeeInfosToJson(attendeeInfos))
-        jsonObject.put("name", "onAttendeesJoined")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("AttendeeInfos", convertAttendeeInfosToJson(attendeeInfos))
+        jsonObject.put("Name", "OnAttendeesJoined")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -34,9 +34,9 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("attendeeInfos", convertAttendeeInfosToJson(attendeeInfos))
-        jsonObject.put("name", "onAttendeesLeft")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("AttendeeInfos", convertAttendeeInfosToJson(attendeeInfos))
+        jsonObject.put("Name", "OnAttendeesLeft")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -44,9 +44,9 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("attendeeInfos", convertAttendeeInfosToJson(attendeeInfos))
-        jsonObject.put("name", "onAttendeesMuted")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("AttendeeInfos", convertAttendeeInfosToJson(attendeeInfos))
+        jsonObject.put("Name", "OnAttendeesMuted")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -54,9 +54,9 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("attendeeInfos", convertAttendeeInfosToJson(attendeeInfos))
-        jsonObject.put("name", "onAttendeesUnmuted")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("AttendeeInfos", convertAttendeeInfosToJson(attendeeInfos))
+        jsonObject.put("Name", "OnAttendeesUnmuted")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -64,9 +64,9 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("signalUpdates", convertSignalUpdatesToJson(signalUpdates))
-        jsonObject.put("name", "onSignalStrengthChanged")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("SignalUpdates", convertSignalUpdatesToJson(signalUpdates))
+        jsonObject.put("Name", "OnSignalStrengthChanged")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -74,9 +74,9 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("volumeUpdates", convertVolumeUpdatesToJson(volumeUpdates))
-        jsonObject.put("name", "onVolumeChanged")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("VolumeUpdates", convertVolumeUpdatesToJson(volumeUpdates))
+        jsonObject.put("Name", "OnVolumeChanged")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -87,8 +87,8 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
         for (attendeeInfo in attendeeInfos)
         {
             val item = JSONObject()
-            item.put("attendeeId", attendeeInfo.attendeeId)
-            item.put("externalUserId", attendeeInfo.externalUserId)
+            item.put("AttendeeId", attendeeInfo.attendeeId)
+            item.put("ExternalUserId", attendeeInfo.externalUserId)
             list.put(item)
         }
 
@@ -102,9 +102,9 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
         for (signalUpdate in signalUpdates)
         {
             val item = JSONObject()
-            item.put("attendeeId", signalUpdate.attendeeInfo.attendeeId)
-            item.put("externalUserId", signalUpdate.attendeeInfo.externalUserId)
-            item.put("signalStrength", signalUpdate.signalStrength)
+            item.put("AttendeeId", signalUpdate.attendeeInfo.attendeeId)
+            item.put("ExternalUserId", signalUpdate.attendeeInfo.externalUserId)
+            item.put("SignalStrength", signalUpdate.signalStrength)
             list.put(item)
         }
 
@@ -118,9 +118,9 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
         for (volumeUpdate in volumeUpdates)
         {
             val item = JSONObject()
-            item.put("attendeeId", volumeUpdate.attendeeInfo.attendeeId)
-            item.put("externalUserId", volumeUpdate.attendeeInfo.externalUserId)
-            item.put("volumeLevel", volumeUpdate.volumeLevel)
+            item.put("AttendeeId", volumeUpdate.attendeeInfo.attendeeId)
+            item.put("ExternalUserId", volumeUpdate.attendeeInfo.externalUserId)
+            item.put("VolumeLevel", volumeUpdate.volumeLevel)
             list.put(item)
         }
 

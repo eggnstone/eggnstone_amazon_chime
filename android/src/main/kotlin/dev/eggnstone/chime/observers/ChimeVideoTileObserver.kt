@@ -10,32 +10,32 @@ class ChimeVideoTileObserver(private val _eventSink: EventSink) : VideoTileObser
     override fun onVideoTileAdded(tileState: VideoTileState)
     {
         val jsonObject = JSONObject()
-        jsonObject.put("name", "onVideoTileAdded")
-        jsonObject.put("arguments", convertVideoTileStateToJson(tileState))
+        jsonObject.put("Name", "OnVideoTileAdded")
+        jsonObject.put("Arguments", convertVideoTileStateToJson(tileState))
         _eventSink.success(jsonObject.toString())
     }
 
     override fun onVideoTilePaused(tileState: VideoTileState)
     {
         val jsonObject = JSONObject()
-        jsonObject.put("name", "onVideoTilePaused")
-        jsonObject.put("arguments", convertVideoTileStateToJson(tileState))
+        jsonObject.put("Name", "OnVideoTilePaused")
+        jsonObject.put("Arguments", convertVideoTileStateToJson(tileState))
         _eventSink.success(jsonObject.toString())
     }
 
     override fun onVideoTileRemoved(tileState: VideoTileState)
     {
         val jsonObject = JSONObject()
-        jsonObject.put("name", "onVideoTileRemoved")
-        jsonObject.put("arguments", convertVideoTileStateToJson(tileState))
+        jsonObject.put("Name", "OnVideoTileRemoved")
+        jsonObject.put("Arguments", convertVideoTileStateToJson(tileState))
         _eventSink.success(jsonObject.toString())
     }
 
     override fun onVideoTileResumed(tileState: VideoTileState)
     {
         val jsonObject = JSONObject()
-        jsonObject.put("name", "onVideoTileResumed")
-        jsonObject.put("arguments", convertVideoTileStateToJson(tileState))
+        jsonObject.put("Name", "OnVideoTileResumed")
+        jsonObject.put("Arguments", convertVideoTileStateToJson(tileState))
         _eventSink.success(jsonObject.toString())
     }
 
@@ -43,16 +43,16 @@ class ChimeVideoTileObserver(private val _eventSink: EventSink) : VideoTileObser
     {
         val jsonObject = JSONObject()
 
-        jsonObject.put("attendeeId", tileState.attendeeId)
-        jsonObject.put("isContent", tileState.isContent)
-        jsonObject.put("isLocalTile", tileState.isLocalTile)
-        jsonObject.put("pauseState", tileState.pauseState)
-        jsonObject.put("tileId", tileState.tileId)
+        jsonObject.put("AttendeeId", tileState.attendeeId)
+        jsonObject.put("IsContent", tileState.isContent)
+        jsonObject.put("IsLocalTile", tileState.isLocalTile)
+        jsonObject.put("PauseState", tileState.pauseState)
+        jsonObject.put("TileId", tileState.tileId)
 
         // https://aws.github.io/amazon-chime-sdk-android/amazon-chime-sdk/com.amazonaws.services.chime.sdk.meetings.audiovideo.video/-video-tile-state/video-stream-content-height.html
         // Documented but does not compile. New in 0.6.0?
-        //jsonObject.put("videoStreamContentHeight", tileState.videoStreamContentHeight)
-        //jsonObject.put("videoStreamContentWidth", tileState.videoStreamContentWidth)
+        //jsonObject.put("VideoStreamContentHeight", tileState.videoStreamContentHeight)
+        //jsonObject.put("VideoStreamContentWidth", tileState.videoStreamContentWidth)
 
         return jsonObject
     }

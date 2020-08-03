@@ -12,9 +12,9 @@ class ChimeDeviceChangeObserver(private val _eventSink: EventSink) : DeviceChang
     {
         val jsonObject = JSONObject()
         val eventArguments = JSONObject()
-        eventArguments.put("mediaDevices", convertMediaDevicesToJson(mediaDevices))
-        jsonObject.put("name", "onAudioDeviceChanged")
-        jsonObject.put("arguments", eventArguments)
+        eventArguments.put("MediaDevices", convertMediaDevicesToJson(mediaDevices))
+        jsonObject.put("Name", "OnAudioDeviceChanged")
+        jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
     }
 
@@ -25,9 +25,9 @@ class ChimeDeviceChangeObserver(private val _eventSink: EventSink) : DeviceChang
         for (mediaDevice in mediaDevices)
         {
             val item = JSONObject()
-            item.put("label", mediaDevice.label)
-            item.put("order", mediaDevice.order)
-            item.put("type", mediaDevice.type)
+            item.put("Label", mediaDevice.label)
+            item.put("Order", mediaDevice.order)
+            item.put("Type", mediaDevice.type)
             list.put(item)
         }
 
