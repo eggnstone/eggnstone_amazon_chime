@@ -65,7 +65,6 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             let externalUserId = myArgs["ExternalUserId"]as? String,
             let joinToken = myArgs["JoinToken"]as? String
         {
-            print("0")
             let mediaPlacement = MediaPlacement.init(audioFallbackUrl: mediaPlacementAudioFallbackUrl, audioHostUrl: mediaPlacementAudioHostUrl, signalingUrl: mediaPlacementSignalingUrl, turnControlUrl: mediaPlacementTurnControlUrl)
             
             let meeting = Meeting(externalMeetingId: "", mediaPlacement: mediaPlacement, mediaRegion: mediaRegion, meetingId: meetingId)
@@ -80,7 +79,6 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             
             _meetingSession = DefaultMeetingSession(configuration: configuration, logger: AmazonChimeSDK.ConsoleLogger(name: "debug"))
             _audioVideoFacade = _meetingSession?.audioVideo
-            print("1")
             
             let eventSink = ExampleStreamHandler.get().getEventSink()!
             _audioVideoFacade?.addAudioVideoObserver(observer: ChimeAudioVideoObserver(eventSink: eventSink))
@@ -169,27 +167,12 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     
     func checkAudioVideoFacade(result: FlutterResult, source: String) -> Bool
      {
-        //print("checkAudioVideoFacade, ", _meetingSession, " ", _audioVideoFacade)
         if _meetingSession != nil {
             if _audioVideoFacade != nil {
-                print("well well well")
                 return true
             }
         }
-        
-//         {
-//            print("shit")
-//             result("$source: $ERROR__NO_MEETING_SESSION__ERROR_MESSAGE")
-//             return false
-//         }
-//
-//         if _audioVideoFacade != nil
-//         {
-//            print("fuck")
-//             result("$source: $ERROR__NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE")
-//             return false
-//         }
-
+    
          return false
      }
 }
