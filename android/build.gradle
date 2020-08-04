@@ -41,6 +41,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'amazon-chime-sdk-combined', include: ['*.aar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation fileTree(dir: 'amazon-chime-sdk', include: ['amazon-chime-sdk-combined-without-libc++_shared.so.aar'])
 }

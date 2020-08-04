@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:chime_example/MeetingSessionCreator.dart';
 import 'package:chime_example/data/Mapping.dart';
 import 'package:chime_example/data/Mappings.dart';
+import 'package:device_info/device_info.dart';
 import 'package:eggnstone_amazon_chime/eggnstone_amazon_chime.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,13 +27,14 @@ class App extends StatefulWidget
 class _AppState extends State<App>
 {
     String _version = 'Unknown';
-    String _createMeetingSessionResult = 'createMeetingSession: Unknown';
-    String _audioVideoStartResult = 'audioVideoStart: Unknown';
-    String _audioVideoStartLocalVideoResult = 'audioVideoStartLocalVideo: Unknown';
-    String _audioVideoStartRemoteVideoResult = 'audioVideoStartRemoteVideo: Unknown';
+    String _createMeetingSessionResult = 'CreateMeetingSession: Unknown';
+    String _audioVideoStartResult = 'AudioVideo: Unknown';
+    String _audioVideoStartLocalVideoResult = 'AudioVideoLocalVideo: Unknown';
+    String _audioVideoStartRemoteVideoResult = 'AudioVideoRemoteVideo: Unknown';
 
     List<ChimeDefaultVideoRenderView> _chimeViews;
     Mappings _mappings = Mappings();
+    bool _isAndroidEmulator = false;
 
     @override
     void initState()
@@ -41,10 +45,7 @@ class _AppState extends State<App>
         for (int viewIndex = 0; viewIndex < MAX_VIEW_COUNT; viewIndex++)
             _chimeViews.add(ChimeDefaultVideoRenderView(
                 onPlatformViewCreated: (int viewId)
-                {
-                    _mappings.add(viewIndex, viewId);
-                    print('ChimeView #$viewIndex: ViewId: $viewId');
-                })
+                => _mappings.add(viewIndex, viewId))
             );
 
         _startChime();
@@ -59,6 +60,75 @@ class _AppState extends State<App>
 
         var chimeViewColumn = Column(children: children);
 
+        Widget content = _isAndroidEmulator
+            ? Padding(
+            padding: const EdgeInsets.all(16),
+            child: Center(
+                child: Text('Chime does not support Android emulators (x86 devices).\n\nIf you see the SDK version above then the connection to the SDK works though.')
+            )
+        )
+            : Column(
+            children: [
+                Text(_createMeetingSessionResult),
+                SizedBox(height: 8),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                        Text('Audio/Video:'),
+                        RaisedButton(
+                            child: Text('Start'),
+                            onPressed: ()
+                            => _audioVideoStart()
+                        ),
+                        RaisedButton(
+                            child: Text('Stop'),
+                            onPressed: ()
+                            => _audioVideoStop()
+                        )
+                    ]
+                ),
+                Text(_audioVideoStartResult),
+                SizedBox(height: 8),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                        Text('Local Video:'),
+                        RaisedButton(
+                            child: Text('Start'),
+                            onPressed: ()
+                            => _audioVideoStartLocalVideo()
+                        ),
+                        RaisedButton(
+                            child: Text('Stop'),
+                            onPressed: ()
+                            => _audioVideoStopLocalVideo()
+                        )
+                    ]
+                ),
+                Text(_audioVideoStartLocalVideoResult),
+                SizedBox(height: 8),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                        Text('Remote Video:'),
+                        RaisedButton(
+                            child: Text('Start'),
+                            onPressed: ()
+                            => _audioVideoStartRemoteVideo()
+                        ),
+                        RaisedButton(
+                            child: Text('Stop'),
+                            onPressed: ()
+                            => _audioVideoStopRemoteVideo()
+                        )
+                    ]
+                ),
+                Text(_audioVideoStartRemoteVideoResult),
+                SizedBox(height: 8),
+                Expanded(child: chimeViewColumn)
+            ]
+        );
+
         return MaterialApp(
             home: Scaffold(
                 appBar: AppBar(title: Text('ChimePlugin')),
@@ -67,63 +137,7 @@ class _AppState extends State<App>
                         SizedBox(height: 8),
                         Text(_version),
                         SizedBox(height: 8),
-                        Text(_createMeetingSessionResult),
-                        SizedBox(height: 8),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                                Text('Audio/Video:'),
-                                RaisedButton(
-                                    child: Text('Start'),
-                                    onPressed: ()
-                                    => _audioVideoStart()
-                                ),
-                                RaisedButton(
-                                    child: Text('Stop'),
-                                    onPressed: ()
-                                    => _audioVideoStop()
-                                )
-                            ]
-                        ),
-                        Text(_audioVideoStartResult),
-                        SizedBox(height: 8),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                                Text('Local Video:'),
-                                RaisedButton(
-                                    child: Text('Start'),
-                                    onPressed: ()
-                                    => _audioVideoStartLocalVideo()
-                                ),
-                                RaisedButton(
-                                    child: Text('Stop'),
-                                    onPressed: ()
-                                    => _audioVideoStopLocalVideo()
-                                )
-                            ]
-                        ),
-                        Text(_audioVideoStartLocalVideoResult),
-                        SizedBox(height: 8),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                                Text('Remote Video:'),
-                                RaisedButton(
-                                    child: Text('Start'),
-                                    onPressed: ()
-                                    => _audioVideoStartRemoteVideo()
-                                ),
-                                RaisedButton(
-                                    child: Text('Stop'),
-                                    onPressed: ()
-                                    => _audioVideoStopRemoteVideo()
-                                )
-                            ]
-                        ),
-                        Text(_audioVideoStartRemoteVideoResult),
-                        SizedBox(height: 8),
-                        Expanded(child: chimeViewColumn),
+                        Expanded(child: content)
                     ]
                 )
             )
@@ -134,8 +148,29 @@ class _AppState extends State<App>
     async
     {
         await _getVersion();
-        _addListener();
-        await _createMeetingSession();
+
+        if (Platform.isAndroid)
+        {
+            DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+            AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+            if (androidInfo.isPhysicalDevice)
+            {
+                _addListener();
+                await _createMeetingSession();
+            }
+            else
+            {
+                setState(()
+                {
+                    _isAndroidEmulator = true;
+                });
+            }
+        }
+        else
+        {
+            _addListener();
+            await _createMeetingSession();
+        }
     }
 
     Future<void> _getVersion()
@@ -166,14 +201,14 @@ class _AppState extends State<App>
             async
             {
                 dynamic event = JsonDecoder().convert(data);
-                String eventName = event['name'];
-                dynamic eventArguments = event['arguments'];
+                String eventName = event['Name'];
+                dynamic eventArguments = event['Arguments'];
                 switch (eventName)
                 {
-                    case 'onVideoTileAdded':
+                    case 'OnVideoTileAdded':
                         _handleOnVideoTileAdded(eventArguments);
                         break;
-                    case 'onVideoTileRemoved':
+                    case 'OnVideoTileRemoved':
                         _handleOnVideoTileRemoved(eventArguments);
                         break;
                     default:
@@ -217,18 +252,12 @@ class _AppState extends State<App>
 
         try
         {
-            meetingSessionState = await Chime.createMeetingSession(
-                meetingId: "Test-MeetingId",
-                externalMeetingId: "Test-ExternalMeetingId",
-                mediaRegion: "eu-central-1",
-                mediaPlacementAudioHostUrl: "SomeGuid.k.m1.ec1.app.chime.aws:3478",
-                mediaPlacementAudioFallbackUrl: "wss://haxrp.m1.ec1.app.chime.aws:443/calls/Test-MeetingId",
-                mediaPlacementSignalingUrl: "wss://signal.m1.ec1.app.chime.aws/control/Test-MeetingId",
-                mediaPlacementTurnControlUrl: "https://ccp.cp.ue1.app.chime.aws/v2/turn_sessions",
-                attendeeId: "Test-AttendeeId",
-                externalUserId: "Test-ExternalUserId-1",
-                joinToken: "Test-JoinToken"
-            );
+            // Copy the file DefaultMeetingSessionCreator.dart to MeetingSessionCreator.dart.
+            // Adjust MeetingSessionCreator to supply your proper authenticated meeting data.
+            // (You can leave the dummy values but you will not be able to join a real meeting.)
+            // This requires you to have an AWS account and Chime being set up there.
+            // MeetingSessionCreator.dart is to be ignored by git so that your private data never gets committed.
+            meetingSessionState = await MeetingSessionCreator().create();
         }
         on PlatformException catch (e)
         {
@@ -257,11 +286,11 @@ class _AppState extends State<App>
         }
         on PlatformException catch (e)
         {
-            result = 'audioVideoStart failed: PlatformException: $e';
+            result = 'AudioVideoStart failed: PlatformException: $e';
         }
         catch (e)
         {
-            result = 'audioVideoStart failed: Error: $e';
+            result = 'AudioVideoStart failed: Error: $e';
         }
 
         if (mounted)
@@ -282,11 +311,11 @@ class _AppState extends State<App>
         }
         on PlatformException catch (e)
         {
-            result = 'audioVideoStop failed: PlatformException: $e';
+            result = 'AudioVideoStop failed: PlatformException: $e';
         }
         catch (e)
         {
-            result = 'audioVideoStop failed: Error: $e';
+            result = 'AudioVideoStop failed: Error: $e';
         }
 
         if (mounted)
@@ -307,11 +336,11 @@ class _AppState extends State<App>
         }
         on PlatformException catch (e)
         {
-            result = 'audioVideoStartLocalVideo failed: PlatformException: $e';
+            result = 'AudioVideoStartLocalVideo failed: PlatformException: $e';
         }
         catch (e)
         {
-            result = 'audioVideoStartLocalVideo failed: Error: $e';
+            result = 'AudioVideoStartLocalVideo failed: Error: $e';
         }
 
         if (mounted)
@@ -332,11 +361,11 @@ class _AppState extends State<App>
         }
         on PlatformException catch (e)
         {
-            result = 'audioVideoStopLocalVideo failed: PlatformException: $e';
+            result = 'AudioVideoStopLocalVideo failed: PlatformException: $e';
         }
         catch (e)
         {
-            result = 'audioVideoStopLocalVideo failed: Error: $e';
+            result = 'AudioVideoStopLocalVideo failed: Error: $e';
         }
 
         if (mounted)
@@ -357,11 +386,11 @@ class _AppState extends State<App>
         }
         on PlatformException catch (e)
         {
-            result = 'audioVideoStartRemoteVideo failed: PlatformException: $e';
+            result = 'AudioVideoStartRemoteVideo failed: PlatformException: $e';
         }
         catch (e)
         {
-            result = 'audioVideoStartRemoteVideo failed: Error: $e';
+            result = 'AudioVideoStartRemoteVideo failed: Error: $e';
         }
 
         if (mounted)
@@ -382,11 +411,11 @@ class _AppState extends State<App>
         }
         on PlatformException catch (e)
         {
-            result = 'audioVideoStopRemoteVideo failed: PlatformException: $e';
+            result = 'AudioVideoStopRemoteVideo failed: PlatformException: $e';
         }
         catch (e)
         {
-            result = 'audioVideoStopRemoteVideo failed: Error: $e';
+            result = 'AudioVideoStopRemoteVideo failed: Error: $e';
         }
 
         if (mounted)
@@ -399,7 +428,7 @@ class _AppState extends State<App>
     void _handleOnVideoTileAdded(dynamic arguments)
     async
     {
-        int tileId = arguments['tileId'];
+        int tileId = arguments['TileId'];
 
         Mapping mapping = _mappings.getByTileId(tileId);
         if (mapping != null)
@@ -427,7 +456,7 @@ class _AppState extends State<App>
     void _handleOnVideoTileRemoved(dynamic arguments)
     async
     {
-        int tileId = arguments['tileId'];
+        int tileId = arguments['TileId'];
 
         Mapping mapping = _mappings.getByTileId(tileId);
         if (mapping == null)

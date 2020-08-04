@@ -40,14 +40,12 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         {
             override fun onListen(arguments: Any?, events: EventSink?)
             {
-                Log.d(TAG, "EventChannel.setStreamHandler()/onListen(): arguments=$arguments")
-                Log.d(TAG, "EventChannel.setStreamHandler()/onListen(): events=$events")
                 _eventSink = events
             }
 
             override fun onCancel(arguments: Any?)
             {
-                Log.d(TAG, "EventChannel.setStreamHandler()/onCancel(): arguments=$arguments")
+                Log.d(TAG, "EventChannel.setStreamHandler()/onCancel()")
             }
         })
 
@@ -63,32 +61,32 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
     {
         when (call.method)
         {
-            "getVersion" -> result.success("Amazon Chime SDK " + sdkVersion())
-            "createMeetingSession" -> handleCreateMeetingSession(call, result)
-            "audioVideoStart" -> handleAudioVideoStart(result)
-            "audioVideoStop" -> handleAudioVideoStop(result)
-            "audioVideoStartLocalVideo" -> handleAudioVideoStartLocalVideo(result)
-            "audioVideoStopLocalVideo" -> handleAudioVideoStopLocalVideo(result)
-            "audioVideoStartRemoteVideo" -> handleAudioVideoStartRemoteVideo(result)
-            "audioVideoStopRemoteVideo" -> handleAudioVideoStopRemoteVideo(result)
-            "bindVideoView" -> handleBindVideoView(call, result)
-            "unbindVideoView" -> handleUnbindVideoView(call, result)
+            "GetVersion" -> result.success("Chime SDK " + sdkVersion())
+            "CreateMeetingSession" -> handleCreateMeetingSession(call, result)
+            "AudioVideoStart" -> handleAudioVideoStart(result)
+            "AudioVideoStop" -> handleAudioVideoStop(result)
+            "AudioVideoStartLocalVideo" -> handleAudioVideoStartLocalVideo(result)
+            "AudioVideoStopLocalVideo" -> handleAudioVideoStopLocalVideo(result)
+            "AudioVideoStartRemoteVideo" -> handleAudioVideoStartRemoteVideo(result)
+            "AudioVideoStopRemoteVideo" -> handleAudioVideoStopRemoteVideo(result)
+            "BindVideoView" -> handleBindVideoView(call, result)
+            "UnbindVideoView" -> handleUnbindVideoView(call, result)
             else -> result.notImplemented()
         }
     }
 
     private fun handleCreateMeetingSession(call: MethodCall, result: MethodChannel.Result)
     {
-        val meetingId = call.argument<String>("meetingId")
-        val externalMeetingId = call.argument<String>("externalMeetingId")
-        val mediaRegion = call.argument<String>("mediaRegion")
-        val mediaPlacementAudioHostUrl = call.argument<String>("mediaPlacementAudioHostUrl")
-        val mediaPlacementAudioFallbackUrl = call.argument<String>("mediaPlacementAudioFallbackUrl")
-        val mediaPlacementSignalingUrl = call.argument<String>("mediaPlacementSignalingUrl")
-        val mediaPlacementTurnControlUrl = call.argument<String>("mediaPlacementTurnControlUrl")
-        val attendeeId = call.argument<String>("attendeeId")
-        val externalUserId = call.argument<String>("externalUserId")
-        val joinToken = call.argument<String>("joinToken")
+        val meetingId = call.argument<String>("MeetingId")
+        val externalMeetingId = call.argument<String>("ExternalMeetingId")
+        val mediaRegion = call.argument<String>("MediaRegion")
+        val mediaPlacementAudioHostUrl = call.argument<String>("MediaPlacementAudioHostUrl")
+        val mediaPlacementAudioFallbackUrl = call.argument<String>("MediaPlacementAudioFallbackUrl")
+        val mediaPlacementSignalingUrl = call.argument<String>("MediaPlacementSignalingUrl")
+        val mediaPlacementTurnControlUrl = call.argument<String>("MediaPlacementTurnControlUrl")
+        val attendeeId = call.argument<String>("AttendeeId")
+        val externalUserId = call.argument<String>("ExternalUserId")
+        val joinToken = call.argument<String>("JoinToken")
 
         val mediaPlacement = MediaPlacement(mediaPlacementAudioFallbackUrl!!, mediaPlacementAudioHostUrl!!, mediaPlacementSignalingUrl!!, mediaPlacementTurnControlUrl!!)
         val meeting = Meeting(externalMeetingId!!, mediaPlacement, mediaRegion!!, meetingId!!)
@@ -110,7 +108,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleAudioVideoStart(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "handleAudioVideoStart"))
+        if (!checkAudioVideoFacade(result, "AudioVideoStart"))
             return
 
         _audioVideoFacade!!.start()
@@ -119,7 +117,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleAudioVideoStop(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "handleAudioVideoStop"))
+        if (!checkAudioVideoFacade(result, "AudioVideoStop"))
             return
 
         _audioVideoFacade!!.stop()
@@ -128,7 +126,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleAudioVideoStartLocalVideo(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "handleAudioVideoStartLocalVideo"))
+        if (!checkAudioVideoFacade(result, "AudioVideoStartLocalVideo"))
             return
 
         _audioVideoFacade!!.startLocalVideo()
@@ -137,7 +135,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleAudioVideoStopLocalVideo(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "handleAudioVideoStopLocalVideo"))
+        if (!checkAudioVideoFacade(result, "AudioVideoStopLocalVideo"))
             return
 
         _audioVideoFacade!!.stopLocalVideo()
@@ -146,7 +144,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleAudioVideoStartRemoteVideo(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "handleAudioVideoStartRemoteVideo"))
+        if (!checkAudioVideoFacade(result, "AudioVideoStartRemoteVideo"))
             return
 
         _audioVideoFacade!!.startRemoteVideo()
@@ -155,7 +153,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleAudioVideoStopRemoteVideo(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "handleAudioVideoStopRemoteVideo"))
+        if (!checkAudioVideoFacade(result, "AudioVideoStopRemoteVideo"))
             return
 
         _audioVideoFacade!!.stopRemoteVideo()
@@ -164,11 +162,11 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleBindVideoView(call: MethodCall, result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "bindVideoView"))
+        if (!checkAudioVideoFacade(result, "BindVideoView"))
             return
 
-        val viewId = call.argument<Int>("viewId")!!
-        val tileId = call.argument<Int>("tileId")!!
+        val viewId = call.argument<Int>("ViewId")!!
+        val tileId = call.argument<Int>("TileId")!!
 
         val videoRenderView: VideoRenderView = ChimeDefaultVideoRenderViewFactory.getViewById(viewId)!!.videoRenderView
         _audioVideoFacade!!.bindVideoView(videoRenderView, tileId)
@@ -177,10 +175,10 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleUnbindVideoView(call: MethodCall, result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "unbindVideoView"))
+        if (!checkAudioVideoFacade(result, "UnbindVideoView"))
             return
 
-        val tileId = call.argument<Int>("tileId")!!
+        val tileId = call.argument<Int>("TileId")!!
 
         _audioVideoFacade!!.unbindVideoView(tileId)
         result.success("OK")

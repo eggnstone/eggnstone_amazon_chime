@@ -16,8 +16,6 @@ class _ChimeDefaultVideoRenderViewState
     extends State<ChimeDefaultVideoRenderView> {
   @override
   Widget build(BuildContext context) {
-    print('building ChimeDefaultVideoRenderView for iOS: ${Platform.isIOS}');
-
     if (Platform.isAndroid) {
       return AndroidView(
         viewType: 'ChimeDefaultVideoRenderView',
