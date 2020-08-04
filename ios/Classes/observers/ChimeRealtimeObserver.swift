@@ -20,7 +20,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
         _eventSink("""
             {
             "Name": "OnVolumeDidChange",
-            "Arguments": \(convertSignalUpdatesToJson(volumeUpdates: volumeUpdates))
+            "Arguments": [\(convertSignalUpdatesToJson(volumeUpdates: volumeUpdates))]
             }
         """)
     }
@@ -29,7 +29,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
         _eventSink("""
             {
             "Name": "OnSignalStrengthDidChange",
-            "Arguments": \(convertSignalUpdatesToJson(signalUpdates: signalUpdates))
+            "Arguments": [\(convertSignalUpdatesToJson(signalUpdates: signalUpdates)) ]
             }
         """)
     }
@@ -38,7 +38,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
         _eventSink("""
             {
             "Name": "OnAttendeesDidJoin",
-            "Arguments": \(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))
+            "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
             """)
     }
@@ -47,7 +47,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
         _eventSink("""
             {
             "Name": "OnAttendeesDidLeave",
-            "Arguments": \(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))
+            "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
         """)
     }
@@ -56,7 +56,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
         _eventSink("""
             {
             "Name": "OnAttendeesDidDrop",
-            "Arguments": \(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))
+            "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
         """)
     }
@@ -65,7 +65,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
         _eventSink("""
             {
             "Name": "OnAttendeesDidMute",
-            "Arguments": \(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))
+            "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
         """)
     }
@@ -74,7 +74,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
         _eventSink("""
             {
             "Name": "OnAttendeesDidUnmute",
-            "Arguments": \(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))
+            "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
         """)
     }
@@ -97,13 +97,13 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     
     func convertSignalUpdatesToJson(signalUpdates: [SignalUpdate]) -> String {
         return signalUpdates.map({ (update: SignalUpdate) -> String in
-        return """
-        {
-        "AttendeeId": "\(update.attendeeInfo.attendeeId)",
-        "ExernalUserId": "\(update.attendeeInfo.externalUserId)",
-        "SignalStrength": "\(update.signalStrength)"
-        }
-        """
+            return """
+            {
+            "AttendeeId": "\(update.attendeeInfo.attendeeId)",
+            "ExernalUserId": "\(update.attendeeInfo.externalUserId)",
+            "SignalStrength": "\(update.signalStrength)"
+            }
+            """
             }).joined(separator: ",")
     }
     
