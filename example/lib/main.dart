@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:chime_example/MeetingSessionCreator.dart';
-import 'package:chime_example/data/Mapping.dart';
-import 'package:chime_example/data/Mappings.dart';
+import 'package:chime_example/data/Attendee.dart';
+import 'package:chime_example/data/Attendees.dart';
 import 'package:device_info/device_info.dart';
 import 'package:eggnstone_amazon_chime/eggnstone_amazon_chime.dart';
 import 'package:flutter/material.dart';
@@ -32,33 +32,32 @@ class _AppState extends State<App>
     String _audioVideoStartLocalVideoResult = 'AudioVideoLocalVideo: Unknown';
     String _audioVideoStartRemoteVideoResult = 'AudioVideoRemoteVideo: Unknown';
 
-    List<ChimeDefaultVideoRenderView> _chimeViews;
-    Mappings _mappings = Mappings();
+    Attendees _attendees = Attendees();
     bool _isAndroidEmulator = false;
 
     @override
     void initState()
     {
         super.initState();
-
-        _chimeViews = List<ChimeDefaultVideoRenderView>();
-        for (int viewIndex = 0; viewIndex < MAX_VIEW_COUNT; viewIndex++)
-            _chimeViews.add(ChimeDefaultVideoRenderView(
-                onPlatformViewCreated: (int viewId)
-                => _mappings.add(viewIndex, viewId))
-            );
-
         _startChime();
     }
 
     @override
     Widget build(BuildContext context)
     {
-        var children = List<Widget>();
-        for (int i = 0; i < MAX_VIEW_COUNT; i++)
-            children.add(Expanded(child: _chimeViews[i]));
+        var chimeViewChildren = List<Widget>();
 
-        var chimeViewColumn = Column(children: children);
+        if (_attendees.length == 0)
+            chimeViewChildren.add(Expanded(child: Center(child: Text('No attendees yet.'))));
+        else
+            for (int attendeeIndex = 0; attendeeIndex < _attendees.length; attendeeIndex++)
+            {
+                Attendee attendee = _attendees[attendeeIndex];
+                if (attendee.videoView != null)
+                    chimeViewChildren.add(Expanded(child: attendee.videoView));
+            }
+
+        var chimeViewColumn = Column(children: chimeViewChildren);
 
         Widget content = _isAndroidEmulator
             ? Padding(
@@ -430,27 +429,30 @@ class _AppState extends State<App>
     {
         int tileId = arguments['TileId'];
 
-        Mapping mapping = _mappings.getByTileId(tileId);
-        if (mapping != null)
+        Attendee attendee = _attendees.getByTileId(tileId);
+        if (attendee != null)
         {
-            print('_handleOnVideoTileAdded: Already mapped. TileId=${mapping.tileId}] => ViewId=${mapping.viewId} => binding again');
-            await Chime.bindVideoView(mapping.viewId, mapping.tileId);
+            print('_handleOnVideoTileAdded called but already mapped. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView}');
             return;
         }
 
-        for (int viewIndex = 0; viewIndex < MAX_VIEW_COUNT; viewIndex++)
-        {
-            mapping = _mappings.getByViewIndex(viewIndex);
-            if (mapping.tileId == null)
-            {
-                mapping.tileId = tileId;
-                print('_handleOnVideoTileAdded: New mapping: TileId=${mapping.tileId} => ViewId=${mapping.viewId} => binding');
-                await Chime.bindVideoView(mapping.viewId, mapping.tileId);
-                return;
-            }
-        }
+        print('_handleOnVideoTileAdded: New attendee: TileId=$tileId => creating ChimeDefaultVideoRenderView');
+        attendee = Attendee(tileId);
+        _attendees.add(attendee);
 
-        print('Error: _handleOnVideoTileAdded: Could not find free view. Ignoring new video tile.');
+        setState(()
+        {
+            attendee.videoView = ChimeDefaultVideoRenderView(
+                onPlatformViewCreated: (int viewId)
+                async
+                {
+                    attendee.setViewId(viewId);
+                    print('ChimeDefaultVideoRenderView created. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView} => binding');
+                    await Chime.bindVideoView(attendee.viewId, attendee.tileId);
+                    print('ChimeDefaultVideoRenderView created. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView} => bound');
+                }
+            );
+        });
     }
 
     void _handleOnVideoTileRemoved(dynamic arguments)
@@ -458,15 +460,21 @@ class _AppState extends State<App>
     {
         int tileId = arguments['TileId'];
 
-        Mapping mapping = _mappings.getByTileId(tileId);
-        if (mapping == null)
+        Attendee attendee = _attendees.getByTileId(tileId);
+        if (attendee == null)
         {
-            print('Error: _handleOnVideoTileRemoved: Could not find mapping for TileId=$tileId');
+            print('Error: _handleOnVideoTileRemoved: Could not find attendee for TileId=$tileId');
             return;
         }
 
-        print('_handleOnVideoTileRemoved: Found mapping: TileId=${mapping.tileId} => ViewId=${mapping.viewId} => unbinding');
-        mapping.tileId = null;
+        print('_handleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbinding');
+        _attendees.remove(attendee);
         await Chime.unbindVideoView(tileId);
+        print('_handleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbound');
+
+        setState(()
+        {
+            // refresh
+        });
     }
 }
