@@ -39,6 +39,14 @@ class ChimeVideoTileObserver(private val _eventSink: EventSink) : VideoTileObser
         _eventSink.success(jsonObject.toString())
     }
 
+    override fun onVideoTileSizeChanged(tileState: VideoTileState)
+    {
+        val jsonObject = JSONObject()
+        jsonObject.put("Name", "OnVideoTileSizeChanged")
+        jsonObject.put("Arguments", convertVideoTileStateToJson(tileState))
+        _eventSink.success(jsonObject.toString())
+    }
+
     private fun convertVideoTileStateToJson(tileState: VideoTileState): JSONObject
     {
         val jsonObject = JSONObject()
@@ -48,11 +56,8 @@ class ChimeVideoTileObserver(private val _eventSink: EventSink) : VideoTileObser
         jsonObject.put("IsLocalTile", tileState.isLocalTile)
         jsonObject.put("PauseState", tileState.pauseState)
         jsonObject.put("TileId", tileState.tileId)
-
-        // https://aws.github.io/amazon-chime-sdk-android/amazon-chime-sdk/com.amazonaws.services.chime.sdk.meetings.audiovideo.video/-video-tile-state/video-stream-content-height.html
-        // Documented but does not compile. New in 0.6.0?
-        //jsonObject.put("VideoStreamContentHeight", tileState.videoStreamContentHeight)
-        //jsonObject.put("VideoStreamContentWidth", tileState.videoStreamContentWidth)
+        jsonObject.put("VideoStreamContentHeight", tileState.videoStreamContentHeight)
+        jsonObject.put("VideoStreamContentWidth", tileState.videoStreamContentWidth)
 
         return jsonObject
     }
