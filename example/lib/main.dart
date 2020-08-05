@@ -52,7 +52,16 @@ class _AppState extends State<App>
             {
                 Attendee attendee = _attendees[attendeeIndex];
                 if (attendee.videoView != null)
-                    chimeViewChildren.add(Expanded(child: attendee.videoView));
+                    chimeViewChildren.add(
+                        Expanded(
+                            child: Center(
+                                child: AspectRatio(
+                                    aspectRatio: attendee.aspectRatio,
+                                    child: attendee.videoView
+                                )
+                            )
+                        )
+                    );
             }
 
         var chimeViewColumn = Column(children: chimeViewChildren);

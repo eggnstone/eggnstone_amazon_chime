@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:eggnstone_amazon_chime/eggnstone_amazon_chime.dart';
 
 class Attendee
 {
@@ -6,7 +6,7 @@ class Attendee
     final bool isLocalTile;
 
     int _viewId;
-    Widget _videoView;
+    ChimeDefaultVideoRenderView _videoView;
 
     int height;
     int width;
@@ -30,7 +30,7 @@ class Attendee
         _viewId = viewId;
     }
 
-    void setVideoView(Widget videoView)
+    void setVideoView(ChimeDefaultVideoRenderView videoView)
     {
         if (_videoView != null)
             throw Exception('VideoView already set!');
