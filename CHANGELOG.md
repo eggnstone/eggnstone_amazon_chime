@@ -44,3 +44,7 @@
 ## 0.4.2 - 01.08.2020
 
 * Adjusted example so that it can receive proper authenticated meeting data. 
+
+## 0.5.0 - .08.2020
+
+* Added iOS part. 

@@ -20,9 +20,8 @@ dependencies:
     # the parent directory to use the current plugin's version. 
     path: ../
 
-  # Device info to determine if running on an emulator or not
   device_info: ^0.4.2+4
-  # To check audio/video permissions
+  http: ^0.12.2
   permission_handler: ^5.0.1+1
 
 dev_dependencies:
