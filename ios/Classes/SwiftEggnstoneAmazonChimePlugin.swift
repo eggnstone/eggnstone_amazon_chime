@@ -4,7 +4,7 @@ import AmazonChimeSDK
 import AmazonChimeSDKMedia
 
 
-public class SwiftChimePlugin: NSObject, FlutterPlugin {
+public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     
     var _meetingSession: MeetingSession?
     //var _applicationContext: Context?
@@ -14,7 +14,7 @@ public class SwiftChimePlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
 
     let channel = FlutterMethodChannel(name: "ChimePlugin", binaryMessenger: registrar.messenger())
-    let instance = SwiftChimePlugin()
+    let instance = SwiftEggnstoneAmazonChimePlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
 
     let eventChannel = FlutterEventChannel(name: "ChimePluginEvents", binaryMessenger: registrar.messenger())

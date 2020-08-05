@@ -46,9 +46,8 @@ Please have a look at section 2 of [this](https://github.com/aws/amazon-chime-sd
 * [amazon-chime-sdk-0.8.1.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/sdk-without-bitcode/0.8.1/AmazonChimeSDK-0.8.1.tar.gz)
 * [amazon-chime-sdk-media-0.6.0.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/media-without-bitcode/0.6.0/AmazonChimeSDKMedia-0.6.0.tar.gz)
 
+**References**
 * https://github.com/aws/amazon-chime-sdk-ios
-
-
 
 ## Web
 

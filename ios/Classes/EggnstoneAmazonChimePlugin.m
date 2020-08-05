@@ -1,4 +1,4 @@
-#import "ChimePlugin.h"
+#import "EggnstoneAmazonChimePlugin.h"
 #if __has_include(<eggnstone_amazon_chime/eggnstone_amazon_chime-Swift.h>)
 #import <eggnstone_amazon_chime/eggnstone_amazon_chime-Swift.h>
 #else
@@ -8,8 +8,8 @@
 #import "eggnstone_amazon_chime-Swift.h"
 #endif
 
-@implementation ChimePlugin
+@implementation EggnstoneAmazonChimePlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-  [SwiftChimePlugin registerWithRegistrar:registrar];
+  [SwiftEggnstoneAmazonChimePlugin registerWithRegistrar:registrar];
 }
 @end
