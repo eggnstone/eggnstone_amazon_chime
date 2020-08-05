@@ -454,26 +454,18 @@ class _AppState extends State<App>
 
         setState(()
         {
-            Widget videoView = ChimeDefaultVideoRenderView(
-                onPlatformViewCreated: (int viewId)
-                async
-                {
-                    attendee.setViewId(viewId);
-                    print('ChimeDefaultVideoRenderView created. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView} => binding');
-                    await Chime.bindVideoView(attendee.viewId, attendee.tileId);
-                    print('ChimeDefaultVideoRenderView created. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView} => bound');
-                }
+            attendee.setVideoView(
+                ChimeDefaultVideoRenderView(
+                    onPlatformViewCreated: (int viewId)
+                    async
+                    {
+                        attendee.setViewId(viewId);
+                        print('ChimeDefaultVideoRenderView created. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView} => binding');
+                        await Chime.bindVideoView(attendee.viewId, attendee.tileId);
+                        print('ChimeDefaultVideoRenderView created. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView} => bound');
+                    }
+                )
             );
-
-            // For local tile use correct aspect ratio in order to show full view port.
-            // Remote tiles will fill the available space and therefore cut off some parts.
-            if (attendee.isLocalTile)
-                videoView = AspectRatio(
-                    aspectRatio: attendee.aspectRatio,
-                    child: videoView
-                );
-
-            attendee.setVideoView(videoView);
         });
     }
 
