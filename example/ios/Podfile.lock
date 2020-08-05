@@ -1,0 +1,28 @@
+PODS:
+  - eggnstone_amazon_chime (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+  - "permission_handler (5.0.1+1)":
+    - Flutter
+
+DEPENDENCIES:
+  - eggnstone_amazon_chime (from `.symlinks/plugins/eggnstone_amazon_chime/ios`)
+  - Flutter (from `Flutter`)
+  - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
+
+EXTERNAL SOURCES:
+  eggnstone_amazon_chime:
+    :path: ".symlinks/plugins/eggnstone_amazon_chime/ios"
+  Flutter:
+    :path: Flutter
+  permission_handler:
+    :path: ".symlinks/plugins/permission_handler/ios"
+
+SPEC CHECKSUMS:
+  eggnstone_amazon_chime: aeed1caf6dc2b4fb4153a844491de6de696a777b
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  permission_handler: eac8e15b4a1a3fba55b761d19f3f4e6b005d15b6
+
+PODFILE CHECKSUM: a75497545d4391e2d394c3668e20cfb1c2bbd4aa
+
+COCOAPODS: 1.9.2
