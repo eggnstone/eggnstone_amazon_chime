@@ -10,8 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-const MAX_VIEW_COUNT = 2;
-
 void main()
 {
     runApp(App());
@@ -427,7 +425,10 @@ class _AppState extends State<App>
     void _handleOnVideoTileAdded(dynamic arguments)
     async
     {
+        bool isLocalTile = arguments['IsLocalTile'];
         int tileId = arguments['TileId'];
+        int videoStreamContentHeight = arguments['VideoStreamContentHeight'];
+        int videoStreamContentWidth = arguments['VideoStreamContentWidth'];
 
         Attendee attendee = _attendees.getByTileId(tileId);
         if (attendee != null)
@@ -437,12 +438,14 @@ class _AppState extends State<App>
         }
 
         print('_handleOnVideoTileAdded: New attendee: TileId=$tileId => creating ChimeDefaultVideoRenderView');
-        attendee = Attendee(tileId);
+        attendee = Attendee(tileId, isLocalTile);
+        attendee.height = videoStreamContentHeight;
+        attendee.width = videoStreamContentWidth;
         _attendees.add(attendee);
 
         setState(()
         {
-            attendee.videoView = ChimeDefaultVideoRenderView(
+            Widget videoView = ChimeDefaultVideoRenderView(
                 onPlatformViewCreated: (int viewId)
                 async
                 {
@@ -452,6 +455,16 @@ class _AppState extends State<App>
                     print('ChimeDefaultVideoRenderView created. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView} => bound');
                 }
             );
+
+            // For local tile use correct aspect ratio in order to show full view port.
+            // Remote tiles will fill the available space and therefore cut off some parts.
+            if (attendee.isLocalTile)
+                videoView = AspectRatio(
+                    aspectRatio: attendee.aspectRatio,
+                    child: videoView
+                );
+
+            attendee.setVideoView(videoView);
         });
     }
 
