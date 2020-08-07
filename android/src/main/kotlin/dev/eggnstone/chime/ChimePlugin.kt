@@ -61,8 +61,6 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
     {
         when (call.method)
         {
-            "GetVersion" -> result.success("Chime SDK " + sdkVersion())
-            "CreateMeetingSession" -> handleCreateMeetingSession(call, result)
             "AudioVideoStart" -> handleAudioVideoStart(result)
             "AudioVideoStop" -> handleAudioVideoStop(result)
             "AudioVideoStartLocalVideo" -> handleAudioVideoStartLocalVideo(result)
@@ -70,7 +68,11 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             "AudioVideoStartRemoteVideo" -> handleAudioVideoStartRemoteVideo(result)
             "AudioVideoStopRemoteVideo" -> handleAudioVideoStopRemoteVideo(result)
             "BindVideoView" -> handleBindVideoView(call, result)
+            "CreateMeetingSession" -> handleCreateMeetingSession(call, result)
+            "GetVersion" -> result.success("Chime SDK " + sdkVersion())
+            "Mute" -> handleMute(result)
             "UnbindVideoView" -> handleUnbindVideoView(call, result)
+            "Unmute" -> handleUnmute(result)
             else -> result.notImplemented()
         }
     }
@@ -181,6 +183,24 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         val tileId = call.argument<Int>("TileId")!!
 
         _audioVideoFacade!!.unbindVideoView(tileId)
+        result.success("OK")
+    }
+
+    private fun handleMute(result: MethodChannel.Result)
+    {
+        if (!checkAudioVideoFacade(result, "Mute"))
+            return
+
+        _audioVideoFacade!!.realtimeLocalMute()
+        result.success("OK")
+    }
+
+    private fun handleUnmute(result: MethodChannel.Result)
+    {
+        if (!checkAudioVideoFacade(result, "Unmute"))
+            return
+
+        _audioVideoFacade!!.realtimeLocalUnmute()
         result.success("OK")
     }
 
