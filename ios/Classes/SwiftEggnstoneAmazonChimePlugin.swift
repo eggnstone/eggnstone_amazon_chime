@@ -38,6 +38,8 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     case "AudioVideoStopRemoteVideo": self.handleAudioVideoStopRemoteVideo(result: result)
     case "BindVideoView": self.handleBindVideoView(call: call, result: result)
     case "UnbindVideoView": self.handleUnbindVideoView(call: call, result: result)
+    case "Mute": self.handleMute(result: result)
+    case "Unmute": self.handleUnmute(result: result)
     default:result(FlutterMethodNotImplemented)
     }
     
@@ -175,6 +177,22 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     
          return false
      }
+    
+    func handleMute(result: @escaping FlutterResult) {
+        if checkAudioVideoFacade(result: result, source: "AudioVideoMute") == false{
+            return
+        }
+        
+        try? _audioVideoFacade?.realtimeLocalMute()
+    }
+    
+    func handleUnmute(result: @escaping FlutterResult) {
+        if checkAudioVideoFacade(result: result, source: "AudioVideoUnmute") == false{
+            return
+        }
+        
+        try? _audioVideoFacade?.realtimeLocalUnmute()
+    }
 }
 
 class ExampleStreamHandler: NSObject, FlutterStreamHandler {
