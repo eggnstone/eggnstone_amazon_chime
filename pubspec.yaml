@@ -24,7 +24,7 @@ flutter:
         package: dev.eggnstone.chime
         pluginClass: ChimePlugin
       ios:
-        pluginClass: ChimePlugin
+        pluginClass: EggnstoneAmazonChimePlugin
       #web:
       #  pluginClass: ChimePlugin
       #  fileName: ChimePlugin.dart
