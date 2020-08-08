@@ -50,3 +50,5 @@
 * Added iOS part. 
 * Updated to Android SDK version 0.7.0 (media 0.6.0).
 * Added mute/unmute.
+
+## 0.5.0-pre2 - .08.2020

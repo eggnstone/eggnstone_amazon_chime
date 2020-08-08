@@ -11,6 +11,8 @@ https://github.com/aws/amazon-chime-sdk-android
 The example works on Android emulators as far as showing the version of the SDK.  
 Anything else will trigger UnsatisfiedLinkErrors.
 
+**Instructions for your app**
+
 * Min SDK version is 21
 * Add the following lines to your android/app/build.gradle in the **dependencies** section:
 ```
@@ -40,7 +42,9 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 
 * **Chime does not work on iOS simulators!**
 
-Please update your project file according to the instructions at (https://github.com/aws/amazon-chime-sdk-ios#2-update-project-file).
+**Instructions for your app**
+
+* Update your project file according to the instructions at https://github.com/aws/amazon-chime-sdk-ios#2-update-project-file.
 
 **Used versions**
 * [amazon-chime-sdk-0.8.1.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/sdk-without-bitcode/0.8.1/AmazonChimeSDK-0.8.1.tar.gz)
