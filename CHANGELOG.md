@@ -45,7 +45,7 @@
 
 * Adjusted example so that it can receive proper authenticated meeting data. 
 
-## 0.5.0 - .08.2020
+## 0.5.0-pre1 - 08.08.2020
 
 * Added iOS part. 
 * Updated to Android SDK version 0.7.0 (media 0.6.0).
