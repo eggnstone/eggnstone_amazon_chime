@@ -3,7 +3,7 @@ import Flutter
 
 public class ChimeDefaultVideoRenderViewFactory : NSObject, FlutterPlatformViewFactory {
     
-    static var _viewIdToViewMap = [Int64: ChimeDefaultVideoRenderView]()
+    public static var _viewIdToViewMap = [Int64: ChimeDefaultVideoRenderView]()
     
     public func create (
         withFrame frame: CGRect,
@@ -18,4 +18,6 @@ public class ChimeDefaultVideoRenderViewFactory : NSObject, FlutterPlatformViewF
     public static func getViewById(id: Int64) -> ChimeDefaultVideoRenderView? {
         return self._viewIdToViewMap[id]!
     }
+    
+    
 }

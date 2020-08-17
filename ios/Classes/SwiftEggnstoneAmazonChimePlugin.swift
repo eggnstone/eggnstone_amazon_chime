@@ -11,6 +11,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     var _methodChannel: FlutterMethodChannel?
     var _audioVideoFacade: AudioVideoFacade?
     
+    
   public static func register(with registrar: FlutterPluginRegistrar) {
 
     let channel = FlutterMethodChannel(name: "ChimePlugin", binaryMessenger: registrar.messenger())
@@ -46,15 +47,11 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
   }
     
     func handleCreateMeetingSession(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        print("handlecreatemeetingsession")
         guard let args = call.arguments else {
             result(FlutterError())
             return
         }
-            
-        print("args ease")
-        print(args)
-            
+
         if let myArgs = args as? [String:Any],
             let meetingId = myArgs["MeetingId"] as? String,
             //let externalMeetingId = myArgs["ExternalMeetingId"] as? String,
@@ -97,7 +94,6 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     }
     
     func handleAudioVideoStart(result: @escaping FlutterResult) {
-        print("handleAudioVideoStart")
         if checkAudioVideoFacade(result: result, source: "AudioVideoStart") == false {
             return
         }
@@ -109,6 +105,8 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStop") == false {
             return
         }
+        
+        ChimeDefaultVideoRenderViewFactory._viewIdToViewMap = [Int64: ChimeDefaultVideoRenderView]()
         
         try? _audioVideoFacade?.stop()
     }

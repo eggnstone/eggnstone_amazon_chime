@@ -67,7 +67,7 @@ public class ChimeAudioVideoObserver: AudioVideoObserver {
     public func audioSessionDidCancelReconnect() {
         let json = """
         {
-        "Name": "OnAudioSessionDidCsncelReconnect"
+        "Name": "OnAudioSessionDidCancelReconnect"
         }
         """
         
