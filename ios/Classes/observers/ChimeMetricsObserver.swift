@@ -16,7 +16,6 @@ public class ChimeMetricsObserver : MetricsObserver {
     }
     
     public func metricsDidReceive(metrics: [AnyHashable : Any]) {
-        print("metricsDidReceive")
 //        let json = """
 //        {
 //        "Name": "OnAudioSessionCancelledReconnect"
