@@ -77,14 +77,16 @@ public class ChimeVideoTileObserver : VideoTileObserver {
     }
     
     func convertVideoTileStateToJson(tileState: VideoTileState) -> String {
-        return """
-        {
-        "AttendeeId": "\(tileState.attendeeId)",
-        "IsContent": "\(tileState.isContent)",
-        "IsLocalTile": "\(tileState.isLocalTile)",
-        "PauseState": "\(tileState.pauseState)",
-        "TileId": \(tileState.tileId)
-        }
-        """
+        let state: NSDictionary = [
+            "AttendeeId" : tileState.attendeeId,
+            "IsContent" : tileState.isContent,
+            "IsLocalTile" : tileState.isLocalTile,
+            "PauseState" : tileState.pauseState.rawValue,
+            "TileId": tileState.tileId,
+            "VideoStreamContentHeight": tileState.videoStreamContentHeight,
+            "VideoStreamContentWidth": tileState.videoStreamContentWidth
+        ]
+        let json = try? JSONSerialization.data(withJSONObject: state, options: [])
+        return String(data: json!, encoding: .utf8)!
     }
 }

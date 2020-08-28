@@ -25,6 +25,12 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
     private var _audioVideoFacade: AudioVideoFacade? = null
     private var _eventSink: EventSink? = null
 
+    private var _audioVideoObserver: ChimeAudioVideoObserver? = null
+    private var _metricsObserver: ChimeMetricsObserver? = null
+    private var _realtimeObserver: ChimeRealtimeObserver? = null
+    private var _deviceChangeObserver: ChimeDeviceChangeObserver? = null
+    private var _videoTileObserver: ChimeVideoTileObserver? = null
+
     override fun onAttachedToEngine(binding: FlutterPluginBinding)
     {
         val messenger = binding.binaryMessenger
@@ -99,11 +105,25 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
         _meetingSession = DefaultMeetingSession(configuration, ConsoleLogger(), _applicationContext!!)
         _audioVideoFacade = _meetingSession!!.audioVideo
-        _audioVideoFacade!!.addAudioVideoObserver(ChimeAudioVideoObserver(_eventSink!!))
-        _audioVideoFacade!!.addMetricsObserver(ChimeMetricsObserver(_eventSink!!))
-        _audioVideoFacade!!.addRealtimeObserver(ChimeRealtimeObserver(_eventSink!!))
-        _audioVideoFacade!!.addDeviceChangeObserver(ChimeDeviceChangeObserver(_eventSink!!))
-        _audioVideoFacade!!.addVideoTileObserver(ChimeVideoTileObserver(_eventSink!!))
+        val audioVideo = ChimeAudioVideoObserver(_eventSink!!)
+        _audioVideoFacade!!.addAudioVideoObserver(audioVideo)
+        _audioVideoObserver = audioVideo
+
+        val metrics = ChimeMetricsObserver(_eventSink!!)
+        _audioVideoFacade!!.addMetricsObserver(metrics)
+        _metricsObserver = metrics
+
+        val realtime = ChimeRealtimeObserver(_eventSink!!)
+        _audioVideoFacade!!.addRealtimeObserver(realtime)
+        _realtimeObserver = realtime
+
+        val device = ChimeDeviceChangeObserver(_eventSink!!)
+        _audioVideoFacade!!.addDeviceChangeObserver(device)
+        _deviceChangeObserver = device
+
+        val videotile = ChimeVideoTileObserver(_eventSink!!)
+        _audioVideoFacade!!.addVideoTileObserver(videotile)
+        _videoTileObserver = videotile
 
         result.success("OK")
     }
@@ -121,8 +141,26 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
     {
         if (!checkAudioVideoFacade(result, "AudioVideoStop"))
             return
+        _audioVideoFacade?.let {
+            it.stop()
+            _audioVideoObserver?.run {
+                it.removeAudioVideoObserver(this)
+            }
+            _metricsObserver?.run {
+                it.removeMetricsObserver(this)
+            }
+            _realtimeObserver?.run {
+                it.removeRealtimeObserver(this)
+            }
+            _deviceChangeObserver?.run {
+                it.removeDeviceChangeObserver(this)
+            }
+            _videoTileObserver?.run {
+                it.removeVideoTileObserver(this)
+            }
+        }
 
-        _audioVideoFacade!!.stop()
+        ChimeDefaultVideoRenderViewFactory.clearViewIds()
         result.success("OK")
     }
 
@@ -181,7 +219,6 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             return
 
         val tileId = call.argument<Int>("TileId")!!
-
         _audioVideoFacade!!.unbindVideoView(tileId)
         result.success("OK")
     }
