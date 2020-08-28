@@ -20,7 +20,7 @@ dependencies:
     # the parent directory to use the current plugin's version. 
     path: ../
 
-  device_info: ^0.4.2+4
+  device_info: ^0.4.2+7
   http: ^0.12.2
   permission_handler: ^5.0.1+1
 
