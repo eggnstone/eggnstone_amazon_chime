@@ -2,10 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+/// A view where local or remote video gets rendered
 class ChimeDefaultVideoRenderView extends StatefulWidget
 {
+    /// Event to be called when the view gets created
     final ValueChanged<int> onPlatformViewCreated;
 
+    /// Creates a [ChimeDefaultVideoRenderView].
+    /// Optional: [onPlatformViewCreated] event to be called when the view gets created.
     ChimeDefaultVideoRenderView({this.onPlatformViewCreated});
 
     @override
