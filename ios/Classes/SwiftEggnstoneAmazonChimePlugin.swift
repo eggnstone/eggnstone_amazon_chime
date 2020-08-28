@@ -97,44 +97,68 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStart") == false {
             return
         }
-                    
-        try? _audioVideoFacade?.start()
-        
+        do {
+            try _audioVideoFacade?.start()
+            result("OK")
+        }catch {
+            result(FlutterError())
+        }
     }
     func handleAudioVideoStop(result: @escaping FlutterResult) {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStop") == false {
             return
         }
-        
         ChimeDefaultVideoRenderViewFactory._viewIdToViewMap = [Int64: ChimeDefaultVideoRenderView]()
-        
-        try? _audioVideoFacade?.stop()
+        do {
+            _audioVideoFacade?.stop()
+            result("OK")
+        }catch {
+            result(FlutterError())
+        }
     }
     func handleAudioVideoStartLocalVideo(result: @escaping FlutterResult) {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStartLocalVideo") == false{
             return
         }
-        
-        try? _audioVideoFacade?.startLocalVideo()
-        
+        do {
+            try _audioVideoFacade?.startLocalVideo()
+            result("OK")
+        }catch {
+            result(FlutterError())
+        }
     }
     func handleAudioVideoStopLocalVideo(result: @escaping FlutterResult) {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStopLocalVideo") == false {
             return
         }
-        try? _audioVideoFacade?.stopLocalVideo()
+        do {
+            try _audioVideoFacade?.stopLocalVideo()
+            result("OK")
+        }catch {
+            result(FlutterError())
+        }
     }
     func handleAudioVideoStartRemoteVideo(result: @escaping FlutterResult) {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStartRemoteVideo") == false {
             return
         }
-        try? _audioVideoFacade?.startRemoteVideo()
+        do {
+            try _audioVideoFacade?.startRemoteVideo()
+            result("OK")
+        }catch {
+            result(FlutterError())
+        }
     }
     func handleAudioVideoStopRemoteVideo(result: @escaping FlutterResult) {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStopRemoteVideo") == false {
             return
         }
-        try? _audioVideoFacade?.stopRemoteVideo()
+        do {
+            try _audioVideoFacade?.stopRemoteVideo()
+            result("OK")
+        }catch {
+            result(FlutterError())
+        }
     }
     func handleBindVideoView(call: FlutterMethodCall, result: @escaping FlutterResult) {
         print("handleBindVideoView")
@@ -151,6 +175,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             
             try? _audioVideoFacade?.bindVideoView(videoView: videoRenderView , tileId: tileId)
         }
+        result("OK")
     }
     func handleUnbindVideoView(call: FlutterMethodCall, result: @escaping FlutterResult) {
         if checkAudioVideoFacade(result: result, source: "UnbindVideoView") == false {
@@ -163,6 +188,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             let tileId = myArgs["tileId"] as? Int {
             try? _audioVideoFacade?.unbindVideoView(tileId: tileId)
         }
+        result("OK")
     }
     
     func checkAudioVideoFacade(result: FlutterResult, source: String) -> Bool
@@ -182,6 +208,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
         
         try? _audioVideoFacade?.realtimeLocalMute()
+        result("OK")
     }
     
     func handleUnmute(result: @escaping FlutterResult) {
@@ -190,6 +217,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
         
         try? _audioVideoFacade?.realtimeLocalUnmute()
+        result("OK")
     }
 }
 
