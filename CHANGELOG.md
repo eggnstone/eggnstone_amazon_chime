@@ -54,3 +54,7 @@
 ## 0.5.1 - 28.08.2020
 
 * iOS: Reset ViewIdToViewMap on AudioVideoStart. Return flutter result on all public plugin methods.
+
+## 0.5.2 - 28.08.2020
+
+* More API doc.
