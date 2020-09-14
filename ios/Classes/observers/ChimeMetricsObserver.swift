@@ -7,6 +7,7 @@
 
 import Foundation
 import AmazonChimeSDK
+import Flutter
 
 public class ChimeMetricsObserver : MetricsObserver {
     let _eventSink: FlutterEventSink

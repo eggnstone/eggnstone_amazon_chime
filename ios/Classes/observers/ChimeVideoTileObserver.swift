@@ -7,6 +7,7 @@
 
 import Foundation
 import AmazonChimeSDK
+import Flutter
 
 public class ChimeVideoTileObserver : VideoTileObserver {
     let _eventSink: FlutterEventSink

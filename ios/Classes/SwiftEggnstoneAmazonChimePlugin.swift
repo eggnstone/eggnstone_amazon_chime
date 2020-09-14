@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import AmazonChimeSDK
 import AmazonChimeSDKMedia
-
+		
 
 public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     
@@ -11,47 +11,116 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     var _methodChannel: FlutterMethodChannel?
     var _audioVideoFacade: AudioVideoFacade?
     
+    var _audioOutputs: [MediaDevice] = [MediaDevice]()
     
-  public static func register(with registrar: FlutterPluginRegistrar) {
-
-    let channel = FlutterMethodChannel(name: "ChimePlugin", binaryMessenger: registrar.messenger())
-    let instance = SwiftEggnstoneAmazonChimePlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
-
-    let eventChannel = FlutterEventChannel(name: "ChimePluginEvents", binaryMessenger: registrar.messenger())
-    eventChannel.setStreamHandler(ExampleStreamHandler.get())
-
-    let viewFactory = ChimeDefaultVideoRenderViewFactory()
-    registrar.register(viewFactory, withId: "ChimeDefaultVideoRenderView")
-  }
-
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    print(call.method)
-    
-    switch call.method {
-    case "GetVersion": result("Amazon Chime Version currently unknown")
-    case "CreateMeetingSession": self.handleCreateMeetingSession(call: call, result: result)
-    case "AudioVideoStart": self.handleAudioVideoStart(result: result)
-    case "AudioVideoStop": self.handleAudioVideoStop(result: result)
-    case "AudioVideoStartLocalVideo": self.handleAudioVideoStartLocalVideo(result: result)
-    case "AudioVideoStopLocalVideo": self.handleAudioVideoStopLocalVideo(result: result)
-    case "AudioVideoStartRemoteVideo": self.handleAudioVideoStartRemoteVideo(result: result)
-    case "AudioVideoStopRemoteVideo": self.handleAudioVideoStopRemoteVideo(result: result)
-    case "BindVideoView": self.handleBindVideoView(call: call, result: result)
-    case "UnbindVideoView": self.handleUnbindVideoView(call: call, result: result)
-    case "Mute": self.handleMute(result: result)
-    case "Unmute": self.handleUnmute(result: result)
-    default:result(FlutterMethodNotImplemented)
+    public static func register(with registrar: FlutterPluginRegistrar) {
+        
+        let channel = FlutterMethodChannel(name: "ChimePlugin", binaryMessenger: registrar.messenger())
+        let instance = SwiftEggnstoneAmazonChimePlugin()
+        registrar.addMethodCallDelegate(instance, channel: channel)
+        
+        let eventChannel = FlutterEventChannel(name: "ChimePluginEvents", binaryMessenger: registrar.messenger())
+        eventChannel.setStreamHandler(ExampleStreamHandler.get())
+        
+        let viewFactory = ChimeDefaultVideoRenderViewFactory()
+        registrar.register(viewFactory, withId: "ChimeDefaultVideoRenderView")
     }
     
-  }
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        print(call.method)
+        
+        switch call.method {
+        case "GetVersion": result("Amazon Chime Version currently unknown")
+        case "CreateMeetingSession": self.handleCreateMeetingSession(call: call, result: result)
+        case "AudioVideoStart": self.handleAudioVideoStart(result: result)
+        case "AudioVideoStop": self.handleAudioVideoStop(result: result)
+        case "AudioVideoStartLocalVideo": self.handleAudioVideoStartLocalVideo(result: result)
+        case "AudioVideoStopLocalVideo": self.handleAudioVideoStopLocalVideo(result: result)
+        case "AudioVideoStartRemoteVideo": self.handleAudioVideoStartRemoteVideo(result: result)
+        case "AudioVideoStopRemoteVideo": self.handleAudioVideoStopRemoteVideo(result: result)
+        case "BindVideoView": self.handleBindVideoView(call: call, result: result)
+        case "UnbindVideoView": self.handleUnbindVideoView(call: call, result: result)
+        case "Mute": self.handleMute(result: result)
+        case "Unmute": self.handleUnmute(result: result)
+        case "listAudioDevices": self.listAudioDevices(result: result)
+        case "chooseAudioDevice": self.chooseAudioDevice(call: call, result: result)
+            
+        default:result(FlutterMethodNotImplemented)
+        }
+    }
+    
+    func chooseAudioDevice(call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let args = call.arguments else {
+            result(FlutterError())
+            return
+        }
+        
+        if checkAudioVideoFacade(result: result, source: "chooseAudioDevice") == false {
+            return
+        }
+        
+        if let myArgs = args as? [String:Any],
+            let deviceName = myArgs["label"] as? String
+        {
+            if let device = _audioOutputs.first(where: {$0.label == deviceName}) {
+                _audioVideoFacade?.chooseAudioDevice(mediaDevice: device)
+                result("OK")
+            }
+            else {
+                result(FlutterError())
+            }
+        }
+    }
+    
+    func listAudioDevices(result: @escaping FlutterResult) {
+        if checkAudioVideoFacade(result: result, source: "listAudioDevices") == false {
+            return
+        }
+        do {
+            let concatenatedDevices : String
+            
+            let devices: [MediaDevice] = (_audioVideoFacade?.listAudioDevices())!
+            
+            self._audioOutputs.removeAll()
+            for device in devices {
+                self._audioOutputs.append(device)
+            }
+            
+            concatenatedDevices = "[" + devices.map({(device: MediaDevice) -> String in
+            return """
+                {
+"label": "\(device.label)",
+"type": "\(device.type)",
+"port": "\(device.port)",
+"description": "\(device.description)"
+                }
+"""
+                }).joined(separator: ",") + "]"
+            
+            result(concatenatedDevices)
+        }catch {
+            result(FlutterError())
+        }
+    }
+    
+//    func chooseAudioDevice(result: @escaping FlutterResult) {
+//        if checkAudioVideoFacade(result: result, source: "chooseAudioDevice") == false {
+//            return
+//        }
+//        do {
+//            try _audioVideoFacade?.chooseAudioDevice(mediaDevice: <#T##MediaDevice#>)()
+//            result("OK")
+//        }catch {
+//            result(FlutterError())
+//        }
+//    }
     
     func handleCreateMeetingSession(call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let args = call.arguments else {
             result(FlutterError())
             return
         }
-
+        
         if let myArgs = args as? [String:Any],
             let meetingId = myArgs["MeetingId"] as? String,
             //let externalMeetingId = myArgs["ExternalMeetingId"] as? String,
@@ -192,15 +261,16 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     }
     
     func checkAudioVideoFacade(result: FlutterResult, source: String) -> Bool
-     {
+    {
         if _meetingSession != nil {
             if _audioVideoFacade != nil {
                 return true
             }
         }
-    
-         return false
-     }
+        print("audioVideoFacade not available")
+        
+        return false
+    }
     
     func handleMute(result: @escaping FlutterResult) {
         if checkAudioVideoFacade(result: result, source: "AudioVideoMute") == false{
@@ -225,7 +295,7 @@ class ExampleStreamHandler: NSObject, FlutterStreamHandler {
     private static var _exampleStreamHandler : ExampleStreamHandler?
     
     private var _eventSink: FlutterEventSink?
-
+    
     public static func get() -> ExampleStreamHandler {
         if _exampleStreamHandler != nil {
             return _exampleStreamHandler!
@@ -239,18 +309,18 @@ class ExampleStreamHandler: NSObject, FlutterStreamHandler {
     public func getEventSink() -> FlutterEventSink? {
         return _eventSink!
     }
-        
     
-  func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-    print("ExampleStreamHandler onListen")
-    _eventSink = events
-    return nil
-  }
-
-  func onCancel(withArguments arguments: Any?) -> FlutterError? {
-    _eventSink = nil
-    print("ExampleStreamHandler onCancel")
-    return nil
-  }
-
+    
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        print("ExampleStreamHandler onListen")
+        _eventSink = events
+        return nil
+    }
+    
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        _eventSink = nil
+        print("ExampleStreamHandler onCancel")
+        return nil
+    }
+    
 }
