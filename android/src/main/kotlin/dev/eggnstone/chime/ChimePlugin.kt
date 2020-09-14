@@ -77,6 +77,8 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         }
     }
 
+    
+
     private fun handleCreateMeetingSession(call: MethodCall, result: MethodChannel.Result)
     {
         val meetingId = call.argument<String>("MeetingId")
@@ -123,6 +125,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             return
 
         _audioVideoFacade!!.stop()
+        ChimeDefaultVideoRenderViewFactory.clearViewIds()
         result.success("OK")
     }
 
