@@ -73,11 +73,45 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             "Mute" -> handleMute(result)
             "UnbindVideoView" -> handleUnbindVideoView(call, result)
             "Unmute" -> handleUnmute(result)
+            "listAudioDevices" -> listAudioDevice(result)
+            "chooseAudioDevice" -> chooseAudioDevice(call,result)
             else -> result.notImplemented()
         }
     }
 
-    
+    private fun listAudioDevice(result: MethodChannel.Result)
+    {
+        if (!checkAudioVideoFacade(result, "listAudioDevice"))
+            return
+        
+            var jsonString:String=""
+            for (device in _audioVideoFacade!!.listAudioDevices()) {
+                jsonString +="{"+"\"label\":\""+device.label+"\",\"type\":\""+device.type+"\",\"port\":\""+"no-port\",\"description\":\""+"no-description\"},"
+            }
+            jsonString = jsonString.substring(0,jsonString.length-1)
+            jsonString = "["+jsonString+"]";
+            result.success(jsonString);
+        
+    }
+
+    private fun chooseAudioDevice(call: MethodCall,result: MethodChannel.Result)
+    {
+        if (!checkAudioVideoFacade(result, "chooseAudioDevice")) {
+            return
+        }
+        
+        // ​val deviceName = call.argument<String>("label")
+        val deviceLabel = call.argument<String>("label")
+
+        for (device in _audioVideoFacade!!.listAudioDevices()) {
+            if (device.label==deviceLabel){
+                _audioVideoFacade?.chooseAudioDevice(mediaDevice= device)
+                result.success("OK")
+                break;
+            }
+        }
+        // result.error(ERROR__NO_AUDIO_VIDEO_FACADE__ERROR_CODE, "exeption caught during choosing an audio device", null)
+    }
 
     private fun handleCreateMeetingSession(call: MethodCall, result: MethodChannel.Result)
     {
