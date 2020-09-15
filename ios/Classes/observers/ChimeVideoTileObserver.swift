@@ -32,7 +32,7 @@ public class ChimeVideoTileObserver : VideoTileObserver {
     public func videoTileDidRemove(tileState: VideoTileState) {
         let json = """
         {
-        "Name": "OnVideoTileDidRemove",
+        "Name": "OnVideoTileRemoved",
         "Arguments": \(self.convertVideoTileStateToJson(tileState: tileState))
         }
         """
@@ -81,8 +81,8 @@ public class ChimeVideoTileObserver : VideoTileObserver {
         return """
         {
         "AttendeeId": "\(tileState.attendeeId)",
-        "IsContent": "\(tileState.isContent)",
-        "IsLocalTile": "\(tileState.isLocalTile)",
+        "IsContent": \(tileState.isContent),
+        "IsLocalTile": \(tileState.isLocalTile),
         "PauseState": "\(tileState.pauseState)",
         "TileId": \(tileState.tileId)
         }
