@@ -131,7 +131,7 @@ class Chime
         return _methodChannel.invokeMethod('ListAudioDevices');
     }
 
-    /// Choose a device by label
+    /// Chooses a device by label
     static Future<String> chooseAudioDevice(String label)
     async
     {

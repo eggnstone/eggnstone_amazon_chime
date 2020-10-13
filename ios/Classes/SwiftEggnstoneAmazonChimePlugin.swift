@@ -210,7 +210,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
 
         if let myArgs = args as? [String:Any],
-            let deviceName = myArgs["label"] as? String {
+            let deviceName = myArgs["Label"] as? String {
             if let device = _audioOutputs.first(where: {$0.label == deviceName}) {
                 _audioVideoFacade?.chooseAudioDevice(mediaDevice: device)
                 result("OK")
