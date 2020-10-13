@@ -71,7 +71,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             "ChooseAudioDevice" -> handleChooseAudioDevice(call, result)
             "CreateMeetingSession" -> handleCreateMeetingSession(call, result)
             "GetVersion" -> result.success("Chime SDK " + sdkVersion())
-            "ListAudioDevices" -> handleListAudioDevice(result)
+            "ListAudioDevices" -> handleListAudioDevices(result)
             "Mute" -> handleMute(result)
             "UnbindVideoView" -> handleUnbindVideoView(call, result)
             "Unmute" -> handleUnmute(result)
@@ -207,9 +207,9 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         result.success("OK")
     }
 
-    private fun handleListAudioDevice(result: MethodChannel.Result)
+    private fun handleListAudioDevices(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "ListAudioDevice"))
+        if (!checkAudioVideoFacade(result, "ListAudioDevices"))
             return
 
         var jsonString = ""
@@ -238,7 +238,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
                 return
             }
         }
-        
+
         // result.error(ERROR__NO_AUDIO_VIDEO_FACADE__ERROR_CODE, "exeption caught during choosing an audio device", null)
     }
 

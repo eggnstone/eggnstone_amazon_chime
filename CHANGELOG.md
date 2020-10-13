@@ -65,4 +65,5 @@
 
 ## 0.5.4 - 13.10.2020
 
-* Updated to Chime's Android SDK version 0.7.4 (media 0.7.0).
+* Added ListAudioDevices and ChooseAudioDevice. 
+* Android: updated to Chime SDK version 0.7.4 (media 0.7.0).
