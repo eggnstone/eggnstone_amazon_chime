@@ -21,7 +21,8 @@ class Chime
     }
 
     /// Creates a meeting session
-    static Future<String> createMeetingSession({String meetingId,
+    static Future<String> createMeetingSession({
+        String meetingId,
         String externalMeetingId,
         String mediaRegion,
         String mediaPlacementAudioHostUrl,
@@ -30,7 +31,8 @@ class Chime
         String mediaPlacementTurnControlUrl,
         String attendeeId,
         String externalUserId,
-        String joinToken})
+        String joinToken
+    })
     async
     {
         var params =
@@ -97,7 +99,6 @@ class Chime
     async
     {
         var params = {"ViewId": viewId, "TileId": tileId};
-
         return _methodChannel.invokeMethod('BindVideoView', params);
     }
 
@@ -106,7 +107,6 @@ class Chime
     async
     {
         var params = {"TileId": tileId};
-
         return _methodChannel.invokeMethod('UnbindVideoView', params);
     }
 
@@ -128,14 +128,14 @@ class Chime
     static Future<String> listAudioDevices()
     async
     {
-        return _methodChannel.invokeMethod('listAudioDevices');
+        return _methodChannel.invokeMethod('ListAudioDevices');
     }
 
     /// Choose a device by label
     static Future<String> chooseAudioDevice(String label)
     async
     {
-        var params = {"label": label};
-        return _methodChannel.invokeMethod('chooseAudioDevice', params);
+        var params = {'Label': label};
+        return _methodChannel.invokeMethod('ChooseAudioDevice', params);
     }
 }

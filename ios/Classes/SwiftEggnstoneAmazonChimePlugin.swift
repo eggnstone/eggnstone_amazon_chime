@@ -30,22 +30,22 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         print(call.method)
         
         switch call.method {
-        case "GetVersion": result("Amazon Chime Version currently unknown")
-        case "CreateMeetingSession": self.handleCreateMeetingSession(call: call, result: result)
-        case "AudioVideoStart": self.handleAudioVideoStart(result: result)
-        case "AudioVideoStop": self.handleAudioVideoStop(result: result)
-        case "AudioVideoStartLocalVideo": self.handleAudioVideoStartLocalVideo(result: result)
-        case "AudioVideoStopLocalVideo": self.handleAudioVideoStopLocalVideo(result: result)
-        case "AudioVideoStartRemoteVideo": self.handleAudioVideoStartRemoteVideo(result: result)
-        case "AudioVideoStopRemoteVideo": self.handleAudioVideoStopRemoteVideo(result: result)
-        case "BindVideoView": self.handleBindVideoView(call: call, result: result)
-        case "UnbindVideoView": self.handleUnbindVideoView(call: call, result: result)
-        case "Mute": self.handleMute(result: result)
-        case "Unmute": self.handleUnmute(result: result)
-        case "listAudioDevices": self.listAudioDevices(result: result)
-        case "chooseAudioDevice": self.chooseAudioDevice(call: call, result: result)
-            
-        default:result(FlutterMethodNotImplemented)
+            case "AudioVideoStart": self.handleAudioVideoStart(result: result)
+            case "AudioVideoStop": self.handleAudioVideoStop(result: result)
+            case "AudioVideoStartLocalVideo": self.handleAudioVideoStartLocalVideo(result: result)
+            case "AudioVideoStopLocalVideo": self.handleAudioVideoStopLocalVideo(result: result)
+            case "AudioVideoStartRemoteVideo": self.handleAudioVideoStartRemoteVideo(result: result)
+            case "AudioVideoStopRemoteVideo": self.handleAudioVideoStopRemoteVideo(result: result)
+            case "BindVideoView": self.handleBindVideoView(call: call, result: result)
+            case "ChooseAudioDevice": self.chooseAudioDevice(call: call, result: result)
+            case "CreateMeetingSession": self.handleCreateMeetingSession(call: call, result: result)
+            case "GetVersion": result("Amazon Chime Version currently unknown")
+            case "ListAudioDevices": self.listAudioDevices(result: result)
+            case "Mute": self.handleMute(result: result)
+            case "UnbindVideoView": self.handleUnbindVideoView(call: call, result: result)
+            case "Unmute": self.handleUnmute(result: result)
+
+            default:result(FlutterMethodNotImplemented)
         }
     }
     
@@ -55,7 +55,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             return
         }
         
-        if checkAudioVideoFacade(result: result, source: "chooseAudioDevice") == false {
+        if checkAudioVideoFacade(result: result, source: "ChooseAudioDevice") == false {
             return
         }
         
@@ -73,7 +73,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     }
     
     func listAudioDevices(result: @escaping FlutterResult) {
-        if checkAudioVideoFacade(result: result, source: "listAudioDevices") == false {
+        if checkAudioVideoFacade(result: result, source: "ListAudioDevices") == false {
             return
         }
         do {
@@ -104,7 +104,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     }
     
 //    func chooseAudioDevice(result: @escaping FlutterResult) {
-//        if checkAudioVideoFacade(result: result, source: "chooseAudioDevice") == false {
+//        if checkAudioVideoFacade(result: result, source: "ChooseAudioDevice") == false {
 //            return
 //        }
 //        do {

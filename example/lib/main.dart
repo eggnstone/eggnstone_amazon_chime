@@ -6,7 +6,6 @@ import 'package:chime_example/data/Attendee.dart';
 import 'package:chime_example/data/Attendees.dart';
 import 'package:device_info/device_info.dart';
 import 'package:eggnstone_amazon_chime/eggnstone_amazon_chime.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';

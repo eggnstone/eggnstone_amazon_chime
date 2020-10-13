@@ -68,46 +68,46 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             "AudioVideoStartRemoteVideo" -> handleAudioVideoStartRemoteVideo(result)
             "AudioVideoStopRemoteVideo" -> handleAudioVideoStopRemoteVideo(result)
             "BindVideoView" -> handleBindVideoView(call, result)
+            "ChooseAudioDevice" -> chooseAudioDevice(call, result)
             "CreateMeetingSession" -> handleCreateMeetingSession(call, result)
             "GetVersion" -> result.success("Chime SDK " + sdkVersion())
+            "ListAudioDevices" -> listAudioDevice(result)
             "Mute" -> handleMute(result)
             "UnbindVideoView" -> handleUnbindVideoView(call, result)
             "Unmute" -> handleUnmute(result)
-            "listAudioDevices" -> listAudioDevice(result)
-            "chooseAudioDevice" -> chooseAudioDevice(call,result)
             else -> result.notImplemented()
         }
     }
 
     private fun listAudioDevice(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "listAudioDevice"))
+        if (!checkAudioVideoFacade(result, "ListAudioDevice"))
             return
         
-            var jsonString:String=""
-            for (device in _audioVideoFacade!!.listAudioDevices()) {
-                jsonString +="{"+"\"label\":\""+device.label+"\",\"type\":\""+device.type+"\",\"port\":\""+"no-port\",\"description\":\""+"no-description\"},"
-            }
-            jsonString = jsonString.substring(0,jsonString.length-1)
-            jsonString = "["+jsonString+"]";
-            result.success(jsonString);
-        
+        var jsonString = ""
+        for (device in _audioVideoFacade!!.listAudioDevices())
+            jsonString += "{\"Label\": \"" + device.label + "\", \"Type\": \"" + device.type + "\", \"Port\": \"no-port\", \"Description\": \"no-description\"},"
+
+        jsonString = jsonString.substring(0, jsonString.length - 1)
+        jsonString = "["+ jsonString + "]"
+        result.success(jsonString)
     }
 
-    private fun chooseAudioDevice(call: MethodCall,result: MethodChannel.Result)
+    private fun chooseAudioDevice(call: MethodCall, result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "chooseAudioDevice")) {
+        if (!checkAudioVideoFacade(result, "ChooseAudioDevice"))
             return
-        }
-        
-        // ​val deviceName = call.argument<String>("label")
-        val deviceLabel = call.argument<String>("label")
 
-        for (device in _audioVideoFacade!!.listAudioDevices()) {
-            if (device.label==deviceLabel){
-                _audioVideoFacade?.chooseAudioDevice(mediaDevice= device)
+        // ​val deviceName = call.argument<String>("label")
+        val deviceLabel = call.argument<String>("Label")
+
+        for (device in _audioVideoFacade!!.listAudioDevices())
+        {
+            if (device.label == deviceLabel)
+            {
+                _audioVideoFacade.chooseAudioDevice(mediaDevice = device)
                 result.success("OK")
-                break;
+                break
             }
         }
         // result.error(ERROR__NO_AUDIO_VIDEO_FACADE__ERROR_CODE, "exeption caught during choosing an audio device", null)
