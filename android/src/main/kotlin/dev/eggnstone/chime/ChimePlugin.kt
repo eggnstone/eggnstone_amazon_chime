@@ -233,11 +233,12 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         {
             if (device.label == deviceLabel)
             {
-                _audioVideoFacade.chooseAudioDevice(mediaDevice = device)
+                _audioVideoFacade!!.chooseAudioDevice(mediaDevice = device)
                 result.success("OK")
-                break
+                return
             }
         }
+        
         // result.error(ERROR__NO_AUDIO_VIDEO_FACADE__ERROR_CODE, "exeption caught during choosing an audio device", null)
     }
 
