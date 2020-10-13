@@ -23,17 +23,17 @@ public class ChimeDeviceChangeObserver : DeviceChangeObserver {
     func convertMediaDevicesToJson(freshAudioDeviceList: [MediaDevice]) -> String {
         print("convertMediaDevicesToJson")
         return """
-        [
-        \(freshAudioDeviceList.map({ (device: MediaDevice) -> String in
-            return """
-            {
-            "Label": "\(device.label)",
-            "Type": "\(device.type)"
-            }
+            [
+            \(freshAudioDeviceList.map({ (device: MediaDevice) -> String in
+                return """
+                {
+                "Label": "\(device.label)",
+                "Type": "\(device.type)"
+                }
+                """
+
+            }))
+            ]
             """
-        
-        }))
-        ]
-    """
     }
 }

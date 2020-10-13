@@ -25,7 +25,6 @@ public class ChimeVideoTileObserver : VideoTileObserver {
         }
         """
         
-        
         _eventSink(json)
     }
     
@@ -37,7 +36,6 @@ public class ChimeVideoTileObserver : VideoTileObserver {
         }
         """
         
-        
         _eventSink(json)
     }
     
@@ -48,8 +46,7 @@ public class ChimeVideoTileObserver : VideoTileObserver {
         "Arguments": \(self.convertVideoTileStateToJson(tileState: tileState))
         }
         """
-        
-        
+
         _eventSink(json)
     }
     
@@ -60,8 +57,7 @@ public class ChimeVideoTileObserver : VideoTileObserver {
         "Arguments": \(self.convertVideoTileStateToJson(tileState: tileState))
         }
         """
-        
-        
+
         _eventSink(json)
     }
     
@@ -72,8 +68,7 @@ public class ChimeVideoTileObserver : VideoTileObserver {
         "Arguments": \(self.convertVideoTileStateToJson(tileState: tileState))
         }
         """
-        
-        
+
         _eventSink(json)
     }
     

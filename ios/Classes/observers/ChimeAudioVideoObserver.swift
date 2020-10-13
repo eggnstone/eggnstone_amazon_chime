@@ -10,7 +10,6 @@ import Flutter
 import AmazonChimeSDK
 
 public class ChimeAudioVideoObserver: AudioVideoObserver {
-    
     let _eventSink: FlutterEventSink
     
     init(eventSink: @escaping FlutterEventSink) {
@@ -19,66 +18,66 @@ public class ChimeAudioVideoObserver: AudioVideoObserver {
     
     public func audioSessionDidStartConnecting(reconnecting: Bool) {
         let json = """
-        {
-        "Name": "OnAudioSessionCancelledReconnect"
-        }
-        """
+            {
+            "Name": "OnAudioSessionCancelledReconnect"
+            }
+            """
         
         _eventSink(json)
     }
     
     public func audioSessionDidStart(reconnecting: Bool) {
         let json = """
-        {
-        "Name": "OnAudioSessionDidStart"
-        }
-        """
+            {
+            "Name": "OnAudioSessionDidStart"
+            }
+            """
         
         _eventSink(json)
     }
     
     public func audioSessionDidDrop() {
         let json = """
-        {
-        "Name": "OnAudioSessionDidDrop"
-        }
-        """
+            {
+            "Name": "OnAudioSessionDidDrop"
+            }
+            """
         
         _eventSink(json)
     }
     
     public func audioSessionDidStopWithStatus(sessionStatus: MeetingSessionStatus) {
         let arguments = """
-        {
-        "sessionStatus": "\(sessionStatus.statusCode)"
-        }
-        """
+            {
+            "sessionStatus": "\(sessionStatus.statusCode)"
+            }
+            """
         
         let json = """
-        {
-        "Name": "OnAudioSessionCancelledReconnect",
-        "Arguments": \(arguments)
-        }
-        """
+            {
+            "Name": "OnAudioSessionCancelledReconnect",
+            "Arguments": \(arguments)
+            }
+            """
         
         _eventSink(json)
     }
     
     public func audioSessionDidCancelReconnect() {
         let json = """
-        {
-        "Name": "OnAudioSessionDidCancelReconnect"
-        }
-        """
+            {
+            "Name": "OnAudioSessionDidCancelReconnect"
+            }
+            """
         
         _eventSink(json)
     }
     
     public func connectionDidRecover() {
         let json = """
-        {
-        "Name": "OnConnectionDidRecover"
-        }
+            {
+            "Name": "OnConnectionDidRecover"
+            }
         """
         
         _eventSink(json)
@@ -86,54 +85,54 @@ public class ChimeAudioVideoObserver: AudioVideoObserver {
     
     public func connectionDidBecomePoor() {
         let json = """
-        {
-        "Name": "OnConnectionDidBecomePoor"
-        }
-        """
+            {
+            "Name": "OnConnectionDidBecomePoor"
+            }
+            """
         
         _eventSink(json)
     }
     
     public func videoSessionDidStartConnecting() {
         let json = """
-        {
-        "Name": "OnVideoSessionDidStartConnecting"
-        }
-        """
+            {
+            "Name": "OnVideoSessionDidStartConnecting"
+            }
+            """
         
         _eventSink(json)
     }
     
     public func videoSessionDidStartWithStatus(sessionStatus: MeetingSessionStatus) {
         let arguments = """
-        {
-        "sessionStatus": "\(sessionStatus.statusCode)"
-        }
-        """
+            {
+            "sessionStatus": "\(sessionStatus.statusCode)"
+            }
+            """
         
         let json = """
-        {
-        "Name": "OnVideoSessionDidStartWithStatus",
-        "Arguments": \(arguments)
-        }
-        """
+            {
+            "Name": "OnVideoSessionDidStartWithStatus",
+            "Arguments": \(arguments)
+            }
+            """
         
         _eventSink(json)
     }
     
     public func videoSessionDidStopWithStatus(sessionStatus: MeetingSessionStatus) {
         let arguments = """
-        {
-        "sessionStatus": "\(sessionStatus.statusCode)"
-        }
-        """
+            {
+            "sessionStatus": "\(sessionStatus.statusCode)"
+            }
+            """
         
         let json = """
-        {
-        "Name": "OnVideoSessionDidStopWithStatus",
-        "Arguments": \(arguments)
-        }
-        """
+            {
+            "Name": "OnVideoSessionDidStopWithStatus",
+            "Arguments": \(arguments)
+            }
+            """
         
         _eventSink(json)
     }

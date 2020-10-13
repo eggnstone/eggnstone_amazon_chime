@@ -9,7 +9,6 @@ import Foundation
 import AmazonChimeSDK
 import Flutter
 
-
 public class ChimeRealtimeObserver : RealtimeObserver {
     let _eventSink: FlutterEventSink
     
@@ -23,7 +22,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             "Name": "OnVolumeDidChange",
             "Arguments": [\(convertSignalUpdatesToJson(volumeUpdates: volumeUpdates))]
             }
-        """)
+            """)
     }
     
     public func signalStrengthDidChange(signalUpdates: [SignalUpdate]) {
@@ -32,7 +31,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             "Name": "OnSignalStrengthDidChange",
             "Arguments": [\(convertSignalUpdatesToJson(signalUpdates: signalUpdates)) ]
             }
-        """)
+            """)
     }
     
     public func attendeesDidJoin(attendeeInfo: [AttendeeInfo]) {
@@ -50,7 +49,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             "Name": "OnAttendeesDidLeave",
             "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
-        """)
+            """)
     }
     
     public func attendeesDidDrop(attendeeInfo: [AttendeeInfo]) {
@@ -59,7 +58,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             "Name": "OnAttendeesDidDrop",
             "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
-        """)
+            """)
     }
     
     public func attendeesDidMute(attendeeInfo: [AttendeeInfo]) {
@@ -68,7 +67,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             "Name": "OnAttendeesDidMute",
             "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
-        """)
+            """)
     }
     
     public func attendeesDidUnmute(attendeeInfo: [AttendeeInfo]) {
@@ -77,49 +76,46 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             "Name": "OnAttendeesDidUnmute",
             "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
-        """)
+            """)
     }
     
-    func convertAttendeeInfosToJson(attendeeInfo: [AttendeeInfo]) -> String{
-        
+    func convertAttendeeInfosToJson(attendeeInfo: [AttendeeInfo]) -> String {
         return """
-        [
-        \(attendeeInfo.map({ (info: AttendeeInfo) -> String in
-        return """
-        {
-        "AttendeeId": "\(info.attendeeId)",
-        "ExernalUserId": "\(info.externalUserId)"
-        }
-        """
-        }))
-        ]
-        """
+            [
+            \(attendeeInfo.map({ (info: AttendeeInfo) -> String in
+            return """
+            {
+            "AttendeeId": "\(info.attendeeId)",
+            "ExernalUserId": "\(info.externalUserId)"
+            }
+            """
+            }))
+            ]
+            """
     }
     
     func convertSignalUpdatesToJson(signalUpdates: [SignalUpdate]) -> String {
         return signalUpdates.map({ (update: SignalUpdate) -> String in
             return """
-            {
-            "AttendeeId": "\(update.attendeeInfo.attendeeId)",
-            "ExernalUserId": "\(update.attendeeInfo.externalUserId)",
-            "SignalStrength": "\(update.signalStrength)"
-            }
-            """
-            }).joined(separator: ",")
+                {
+                "AttendeeId": "\(update.attendeeInfo.attendeeId)",
+                "ExernalUserId": "\(update.attendeeInfo.externalUserId)",
+                "SignalStrength": "\(update.signalStrength)"
+                }
+                """
+                }).joined(separator: ",")
     }
     
     func convertSignalUpdatesToJson(volumeUpdates: [VolumeUpdate]) -> String {
         return
         volumeUpdates.map({ (update: VolumeUpdate) -> String in
-        return """
-        {
-        "AttendeeId": "\(update.attendeeInfo.attendeeId)",
-        "ExernalUserId": "\(update.attendeeInfo.externalUserId)",
-        "VolumeLevel": "\(update.volumeLevel)"
-        }
-        """
+            return """
+            {
+            "AttendeeId": "\(update.attendeeInfo.attendeeId)",
+            "ExernalUserId": "\(update.attendeeInfo.externalUserId)",
+            "VolumeLevel": "\(update.volumeLevel)"
+            }
+            """
             }).joined(separator: ",")
-        
     }
-    
 }
