@@ -2,7 +2,7 @@
 //  ChimeAudioVideoObserver.swift
 //  eggnstone_amazon_chime
 //
-//  Created by Hendrik Lakämper on 30.07.20.
+//  Created by Hendrik Lakämper on 30.07.2020
 //
 
 import Foundation
