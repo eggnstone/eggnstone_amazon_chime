@@ -31,8 +31,8 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 * Then I moved the libc++_shared.so out in order to be able to use the plugin in apps that already have that library. Again, if anyone knows a better solution I'll be happy to use it!
 
 **Used versions**
-* [amazon-chime-sdk-0.7.0.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/sdk/0.7.0/amazon-chime-sdk-0.7.0.tar.gz)
-* [amazon-chime-sdk-media-0.6.0.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/media/0.6.0/amazon-chime-sdk-media-0.6.0.tar.gz)
+* [amazon-chime-sdk-0.7.4.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/sdk/0.7.0/amazon-chime-sdk-0.7.4.tar.gz)
+* [amazon-chime-sdk-media-0.7.0.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/media/0.6.0/amazon-chime-sdk-media-0.7.0.tar.gz)
 
 **References**
 * https://github.com/aws/amazon-chime-sdk-android

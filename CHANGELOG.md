@@ -62,3 +62,7 @@
 ## 0.5.3 - 28.08.2020
 
 * More API doc.
+
+## 0.5.4 - 13.10.2020
+
+* Updated to Chime's Android SDK version 0.7.4 (media 0.7.0).
