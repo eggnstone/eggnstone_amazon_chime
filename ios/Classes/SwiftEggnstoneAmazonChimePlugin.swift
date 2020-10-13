@@ -46,72 +46,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             default:result(FlutterMethodNotImplemented)
         }
     }
-    
-    func handleChooseAudioDevice(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let args = call.arguments else {
-            result(FlutterError())
-            return
-        }
-        
-        if checkAudioVideoFacade(result: result, source: "ChooseAudioDevice") == false {
-            return
-        }
-        
-        if let myArgs = args as? [String:Any],
-            let deviceName = myArgs["label"] as? String {
-            if let device = _audioOutputs.first(where: {$0.label == deviceName}) {
-                _audioVideoFacade?.chooseAudioDevice(mediaDevice: device)
-                result("OK")
-            }
-            else {
-                result(FlutterError())
-            }
-        }
-    }
-    
-    func handleListAudioDevices(result: @escaping FlutterResult) {
-        if checkAudioVideoFacade(result: result, source: "ListAudioDevices") == false {
-            return
-        }
-        do {
-            let concatenatedDevices : String
-            
-            let devices: [MediaDevice] = (_audioVideoFacade?.listAudioDevices())!
-            
-            self._audioOutputs.removeAll()
-            for device in devices {
-                self._audioOutputs.append(device)
-            }
-            
-            concatenatedDevices = "[" + devices.map({(device: MediaDevice) -> String in
-            return """
-                {
-                    "label": "\(device.label)",
-                    "type": "\(device.type)",
-                    "port": "\(device.port)",
-                    "description": "\(device.description)"
-                }
-                """
-                }).joined(separator: ",") + "]"
-            
-            result(concatenatedDevices)
-        } catch {
-            result(FlutterError())
-        }
-    }
-    
-//    func chooseAudioDevice(result: @escaping FlutterResult) {
-//        if checkAudioVideoFacade(result: result, source: "ChooseAudioDevice") == false {
-//            return
-//        }
-//        do {
-//            try _audioVideoFacade?.chooseAudioDevice(mediaDevice: <#T##MediaDevice#>)()
-//            result("OK")
-//        } catch {
-//            result(FlutterError())
-//        }
-//    }
-    
+
     func handleCreateMeetingSession(call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let args = call.arguments else {
             result(FlutterError())
@@ -263,6 +198,71 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
         result("OK")
     }
+
+    func handleChooseAudioDevice(call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let args = call.arguments else {
+            result(FlutterError())
+            return
+        }
+
+        if checkAudioVideoFacade(result: result, source: "ChooseAudioDevice") == false {
+            return
+        }
+
+        if let myArgs = args as? [String:Any],
+            let deviceName = myArgs["label"] as? String {
+            if let device = _audioOutputs.first(where: {$0.label == deviceName}) {
+                _audioVideoFacade?.chooseAudioDevice(mediaDevice: device)
+                result("OK")
+            }
+            else {
+                result(FlutterError())
+            }
+        }
+    }
+
+    func handleListAudioDevices(result: @escaping FlutterResult) {
+        if checkAudioVideoFacade(result: result, source: "ListAudioDevices") == false {
+            return
+        }
+        do {
+            let concatenatedDevices : String
+
+            let devices: [MediaDevice] = (_audioVideoFacade?.listAudioDevices())!
+
+            self._audioOutputs.removeAll()
+            for device in devices {
+                self._audioOutputs.append(device)
+            }
+
+            concatenatedDevices = "[" + devices.map({(device: MediaDevice) -> String in
+            return """
+                {
+                    "label": "\(device.label)",
+                    "type": "\(device.type)",
+                    "port": "\(device.port)",
+                    "description": "\(device.description)"
+                }
+                """
+                }).joined(separator: ",") + "]"
+
+            result(concatenatedDevices)
+        } catch {
+            result(FlutterError())
+        }
+    }
+
+//    func chooseAudioDevice(result: @escaping FlutterResult) {
+//        if checkAudioVideoFacade(result: result, source: "ChooseAudioDevice") == false {
+//            return
+//        }
+//        do {
+//            try _audioVideoFacade?.chooseAudioDevice(mediaDevice: <#T##MediaDevice#>)()
+//            result("OK")
+//        } catch {
+//            result(FlutterError())
+//        }
+//    }
     
     func checkAudioVideoFacade(result: FlutterResult, source: String) -> Bool
     {
