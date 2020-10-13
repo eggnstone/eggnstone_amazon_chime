@@ -20,7 +20,9 @@ class ChimeDefaultVideoRenderViewFactory : PlatformViewFactory(StandardMessageCo
         private val _viewIdToViewMap: MutableMap<Int, ChimeDefaultVideoRenderView> = HashMap()
 
         fun getViewById(id: Int): ChimeDefaultVideoRenderView? = _viewIdToViewMap[id]
-        fun clearViewIds() {
+
+        fun clearViewIds()
+        {
             _viewIdToViewMap.clear()
         }
     }
