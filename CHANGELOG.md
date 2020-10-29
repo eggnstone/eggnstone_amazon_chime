@@ -1,3 +1,7 @@
+## 0.5.5 - 29.10.2020
+
+* Added OnActiveSpeakerDetected and OnActiveSpeakerScoreChanged events.
+
 ## 0.5.4 - 13.10.2020
 
 * Added ListAudioDevices and ChooseAudioDevice. 
