@@ -13,11 +13,11 @@ class ChimeActiveSpeakerDetectedObserver(private val _eventSink: EventChannel.Ev
     override val scoreCallbackIntervalMs: Int?
         get() = null
 
-    override fun onActiveSpeakerDetected(attendeeInfo: Array<AttendeeInfo>)
+    override fun onActiveSpeakerDetected(attendeeInfos: Array<AttendeeInfo>)
     {
         val jsonObject = JSONObject()
         jsonObject.put("Name", "OnActiveSpeakerDetected")
-        jsonObject.put("Arguments", convertVolumeUpdatesToJson(attendeeInfo))
+        jsonObject.put("Arguments", convertAttendeeInfosToJson(attendeeInfos))
 
         Handler(getMainLooper()).post {
             _eventSink.success(jsonObject.toString())
@@ -28,11 +28,10 @@ class ChimeActiveSpeakerDetectedObserver(private val _eventSink: EventChannel.Ev
     {
         val jsonObject = JSONObject()
         jsonObject.put("Name", "OnActiveSpeakerScoreChanged")
-
         _eventSink.success(jsonObject.toString())
     }
 
-    private fun convertVolumeUpdatesToJson(attendeeInfos: Array<AttendeeInfo>): JSONArray
+    private fun convertAttendeeInfosToJson(attendeeInfos: Array<AttendeeInfo>): JSONArray
     {
         val list = JSONArray()
 

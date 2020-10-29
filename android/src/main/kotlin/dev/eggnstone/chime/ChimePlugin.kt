@@ -107,10 +107,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         _audioVideoFacade!!.addRealtimeObserver(ChimeRealtimeObserver(_eventSink!!))
         _audioVideoFacade!!.addDeviceChangeObserver(ChimeDeviceChangeObserver(_eventSink!!))
         _audioVideoFacade!!.addVideoTileObserver(ChimeVideoTileObserver(_eventSink!!))
-
-        //        Handler(Looper.getMainLooper()).post {
         _audioVideoFacade!!.addActiveSpeakerObserver(DefaultActiveSpeakerPolicy(), ChimeActiveSpeakerDetectedObserver(_eventSink!!))
-        //      }
 
         result.success("OK")
     }
@@ -222,7 +219,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             jsonString += "{\"Label\": \"" + device.label + "\", \"Type\": \"" + device.type + "\", \"Port\": \"no-port\", \"Description\": \"no-description\"},"
 
         jsonString = jsonString.substring(0, jsonString.length - 1)
-        jsonString = "["+ jsonString + "]"
+        jsonString = "[" + jsonString + "]"
         result.success(jsonString)
     }
 
