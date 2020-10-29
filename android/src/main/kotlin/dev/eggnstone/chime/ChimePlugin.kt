@@ -3,6 +3,7 @@ package dev.eggnstone.chime
 import android.content.Context
 import android.util.Log
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.AudioVideoFacade
+import com.amazonaws.services.chime.sdk.meetings.audiovideo.audio.activespeakerpolicy.DefaultActiveSpeakerPolicy
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.VideoRenderView
 import com.amazonaws.services.chime.sdk.meetings.session.*
 import com.amazonaws.services.chime.sdk.meetings.utils.Versioning.Companion.sdkVersion
@@ -106,6 +107,10 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         _audioVideoFacade!!.addRealtimeObserver(ChimeRealtimeObserver(_eventSink!!))
         _audioVideoFacade!!.addDeviceChangeObserver(ChimeDeviceChangeObserver(_eventSink!!))
         _audioVideoFacade!!.addVideoTileObserver(ChimeVideoTileObserver(_eventSink!!))
+
+        //        Handler(Looper.getMainLooper()).post {
+        _audioVideoFacade!!.addActiveSpeakerObserver(DefaultActiveSpeakerPolicy(), ChimeActiveSpeakerDetectedObserver(_eventSink!!))
+        //      }
 
         result.success("OK")
     }
