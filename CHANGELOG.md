@@ -1,3 +1,7 @@
+## 0.5.6 - 30.10.2020
+
+* iOS: updated to Chime SDK version 0.11.1 (media 0.7.1).
+
 ## 0.5.5 - 29.10.2020
 
 * Added OnActiveSpeakerDetected and OnActiveSpeakerScoreChanged events.
