@@ -47,8 +47,8 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 * Update your project file according to the instructions at https://github.com/aws/amazon-chime-sdk-ios#2-update-project-file.
 
 **Used versions**
-* [amazon-chime-sdk-0.8.1.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/sdk-without-bitcode/0.8.1/AmazonChimeSDK-0.8.1.tar.gz)
-* [amazon-chime-sdk-media-0.6.0.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/media-without-bitcode/0.6.0/AmazonChimeSDKMedia-0.6.0.tar.gz)
+* [amazon-chime-sdk-0.11.1.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/sdk-without-bitcode/0.11.1/AmazonChimeSDK-0.11.1.tar.gz)
+* [amazon-chime-sdk-media-0.7.1.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/media-without-bitcode/0.7.1/AmazonChimeSDKMedia-0.7.1.tar.gz)
 
 **References**
 * https://github.com/aws/amazon-chime-sdk-ios
