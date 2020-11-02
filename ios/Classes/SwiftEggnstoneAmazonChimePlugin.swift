@@ -86,7 +86,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             _audioVideoFacade?.addRealtimeObserver(observer: ChimeRealtimeObserver(eventSink: eventSink))
             _audioVideoFacade?.addDeviceChangeObserver(observer: ChimeDeviceChangeObserver(eventSink: eventSink))
             _audioVideoFacade?.addVideoTileObserver(observer: ChimeVideoTileObserver(eventSink: eventSink))
-            _audioVideoFacade?.addActiveSpeakerObserver(policy: DefaultActiveSpeakerPolicy(), observer: ChimeActiveSpeakerObserver(eventSink: eventSink))
+            _audioVideoFacade?.addActiveSpeakerObserver(policy:  DefaultActiveSpeakerPolicy(speakerWeight: 0, cutoffThreshold: 0, takeoverRate: 0), observer: ChimeActiveSpeakerObserver(eventSink: eventSink))
             
             result("OK")
         }
