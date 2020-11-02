@@ -29,7 +29,7 @@ public class ChimeAudioVideoObserver: AudioVideoObserver {
     public func audioSessionDidStart(reconnecting: Bool) {
         let json = """
             {
-            "Name": "OnAudioSessionDidStart"
+            "Name": "OnAudioSessionStarted"
             }
             """
         
