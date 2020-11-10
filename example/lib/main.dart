@@ -284,6 +284,9 @@ class _AppState extends State<App>
             // (You can leave the dummy values but you will not be able to join a real meeting.)
             // This requires you to have an AWS account and Chime being set up there.
             // MeetingSessionCreator.dart is to be ignored by git so that your private data never gets committed.
+
+            // See ChimeServer.js on how to create authenticated meeting data using the AWS SDK.
+
             meetingSessionState = await MeetingSessionCreator().create();
         }
         on PlatformException catch (e)
