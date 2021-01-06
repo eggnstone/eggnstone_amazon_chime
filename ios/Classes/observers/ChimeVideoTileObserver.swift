@@ -78,7 +78,9 @@ public class ChimeVideoTileObserver : VideoTileObserver {
         "IsContent": \(tileState.isContent),
         "IsLocalTile": \(tileState.isLocalTile),
         "PauseState": "\(tileState.pauseState)",
-        "TileId": \(tileState.tileId)
+        "TileId": \(tileState.tileId),
+        "VideoStreamContentHeight": \(tileState.videoStreamContentHeight),
+        "VideoStreamContentWidth": \(tileState.videoStreamContentWidth)
         }
         """
     }
