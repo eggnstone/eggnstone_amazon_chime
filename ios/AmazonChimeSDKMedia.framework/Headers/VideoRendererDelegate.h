@@ -35,7 +35,7 @@ typedef NS_ENUM(NSUInteger, PauseState) {
                   timestampNs:(int64_t)timestampNs
                      rotation:(VideoRotationInternal)rotation;
 
-- (void)didUpdatePauseForRendererWithId:(uint32_t)videoId state:(PauseState)type;
+- (void)didUpdatePauseForRendererWithId:(uint32_t)videoId profileId:(NSString*)profileId state:(PauseState)type;
 
 - (void)didRemoveRendererWithId:(uint32_t)videoId;
 

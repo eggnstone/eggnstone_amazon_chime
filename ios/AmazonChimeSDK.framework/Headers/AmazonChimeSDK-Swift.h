@@ -186,6 +186,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 @import AVFoundation;
 @import AmazonChimeSDKMedia;
 @import CoreGraphics;
+@import CoreMedia;
 @import CoreVideo;
 @import Foundation;
 @import ObjectiveC;
@@ -208,6 +209,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #endif
 
 @class AVAudioSessionPortDescription;
+@class AVAudioSessionRouteDescription;
 
 SWIFT_PROTOCOL("_TtP14AmazonChimeSDK12AudioSession_")
 @protocol AudioSession
@@ -215,6 +217,7 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK12AudioSession_")
 @property (nonatomic, readonly, copy) NSArray<AVAudioSessionPortDescription *> * _Nullable availableInputs;
 - (BOOL)setPreferredInput:(AVAudioSessionPortDescription * _Nullable)inPort error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)overrideOutputAudioPort:(AVAudioSessionPortOverride)portOverride error:(NSError * _Nullable * _Nullable)error;
+@property (nonatomic, readonly, strong) AVAudioSessionRouteDescription * _Nonnull currentRoute;
 @end
 
 
@@ -334,6 +337,8 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK19AudioClientProtocol_")
 - (void)setPresenter:(BOOL)presenter;
 - (void)remoteMute;
 - (void)audioLogCallBack:(loglevel_t)logLevel msg:(NSString * _Null_unspecified)msg;
+- (BOOL)isBliteNSSelected SWIFT_WARN_UNUSED_RESULT;
+- (NSInteger)setBliteNSSelected:(BOOL)bliteSelected SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -346,6 +351,8 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21AudioClientController_")
 - (BOOL)setMuteWithMute:(BOOL)mute SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)startWithAudioFallbackUrl:(NSString * _Nonnull)audioFallbackUrl audioHostUrl:(NSString * _Nonnull)audioHostUrl meetingId:(NSString * _Nonnull)meetingId attendeeId:(NSString * _Nonnull)attendeeId joinToken:(NSString * _Nonnull)joinToken callKitEnabled:(BOOL)callKitEnabled error:(NSError * _Nullable * _Nullable)error;
 - (void)stop;
+- (BOOL)setVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)isVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 @end
 
 @protocol AudioVideoObserver;
@@ -371,6 +378,7 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9AudioLock_")
 
 @class MeetingSessionConfiguration;
 @protocol Logger;
+@protocol VideoSource;
 @protocol MetricsObserver;
 
 /// <code>AudioVideoControllerFacade</code> manages the signaling and peer connections.
@@ -394,12 +402,26 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK26AudioVideoControllerFacade_")
 - (BOOL)startAndReturnError:(NSError * _Nullable * _Nullable)error;
 /// Stop AudioVideo Controller. This will exit the meeting
 - (void)stop;
-/// Enable self video to start streaming
+/// Start local video and begin transmitting frames from an internally held <code>DefaultCameraCaptureSource</code>.
+/// <code>stopLocalVideo</code> will stop the internal capture source if being used.
+/// Calling this after passing in a custom <code>VideoSource</code> will replace it with the internal capture source.
+/// This function will only have effect if <code>start</code> has already been called
 ///
 /// throws:
 /// <code>PermissionError.videoPermissionError</code> if video permission of <code>AVCaptureDevice</code> is not granted
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
-/// Disable self video streaming
+/// Start local video with a provided custom <code>VideoSource</code> which can be used to provide custom
+/// <code>VideoFrame</code>s to be transmitted to remote clients. This will call <code>VideoSource.addVideoSink</code>
+/// on the provided source.
+/// Calling this function repeatedly will replace the previous <code>VideoSource</code> as the one being
+/// transmitted. It will also stop and replace the internal capture source if <code>startLocalVideo</code>
+/// was previously called with no arguments.
+/// This function will only have effect if <code>start</code> has already been called
+/// \param source The source of video frames to be sent to other clients
+///
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
+/// Stops sending video for local attendee. This will additionally stop the internal capture source if being used.
+/// If using a custom video source, this will call <code>VideoSource.removeVideoSink</code> on the previously provided source.
 - (void)stopLocalVideo;
 /// Enable remote video to start receiving streams
 - (void)startRemoteVideo;
@@ -488,13 +510,20 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK16DeviceController_")
 /// \param observer the object that will be removed
 ///
 - (void)removeDeviceChangeObserverWithObserver:(id <DeviceChangeObserver> _Nonnull)observer;
-/// Switch between front/back camera
+/// Switch between front/back camera. This will no-op if using a custom source,
+/// e.g. one passed in via <code>startLocalVideo</code>
 - (void)switchCamera;
-/// Get currently used video device
+/// Get the currently active camera, if any. This will return null if using a custom source,
+/// e.g. one passed in via <code>AudioVideoControllerFacade.startLocalVideo</code>
 ///
 /// returns:
 /// a media device or nil if no device is present
 - (MediaDevice * _Nullable)getActiveCamera SWIFT_WARN_UNUSED_RESULT;
+/// Get currently used audio device
+///
+/// returns:
+/// a media device or nil if no device is present
+- (MediaDevice * _Nullable)getActiveAudioDevice SWIFT_WARN_UNUSED_RESULT;
 @end
 
 @protocol DataMessageObserver;
@@ -547,6 +576,19 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK24RealtimeControllerFacade_")
 /// throws:
 /// SendDataMessageError
 - (BOOL)realtimeSendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
+/// Enable or disable Voice Focus (ML-based noise suppression) on the audio input
+/// Note: Only call this API after audioClient starts. Calling it before that results in a no-op. Voice Focus is disabled by default when audioClient starts.
+/// \param enabled A <code>Bool</code> value, where <code>true</code> to enable; <code>false</code> to disable
+///
+///
+/// returns:
+/// Whether the enable/disable action was successful
+- (BOOL)realtimeSetVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+/// Check if Voice Focus (ML-based noise suppression) is enabled or not
+///
+/// returns:
+/// <code>true</code> if Voice Focus is enabled; <code>false</code> if Voice Focus is not enabled, or the audio session was not started yet
+- (BOOL)realtimeIsVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -606,6 +648,98 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK18AudioVideoObserver_")
 - (void)videoSessionDidStopWithStatusWithSessionStatus:(MeetingSessionStatus * _Nonnull)sessionStatus;
 @end
 
+enum VideoContentHint : NSInteger;
+@protocol VideoSink;
+
+/// <code>VideoSource</code> is an interface for sources which produce video frames, and can send to a <code>VideoSink</code>.
+/// Implementations can be passed to the <code>AudioVideoFacade</code> to be used as the video source sent to remote
+/// participlants
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK11VideoSource_")
+@protocol VideoSource
+/// Content hint for downstream processing.
+@property (nonatomic) enum VideoContentHint videoContentHint;
+/// Add a video sink which will immediately begin to receive new frames.
+/// Multiple sinks can be added to a single <code>VideoSource</code> to allow forking of video frames,
+/// e.g. to send to both local preview and AmazonChimeSDKMedia framework (i.e. for encoding) at the same time.
+/// \param sink New video sink
+///
+- (void)addVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+/// Remove a video sink which will no longer receive new frames on return.
+/// \param sink Video sink to remove
+///
+- (void)removeVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+@end
+
+@protocol CaptureSourceObserver;
+
+/// <code>VideoCaptureSource</code> is an interface for various video capture sources (i.e. screen, camera, file) which can emit <code>VideoFrame</code> objects.
+/// All the APIs in this protocol can be called regardless of whether the <code>MeetingSession.audioVideo</code> is started or not.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK18VideoCaptureSource_")
+@protocol VideoCaptureSource <VideoSource>
+/// Start capturing on this source and emitting video frames.
+- (void)start;
+/// Stop capturing on this source and cease emitting video frames.
+- (void)stop;
+/// Add a capture source observer to receive callbacks from the source on lifecycle events
+/// which can be used to trigger UI. This observer is entirely optional.
+/// \param observer - New observer.
+///
+- (void)addCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+/// Remove a capture source observer.
+/// \param observer - Observer to remove.
+///
+- (void)removeCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+@end
+
+@class VideoCaptureFormat;
+
+/// <code>CameraCaptureSource</code> is an interface for camera capture sources with additional features
+/// not covered by <code>VideoCaptureSource</code>.
+/// All the APIs in this protocol can be called regardless of whether the <code>MeetingSession.audioVideo</code> is started or not.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK19CameraCaptureSource_")
+@protocol CameraCaptureSource <VideoCaptureSource>
+/// Current camera device. This is only null if the phone/device doesn’t have any cameras
+/// May be called regardless of whether <code>start</code> or <code>stop</code> has been called.
+@property (nonatomic, strong) MediaDevice * _Nullable device;
+/// Toggle for flashlight on the current device. Will succeed if current device has access to
+/// flashlight, otherwise will stay <code>false</code>. May be called regardless of whether <code>start</code> or <code>stop</code>
+/// has been called.
+@property (nonatomic) BOOL torchEnabled;
+/// Current camera capture format  Actual format may be adjusted to use supported camera formats.
+/// May be called regardless of whether <code>start</code> or <code>stop</code> has been called.
+@property (nonatomic, strong) VideoCaptureFormat * _Nonnull format;
+/// Helper function to switch from front to back cameras or reverse.
+- (void)switchCamera;
+@end
+
+/// <code>CaptureSourceError</code> describes an error resulting from a capture source failure.
+/// These can be used to trigger UI, or attempt to restart the capture source.
+typedef SWIFT_ENUM(NSInteger, CaptureSourceError, open) {
+/// Unknown error, and catch-all for errors not otherwise covered.
+  CaptureSourceErrorUnknown = 0,
+/// A  failure observed from a system API used for capturing.
+  CaptureSourceErrorSystemFailure = 1,
+/// A failure observed during configuration.
+  CaptureSourceErrorConfigurationFailure = 2,
+/// A temporary failure observed when capture source generates an invalid frame which is ignored.
+  CaptureSourceErrorInvalidFrame = 3,
+};
+
+
+/// <code>CaptureSourceObserver</code> observes events resulting from different types of capture devices.
+/// Builders may desire this input to decide when to show certain UI elements, or to notify users of failure.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21CaptureSourceObserver_")
+@protocol CaptureSourceObserver
+/// Called when the capture source has started successfully and has started emitting frames.
+- (void)captureDidStart;
+/// Called when the capture source has stopped when expected. This may occur when switching cameras, for example.
+- (void)captureDidStop;
+/// Called when the capture source failed permanently
+/// \param error - The reason why the source has stopped.
+///
+- (void)captureDidFailWithError:(enum CaptureSourceError)error;
+@end
+
 
 /// ClientMetricsCollector takes the raw metrics from the native client,
 /// consolidates them into a normalize map of ObservableMetric to value,
@@ -645,7 +779,7 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK6Logger_")
 /// ConsoleLogger writes logs with console.
 /// \code
 /// // working with the ConsoleLogger
-/// let logger = new ConsoleLogger("demo"); //default level is LogLevel.DEFAULT prints everything
+/// let logger = new ConsoleLogger("demo"); //default level is LogLevel.INFO
 /// logger.info("info");
 /// logger.debug("debug");
 /// logger.fault("fault");
@@ -810,11 +944,16 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK28DefaultActiveSpeakerDetector")
 
 SWIFT_CLASS("_TtC14AmazonChimeSDK26DefaultActiveSpeakerPolicy")
 @interface DefaultActiveSpeakerPolicy : NSObject <ActiveSpeakerPolicy>
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) double defaultSpeakerWeight;)
++ (double)defaultSpeakerWeight SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) double defaultCutoffThreshold;)
++ (double)defaultCutoffThreshold SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) double defaultTakeoverRate;)
++ (double)defaultTakeoverRate SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init;
 - (nonnull instancetype)initWithSpeakerWeight:(double)speakerWeight cutoffThreshold:(double)cutoffThreshold takeoverRate:(double)takeoverRate OBJC_DESIGNATED_INITIALIZER;
 - (double)calculateScoreWithAttendeeInfo:(AttendeeInfo * _Nonnull)attendeeInfo volume:(enum VolumeLevel)volume SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)prioritizeVideoSendBandwidthForActiveSpeaker SWIFT_WARN_UNUSED_RESULT;
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 @protocol VideoClientController;
@@ -832,6 +971,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK27DefaultAudioVideoController")
 - (void)addMetricsObserverWithObserver:(id <MetricsObserver> _Nonnull)observer;
 - (void)removeMetricsObserverWithObserver:(id <MetricsObserver> _Nonnull)observer;
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
 - (void)stopLocalVideo;
 - (void)startRemoteVideo;
 - (void)stopRemoteVideo;
@@ -850,6 +990,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultAudioVideoFacade")
 - (BOOL)startAndReturnError:(NSError * _Nullable * _Nullable)error;
 - (void)stop;
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
 - (void)stopLocalVideo;
 - (void)startRemoteVideo;
 - (void)stopRemoteVideo;
@@ -860,6 +1001,8 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultAudioVideoFacade")
 - (void)addRealtimeDataMessageObserverWithTopic:(NSString * _Nonnull)topic observer:(id <DataMessageObserver> _Nonnull)observer;
 - (void)removeRealtimeDataMessageObserverFromTopicWithTopic:(NSString * _Nonnull)topic;
 - (BOOL)realtimeSendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)realtimeSetVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)realtimeIsVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 - (void)addAudioVideoObserverWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
 - (void)removeAudioVideoObserverWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
 - (void)addMetricsObserverWithObserver:(id <MetricsObserver> _Nonnull)observer;
@@ -879,8 +1022,35 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultAudioVideoFacade")
 - (void)addActiveSpeakerObserverWithPolicy:(id <ActiveSpeakerPolicy> _Nonnull)policy observer:(id <ActiveSpeakerObserver> _Nonnull)observer;
 - (void)removeActiveSpeakerObserverWithObserver:(id <ActiveSpeakerObserver> _Nonnull)observer;
 - (void)hasBandwidthPriorityCallbackWithHasBandwidthPriority:(BOOL)hasBandwidthPriority;
+- (MediaDevice * _Nullable)getActiveAudioDevice SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+SWIFT_CLASS("_TtC14AmazonChimeSDK26DefaultCameraCaptureSource")
+@interface DefaultCameraCaptureSource : NSObject <CameraCaptureSource>
+@property (nonatomic) enum VideoContentHint videoContentHint;
+- (nonnull instancetype)initWithLogger:(id <Logger> _Nonnull)logger OBJC_DESIGNATED_INITIALIZER;
+@property (nonatomic, strong) MediaDevice * _Nullable device;
+@property (nonatomic, strong) VideoCaptureFormat * _Nonnull format;
+@property (nonatomic) BOOL torchEnabled;
+- (void)addVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+- (void)removeVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+- (void)start;
+- (void)stop;
+- (void)switchCamera;
+- (void)addCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+- (void)removeCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+@class AVCaptureOutput;
+@class AVCaptureConnection;
+
+@interface DefaultCameraCaptureSource (SWIFT_EXTENSION(AmazonChimeSDK)) <AVCaptureVideoDataOutputSampleBufferDelegate>
+- (void)captureOutput:(AVCaptureOutput * _Nonnull)_ didOutputSampleBuffer:(CMSampleBufferRef _Nonnull)sampleBuffer fromConnection:(AVCaptureConnection * _Nonnull)_;
 @end
 
 
@@ -893,6 +1063,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultDeviceController")
 - (void)removeDeviceChangeObserverWithObserver:(id <DeviceChangeObserver> _Nonnull)observer;
 - (void)switchCamera;
 - (MediaDevice * _Nullable)getActiveCamera SWIFT_WARN_UNUSED_RESULT;
+- (MediaDevice * _Nullable)getActiveAudioDevice SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -927,18 +1098,29 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK25DefaultRealtimeController")
 - (void)addRealtimeDataMessageObserverWithTopic:(NSString * _Nonnull)topic observer:(id <DataMessageObserver> _Nonnull)observer;
 - (void)removeRealtimeDataMessageObserverFromTopicWithTopic:(NSString * _Nonnull)topic;
 - (BOOL)realtimeSendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)realtimeSetVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)realtimeIsVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+@class VideoFrame;
 
-/// <code>VideoRenderView</code> renders frame that comes from <code>VideoTile</code>.
-SWIFT_PROTOCOL("_TtP14AmazonChimeSDK15VideoRenderView_")
-@protocol VideoRenderView
-/// Render given frame to UI
-/// \param frame a frame of video
+/// A <code>VideoSink</code> consumes video frames, typically from a <code>VideoSource</code>. It may process, fork, or render these frames.
+/// Typically connected via video <code>VideoSource.addVideoSink</code> and disconnected via <code>VideoSource.removeVideoSink</code>
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9VideoSink_")
+@protocol VideoSink
+/// Receive a video frame from some upstream source.
+/// The <code>VideoSink</code> may render, store, process, and forward the frame, among other applications.
+/// \param frame New video frame to consume
 ///
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
+- (void)onVideoFrameReceivedWithFrame:(VideoFrame * _Nonnull)frame;
+@end
+
+
+/// <code>VideoRenderView</code> is the type of VideoSink used by the <code>VideoTileController</code>
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK15VideoRenderView_")
+@protocol VideoRenderView <VideoSink>
 @end
 
 @class NSCoder;
@@ -950,7 +1132,8 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK22DefaultVideoRenderView")
 @property (nonatomic) UIViewContentMode contentMode;
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)initWithFrame:(CGRect)frame OBJC_DESIGNATED_INITIALIZER;
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
+- (void)onVideoFrameReceivedWithFrame:(VideoFrame * _Nonnull)frame;
+- (void)resetImage;
 - (nonnull instancetype)initWithImage:(UIImage * _Nullable)image SWIFT_UNAVAILABLE;
 - (nonnull instancetype)initWithImage:(UIImage * _Nullable)image highlightedImage:(UIImage * _Nullable)highlightedImage SWIFT_UNAVAILABLE;
 @end
@@ -960,7 +1143,7 @@ enum VideoPauseState : NSInteger;
 
 /// <code>VideoTile</code> is a tile that binds video render view to diplay the frame into the view.
 SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9VideoTile_")
-@protocol VideoTile
+@protocol VideoTile <VideoSink>
 /// State of VideoTile
 @property (nonatomic, readonly, strong) VideoTileState * _Nonnull state;
 /// View which will be used to render the Video Frame
@@ -970,11 +1153,6 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9VideoTile_")
 /// \param videoRenderView the view created by application to render the video frame
 ///
 - (void)bindWithVideoRenderView:(id <VideoRenderView> _Nullable)videoRenderView;
-/// Renders the frame on <code>videoRenderView</code>. The call will be silently ignored if the view has not been bind
-/// to the tile using <code>bind</code>
-/// \param frame a frame of video
-///
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
 /// Unbinds the <code>videoRenderView</code> from tile.
 - (void)unbind;
 /// Update the pause state of the tile.
@@ -988,7 +1166,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK16DefaultVideoTile")
 @property (nonatomic, strong) id <VideoRenderView> _Nullable videoRenderView;
 - (nonnull instancetype)initWithTileId:(NSInteger)tileId attendeeId:(NSString * _Nonnull)attendeeId videoStreamContentWidth:(NSInteger)videoStreamContentWidth videoStreamContentHeight:(NSInteger)videoStreamContentHeight isLocalTile:(BOOL)isLocalTile logger:(id <Logger> _Nonnull)logger OBJC_DESIGNATED_INITIALIZER;
 - (void)bindWithVideoRenderView:(id <VideoRenderView> _Nullable)videoRenderView;
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
+- (void)onVideoFrameReceivedWithFrame:(VideoFrame * _Nonnull)frame;
 - (void)unbind;
 - (void)setPauseStateWithPauseState:(enum VideoPauseState)pauseState;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
@@ -1006,20 +1184,16 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK19VideoTileController_")
 ///
 /// \param attendeeId a id of user who is transmitting current frame
 ///
-/// \param videoStreamContentHeight height of the video stream being transmitted
-///
-/// \param videoStreamContentWidth width of the video stream being transmitted
-///
 /// \param pauseState current pause state of the video being received
 ///
-- (void)onReceiveFrameWithFrame:(CVPixelBufferRef _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
+- (void)onReceiveFrameWithFrame:(VideoFrame * _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
 @end
 
 
 SWIFT_CLASS("_TtC14AmazonChimeSDK26DefaultVideoTileController")
 @interface DefaultVideoTileController : NSObject <VideoTileController>
 - (nonnull instancetype)initWithVideoClientController:(id <VideoClientController> _Nonnull)videoClientController logger:(id <Logger> _Nonnull)logger OBJC_DESIGNATED_INITIALIZER;
-- (void)onReceiveFrameWithFrame:(CVPixelBufferRef _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
+- (void)onReceiveFrameWithFrame:(VideoFrame * _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
 - (void)bindVideoViewWithVideoView:(id <VideoRenderView> _Nonnull)videoView tileId:(NSInteger)tileId;
 - (void)unbindVideoViewWithTileId:(NSInteger)tileId;
 - (void)addVideoTileObserverWithObserver:(id <VideoTileObserver> _Nonnull)observer;
@@ -1088,6 +1262,13 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK11MediaDevice")
 /// Audio Information based on iOS native <code>AVAudioSessionPortDescription</code>
 /// It will be null when it represent a video device.
 @property (nonatomic, readonly, strong) AVAudioSessionPortDescription * _Nullable port;
+/// List available video capture devices from the hardware
++ (NSArray<MediaDevice *> * _Nonnull)listVideoDevices SWIFT_WARN_UNUSED_RESULT;
+/// List available <code>VideoCaptureFormat</code> from the video capture device.
+/// This methods returns an empty array for <code>MediaDevice</code> that’s not used for video.
+/// \param mediaDevice Video capture device to query
+///
++ (NSArray<VideoCaptureFormat *> * _Nonnull)listSupportedVideoCaptureFormatsWithMediaDevice:(MediaDevice * _Nonnull)mediaDevice SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)initWithLabel:(NSString * _Nonnull)label type:(enum MediaDeviceType)type OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)initWithLabel:(NSString * _Nonnull)label port:(AVAudioSessionPortDescription * _Nullable)port videoDevice:(VideoDevice * _Nullable)videoDevice OBJC_DESIGNATED_INITIALIZER;
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
@@ -1325,16 +1506,28 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK10Versioning")
 @end
 
 
+/// <code>VideoCaptureFormat</code>describes a given capture format that may be possible to apply to a <code>VideoCaptureSource</code>.
+/// Note that <code>VideoCaptureSource</code> implementations may ignore or adjust unsupported values.
+SWIFT_CLASS("_TtC14AmazonChimeSDK18VideoCaptureFormat")
+@interface VideoCaptureFormat : NSObject
+- (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+
 SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21VideoClientController_")
 @protocol VideoClientController
 - (void)startWithTurnControlUrl:(NSString * _Nonnull)turnControlUrl signalingUrl:(NSString * _Nonnull)signalingUrl meetingId:(NSString * _Nonnull)meetingId joinToken:(NSString * _Nonnull)joinToken;
 - (void)stopAndDestroy;
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
 - (void)stopLocalVideo;
 - (void)startRemoteVideo;
 - (void)stopRemoteVideo;
 - (void)switchCamera;
-- (VideoDevice * _Nullable)getCurrentDevice SWIFT_WARN_UNUSED_RESULT;
+- (MediaDevice * _Nullable)getCurrentDevice SWIFT_WARN_UNUSED_RESULT;
 - (MeetingSessionConfiguration * _Nonnull)getConfiguration SWIFT_WARN_UNUSED_RESULT;
 - (void)subscribeToVideoClientStateChangeWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
 - (void)unsubscribeFromVideoClientStateChangeWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
@@ -1346,17 +1539,100 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21VideoClientController_")
 - (BOOL)sendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
 @end
 
+/// <code>VideoContentHint</code> describes the content type of a video source so that downstream encoders, etc. can properly
+/// decide on what parameters will work best. These options mirror https://www.w3.org/TR/mst-content-hint/ .
+typedef SWIFT_ENUM(NSInteger, VideoContentHint, open) {
+/// No hint has been provided.
+  VideoContentHintNone = 0,
+/// The track should be treated as if it contains video where motion is important.
+/// This is normally webcam video, movies or video games.
+  VideoContentHintMotion = 1,
+/// The track should be treated as if video details are extra important.
+/// This is generally applicable to presentations or web pages with text content, painting or line art.
+  VideoContentHintDetail = 2,
+/// The track should be treated as if video details are extra important, and that
+/// significant sharp edges and areas of consistent color can occur frequently.
+/// This is generally applicable to presentations or web pages with text content.
+  VideoContentHintText = 3,
+};
+
+enum VideoRotation : NSInteger;
+@protocol VideoFrameBuffer;
+
+/// <code>VideoFrame</code> is a class which contains a <code>VideoFrameBuffer</code> and metadata necessary for transmission.
+/// Typically produced via a <code>VideoSource</code> and consumed via a <code>VideoSink</code>
+SWIFT_CLASS("_TtC14AmazonChimeSDK10VideoFrame")
+@interface VideoFrame : NSObject
+/// Width of the video frame in pixels.
+@property (nonatomic, readonly) NSInteger width;
+/// Height of the video frame in pixels.
+@property (nonatomic, readonly) NSInteger height;
+/// Timestamp in nanoseconds at which the video frame was captured from some system monotonic clock.
+/// Will be aligned and converted to NTP (Network Time Protocol) within AmazonChimeSDKMedia framework, which will then be converted to a system
+/// monotonic clock on remote end. May be different on frames emanated from AmazonChimeSDKMedia framework.
+@property (nonatomic, readonly) int64_t timestampNs;
+/// Rotation of the video frame buffer in degrees clockwise from intended viewing horizon.
+/// e.g. If you were recording camera capture upside down relative to
+/// the orientation of the sensor, this value would be <code>VideoRotation.rotation180</code>.
+@property (nonatomic, readonly) enum VideoRotation rotation;
+/// Object containing actual video frame data in some form.
+@property (nonatomic, readonly, strong) id <VideoFrameBuffer> _Nonnull buffer;
+- (nonnull instancetype)initWithTimestampNs:(int64_t)timestampNs rotation:(enum VideoRotation)rotation buffer:(id <VideoFrameBuffer> _Nonnull)buffer OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+/// <code>VideoFrameBuffer</code> is a buffer which contains a single video buffer’s raw data.
+/// Typically owned by a <code>VideoFrame</code> which includes additional metadata.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK16VideoFrameBuffer_")
+@protocol VideoFrameBuffer
+/// Width of the video frame in pixels.
+- (NSInteger)width SWIFT_WARN_UNUSED_RESULT;
+/// Height of the video frame in pixels.
+- (NSInteger)height SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+/// <code>VideoFramePixelBuffer</code> is a buffer which contains a single video frame in the form of <code>CVPixelBuffer</code>.
+SWIFT_CLASS("_TtC14AmazonChimeSDK21VideoFramePixelBuffer")
+@interface VideoFramePixelBuffer : NSObject <VideoFrameBuffer>
+- (NSInteger)width SWIFT_WARN_UNUSED_RESULT;
+- (NSInteger)height SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly) CVPixelBufferRef _Nonnull pixelBuffer;
+- (nonnull instancetype)initWithPixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuffer OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
 /// <code>VideoPauseState</code> describes the pause status of a video tile.
 typedef SWIFT_ENUM(NSInteger, VideoPauseState, open) {
 /// The video tile is not paused
   VideoPauseStateUnpaused = 0,
 /// The video tile has been paused by the user, and will only be unpaused if the user requests it to resume.
   VideoPauseStatePausedByUserRequest = 1,
-/// The video tile has been paused to save on local downlink bandwidth.  When the connection improves,
-/// it will be automatically unpaused by the client.  User requested pauses will shadow this pause,
+/// The video tile has been paused to save on local downlink bandwidth. When the connection improves,
+/// it will be automatically unpaused by the client. User requested pauses will shadow this pause,
 /// but if the connection has not recovered on resume the tile will still be paused with this state.
   VideoPauseStatePausedForPoorConnection = 2,
 };
+
+
+/// <code>VideoRotation</code> describes the rotation of the video frame buffer in degrees clockwise
+/// from intended viewing horizon.
+/// e.g. If you were recording camera capture upside down relative to
+/// the orientation of the sensor, this value would be <code>VideoRotation.rotation180</code>.
+typedef SWIFT_ENUM(NSInteger, VideoRotation, open) {
+/// Not rotated.
+  VideoRotationRotation0 = 0,
+/// Rotated 90 degrees clockwise.
+  VideoRotationRotation90 = 90,
+/// Rotated 180 degrees clockwise.
+  VideoRotationRotation180 = 180,
+/// Rotated 270 degrees clockwise.
+  VideoRotationRotation270 = 270,
+};
+
 
 
 
@@ -1632,6 +1908,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 @import AVFoundation;
 @import AmazonChimeSDKMedia;
 @import CoreGraphics;
+@import CoreMedia;
 @import CoreVideo;
 @import Foundation;
 @import ObjectiveC;
@@ -1654,6 +1931,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #endif
 
 @class AVAudioSessionPortDescription;
+@class AVAudioSessionRouteDescription;
 
 SWIFT_PROTOCOL("_TtP14AmazonChimeSDK12AudioSession_")
 @protocol AudioSession
@@ -1661,6 +1939,7 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK12AudioSession_")
 @property (nonatomic, readonly, copy) NSArray<AVAudioSessionPortDescription *> * _Nullable availableInputs;
 - (BOOL)setPreferredInput:(AVAudioSessionPortDescription * _Nullable)inPort error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)overrideOutputAudioPort:(AVAudioSessionPortOverride)portOverride error:(NSError * _Nullable * _Nullable)error;
+@property (nonatomic, readonly, strong) AVAudioSessionRouteDescription * _Nonnull currentRoute;
 @end
 
 
@@ -1780,6 +2059,8 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK19AudioClientProtocol_")
 - (void)setPresenter:(BOOL)presenter;
 - (void)remoteMute;
 - (void)audioLogCallBack:(loglevel_t)logLevel msg:(NSString * _Null_unspecified)msg;
+- (BOOL)isBliteNSSelected SWIFT_WARN_UNUSED_RESULT;
+- (NSInteger)setBliteNSSelected:(BOOL)bliteSelected SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -1792,6 +2073,8 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21AudioClientController_")
 - (BOOL)setMuteWithMute:(BOOL)mute SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)startWithAudioFallbackUrl:(NSString * _Nonnull)audioFallbackUrl audioHostUrl:(NSString * _Nonnull)audioHostUrl meetingId:(NSString * _Nonnull)meetingId attendeeId:(NSString * _Nonnull)attendeeId joinToken:(NSString * _Nonnull)joinToken callKitEnabled:(BOOL)callKitEnabled error:(NSError * _Nullable * _Nullable)error;
 - (void)stop;
+- (BOOL)setVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)isVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 @end
 
 @protocol AudioVideoObserver;
@@ -1817,6 +2100,7 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9AudioLock_")
 
 @class MeetingSessionConfiguration;
 @protocol Logger;
+@protocol VideoSource;
 @protocol MetricsObserver;
 
 /// <code>AudioVideoControllerFacade</code> manages the signaling and peer connections.
@@ -1840,12 +2124,26 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK26AudioVideoControllerFacade_")
 - (BOOL)startAndReturnError:(NSError * _Nullable * _Nullable)error;
 /// Stop AudioVideo Controller. This will exit the meeting
 - (void)stop;
-/// Enable self video to start streaming
+/// Start local video and begin transmitting frames from an internally held <code>DefaultCameraCaptureSource</code>.
+/// <code>stopLocalVideo</code> will stop the internal capture source if being used.
+/// Calling this after passing in a custom <code>VideoSource</code> will replace it with the internal capture source.
+/// This function will only have effect if <code>start</code> has already been called
 ///
 /// throws:
 /// <code>PermissionError.videoPermissionError</code> if video permission of <code>AVCaptureDevice</code> is not granted
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
-/// Disable self video streaming
+/// Start local video with a provided custom <code>VideoSource</code> which can be used to provide custom
+/// <code>VideoFrame</code>s to be transmitted to remote clients. This will call <code>VideoSource.addVideoSink</code>
+/// on the provided source.
+/// Calling this function repeatedly will replace the previous <code>VideoSource</code> as the one being
+/// transmitted. It will also stop and replace the internal capture source if <code>startLocalVideo</code>
+/// was previously called with no arguments.
+/// This function will only have effect if <code>start</code> has already been called
+/// \param source The source of video frames to be sent to other clients
+///
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
+/// Stops sending video for local attendee. This will additionally stop the internal capture source if being used.
+/// If using a custom video source, this will call <code>VideoSource.removeVideoSink</code> on the previously provided source.
 - (void)stopLocalVideo;
 /// Enable remote video to start receiving streams
 - (void)startRemoteVideo;
@@ -1934,13 +2232,20 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK16DeviceController_")
 /// \param observer the object that will be removed
 ///
 - (void)removeDeviceChangeObserverWithObserver:(id <DeviceChangeObserver> _Nonnull)observer;
-/// Switch between front/back camera
+/// Switch between front/back camera. This will no-op if using a custom source,
+/// e.g. one passed in via <code>startLocalVideo</code>
 - (void)switchCamera;
-/// Get currently used video device
+/// Get the currently active camera, if any. This will return null if using a custom source,
+/// e.g. one passed in via <code>AudioVideoControllerFacade.startLocalVideo</code>
 ///
 /// returns:
 /// a media device or nil if no device is present
 - (MediaDevice * _Nullable)getActiveCamera SWIFT_WARN_UNUSED_RESULT;
+/// Get currently used audio device
+///
+/// returns:
+/// a media device or nil if no device is present
+- (MediaDevice * _Nullable)getActiveAudioDevice SWIFT_WARN_UNUSED_RESULT;
 @end
 
 @protocol DataMessageObserver;
@@ -1993,6 +2298,19 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK24RealtimeControllerFacade_")
 /// throws:
 /// SendDataMessageError
 - (BOOL)realtimeSendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
+/// Enable or disable Voice Focus (ML-based noise suppression) on the audio input
+/// Note: Only call this API after audioClient starts. Calling it before that results in a no-op. Voice Focus is disabled by default when audioClient starts.
+/// \param enabled A <code>Bool</code> value, where <code>true</code> to enable; <code>false</code> to disable
+///
+///
+/// returns:
+/// Whether the enable/disable action was successful
+- (BOOL)realtimeSetVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+/// Check if Voice Focus (ML-based noise suppression) is enabled or not
+///
+/// returns:
+/// <code>true</code> if Voice Focus is enabled; <code>false</code> if Voice Focus is not enabled, or the audio session was not started yet
+- (BOOL)realtimeIsVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -2052,6 +2370,98 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK18AudioVideoObserver_")
 - (void)videoSessionDidStopWithStatusWithSessionStatus:(MeetingSessionStatus * _Nonnull)sessionStatus;
 @end
 
+enum VideoContentHint : NSInteger;
+@protocol VideoSink;
+
+/// <code>VideoSource</code> is an interface for sources which produce video frames, and can send to a <code>VideoSink</code>.
+/// Implementations can be passed to the <code>AudioVideoFacade</code> to be used as the video source sent to remote
+/// participlants
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK11VideoSource_")
+@protocol VideoSource
+/// Content hint for downstream processing.
+@property (nonatomic) enum VideoContentHint videoContentHint;
+/// Add a video sink which will immediately begin to receive new frames.
+/// Multiple sinks can be added to a single <code>VideoSource</code> to allow forking of video frames,
+/// e.g. to send to both local preview and AmazonChimeSDKMedia framework (i.e. for encoding) at the same time.
+/// \param sink New video sink
+///
+- (void)addVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+/// Remove a video sink which will no longer receive new frames on return.
+/// \param sink Video sink to remove
+///
+- (void)removeVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+@end
+
+@protocol CaptureSourceObserver;
+
+/// <code>VideoCaptureSource</code> is an interface for various video capture sources (i.e. screen, camera, file) which can emit <code>VideoFrame</code> objects.
+/// All the APIs in this protocol can be called regardless of whether the <code>MeetingSession.audioVideo</code> is started or not.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK18VideoCaptureSource_")
+@protocol VideoCaptureSource <VideoSource>
+/// Start capturing on this source and emitting video frames.
+- (void)start;
+/// Stop capturing on this source and cease emitting video frames.
+- (void)stop;
+/// Add a capture source observer to receive callbacks from the source on lifecycle events
+/// which can be used to trigger UI. This observer is entirely optional.
+/// \param observer - New observer.
+///
+- (void)addCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+/// Remove a capture source observer.
+/// \param observer - Observer to remove.
+///
+- (void)removeCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+@end
+
+@class VideoCaptureFormat;
+
+/// <code>CameraCaptureSource</code> is an interface for camera capture sources with additional features
+/// not covered by <code>VideoCaptureSource</code>.
+/// All the APIs in this protocol can be called regardless of whether the <code>MeetingSession.audioVideo</code> is started or not.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK19CameraCaptureSource_")
+@protocol CameraCaptureSource <VideoCaptureSource>
+/// Current camera device. This is only null if the phone/device doesn’t have any cameras
+/// May be called regardless of whether <code>start</code> or <code>stop</code> has been called.
+@property (nonatomic, strong) MediaDevice * _Nullable device;
+/// Toggle for flashlight on the current device. Will succeed if current device has access to
+/// flashlight, otherwise will stay <code>false</code>. May be called regardless of whether <code>start</code> or <code>stop</code>
+/// has been called.
+@property (nonatomic) BOOL torchEnabled;
+/// Current camera capture format  Actual format may be adjusted to use supported camera formats.
+/// May be called regardless of whether <code>start</code> or <code>stop</code> has been called.
+@property (nonatomic, strong) VideoCaptureFormat * _Nonnull format;
+/// Helper function to switch from front to back cameras or reverse.
+- (void)switchCamera;
+@end
+
+/// <code>CaptureSourceError</code> describes an error resulting from a capture source failure.
+/// These can be used to trigger UI, or attempt to restart the capture source.
+typedef SWIFT_ENUM(NSInteger, CaptureSourceError, open) {
+/// Unknown error, and catch-all for errors not otherwise covered.
+  CaptureSourceErrorUnknown = 0,
+/// A  failure observed from a system API used for capturing.
+  CaptureSourceErrorSystemFailure = 1,
+/// A failure observed during configuration.
+  CaptureSourceErrorConfigurationFailure = 2,
+/// A temporary failure observed when capture source generates an invalid frame which is ignored.
+  CaptureSourceErrorInvalidFrame = 3,
+};
+
+
+/// <code>CaptureSourceObserver</code> observes events resulting from different types of capture devices.
+/// Builders may desire this input to decide when to show certain UI elements, or to notify users of failure.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21CaptureSourceObserver_")
+@protocol CaptureSourceObserver
+/// Called when the capture source has started successfully and has started emitting frames.
+- (void)captureDidStart;
+/// Called when the capture source has stopped when expected. This may occur when switching cameras, for example.
+- (void)captureDidStop;
+/// Called when the capture source failed permanently
+/// \param error - The reason why the source has stopped.
+///
+- (void)captureDidFailWithError:(enum CaptureSourceError)error;
+@end
+
 
 /// ClientMetricsCollector takes the raw metrics from the native client,
 /// consolidates them into a normalize map of ObservableMetric to value,
@@ -2091,7 +2501,7 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK6Logger_")
 /// ConsoleLogger writes logs with console.
 /// \code
 /// // working with the ConsoleLogger
-/// let logger = new ConsoleLogger("demo"); //default level is LogLevel.DEFAULT prints everything
+/// let logger = new ConsoleLogger("demo"); //default level is LogLevel.INFO
 /// logger.info("info");
 /// logger.debug("debug");
 /// logger.fault("fault");
@@ -2256,11 +2666,16 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK28DefaultActiveSpeakerDetector")
 
 SWIFT_CLASS("_TtC14AmazonChimeSDK26DefaultActiveSpeakerPolicy")
 @interface DefaultActiveSpeakerPolicy : NSObject <ActiveSpeakerPolicy>
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) double defaultSpeakerWeight;)
++ (double)defaultSpeakerWeight SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) double defaultCutoffThreshold;)
++ (double)defaultCutoffThreshold SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) double defaultTakeoverRate;)
++ (double)defaultTakeoverRate SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init;
 - (nonnull instancetype)initWithSpeakerWeight:(double)speakerWeight cutoffThreshold:(double)cutoffThreshold takeoverRate:(double)takeoverRate OBJC_DESIGNATED_INITIALIZER;
 - (double)calculateScoreWithAttendeeInfo:(AttendeeInfo * _Nonnull)attendeeInfo volume:(enum VolumeLevel)volume SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)prioritizeVideoSendBandwidthForActiveSpeaker SWIFT_WARN_UNUSED_RESULT;
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 @protocol VideoClientController;
@@ -2278,6 +2693,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK27DefaultAudioVideoController")
 - (void)addMetricsObserverWithObserver:(id <MetricsObserver> _Nonnull)observer;
 - (void)removeMetricsObserverWithObserver:(id <MetricsObserver> _Nonnull)observer;
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
 - (void)stopLocalVideo;
 - (void)startRemoteVideo;
 - (void)stopRemoteVideo;
@@ -2296,6 +2712,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultAudioVideoFacade")
 - (BOOL)startAndReturnError:(NSError * _Nullable * _Nullable)error;
 - (void)stop;
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
 - (void)stopLocalVideo;
 - (void)startRemoteVideo;
 - (void)stopRemoteVideo;
@@ -2306,6 +2723,8 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultAudioVideoFacade")
 - (void)addRealtimeDataMessageObserverWithTopic:(NSString * _Nonnull)topic observer:(id <DataMessageObserver> _Nonnull)observer;
 - (void)removeRealtimeDataMessageObserverFromTopicWithTopic:(NSString * _Nonnull)topic;
 - (BOOL)realtimeSendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)realtimeSetVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)realtimeIsVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 - (void)addAudioVideoObserverWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
 - (void)removeAudioVideoObserverWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
 - (void)addMetricsObserverWithObserver:(id <MetricsObserver> _Nonnull)observer;
@@ -2325,8 +2744,35 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultAudioVideoFacade")
 - (void)addActiveSpeakerObserverWithPolicy:(id <ActiveSpeakerPolicy> _Nonnull)policy observer:(id <ActiveSpeakerObserver> _Nonnull)observer;
 - (void)removeActiveSpeakerObserverWithObserver:(id <ActiveSpeakerObserver> _Nonnull)observer;
 - (void)hasBandwidthPriorityCallbackWithHasBandwidthPriority:(BOOL)hasBandwidthPriority;
+- (MediaDevice * _Nullable)getActiveAudioDevice SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+SWIFT_CLASS("_TtC14AmazonChimeSDK26DefaultCameraCaptureSource")
+@interface DefaultCameraCaptureSource : NSObject <CameraCaptureSource>
+@property (nonatomic) enum VideoContentHint videoContentHint;
+- (nonnull instancetype)initWithLogger:(id <Logger> _Nonnull)logger OBJC_DESIGNATED_INITIALIZER;
+@property (nonatomic, strong) MediaDevice * _Nullable device;
+@property (nonatomic, strong) VideoCaptureFormat * _Nonnull format;
+@property (nonatomic) BOOL torchEnabled;
+- (void)addVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+- (void)removeVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+- (void)start;
+- (void)stop;
+- (void)switchCamera;
+- (void)addCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+- (void)removeCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+@class AVCaptureOutput;
+@class AVCaptureConnection;
+
+@interface DefaultCameraCaptureSource (SWIFT_EXTENSION(AmazonChimeSDK)) <AVCaptureVideoDataOutputSampleBufferDelegate>
+- (void)captureOutput:(AVCaptureOutput * _Nonnull)_ didOutputSampleBuffer:(CMSampleBufferRef _Nonnull)sampleBuffer fromConnection:(AVCaptureConnection * _Nonnull)_;
 @end
 
 
@@ -2339,6 +2785,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultDeviceController")
 - (void)removeDeviceChangeObserverWithObserver:(id <DeviceChangeObserver> _Nonnull)observer;
 - (void)switchCamera;
 - (MediaDevice * _Nullable)getActiveCamera SWIFT_WARN_UNUSED_RESULT;
+- (MediaDevice * _Nullable)getActiveAudioDevice SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -2373,18 +2820,29 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK25DefaultRealtimeController")
 - (void)addRealtimeDataMessageObserverWithTopic:(NSString * _Nonnull)topic observer:(id <DataMessageObserver> _Nonnull)observer;
 - (void)removeRealtimeDataMessageObserverFromTopicWithTopic:(NSString * _Nonnull)topic;
 - (BOOL)realtimeSendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)realtimeSetVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)realtimeIsVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+@class VideoFrame;
 
-/// <code>VideoRenderView</code> renders frame that comes from <code>VideoTile</code>.
-SWIFT_PROTOCOL("_TtP14AmazonChimeSDK15VideoRenderView_")
-@protocol VideoRenderView
-/// Render given frame to UI
-/// \param frame a frame of video
+/// A <code>VideoSink</code> consumes video frames, typically from a <code>VideoSource</code>. It may process, fork, or render these frames.
+/// Typically connected via video <code>VideoSource.addVideoSink</code> and disconnected via <code>VideoSource.removeVideoSink</code>
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9VideoSink_")
+@protocol VideoSink
+/// Receive a video frame from some upstream source.
+/// The <code>VideoSink</code> may render, store, process, and forward the frame, among other applications.
+/// \param frame New video frame to consume
 ///
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
+- (void)onVideoFrameReceivedWithFrame:(VideoFrame * _Nonnull)frame;
+@end
+
+
+/// <code>VideoRenderView</code> is the type of VideoSink used by the <code>VideoTileController</code>
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK15VideoRenderView_")
+@protocol VideoRenderView <VideoSink>
 @end
 
 @class NSCoder;
@@ -2396,7 +2854,8 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK22DefaultVideoRenderView")
 @property (nonatomic) UIViewContentMode contentMode;
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)initWithFrame:(CGRect)frame OBJC_DESIGNATED_INITIALIZER;
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
+- (void)onVideoFrameReceivedWithFrame:(VideoFrame * _Nonnull)frame;
+- (void)resetImage;
 - (nonnull instancetype)initWithImage:(UIImage * _Nullable)image SWIFT_UNAVAILABLE;
 - (nonnull instancetype)initWithImage:(UIImage * _Nullable)image highlightedImage:(UIImage * _Nullable)highlightedImage SWIFT_UNAVAILABLE;
 @end
@@ -2406,7 +2865,7 @@ enum VideoPauseState : NSInteger;
 
 /// <code>VideoTile</code> is a tile that binds video render view to diplay the frame into the view.
 SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9VideoTile_")
-@protocol VideoTile
+@protocol VideoTile <VideoSink>
 /// State of VideoTile
 @property (nonatomic, readonly, strong) VideoTileState * _Nonnull state;
 /// View which will be used to render the Video Frame
@@ -2416,11 +2875,6 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9VideoTile_")
 /// \param videoRenderView the view created by application to render the video frame
 ///
 - (void)bindWithVideoRenderView:(id <VideoRenderView> _Nullable)videoRenderView;
-/// Renders the frame on <code>videoRenderView</code>. The call will be silently ignored if the view has not been bind
-/// to the tile using <code>bind</code>
-/// \param frame a frame of video
-///
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
 /// Unbinds the <code>videoRenderView</code> from tile.
 - (void)unbind;
 /// Update the pause state of the tile.
@@ -2434,7 +2888,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK16DefaultVideoTile")
 @property (nonatomic, strong) id <VideoRenderView> _Nullable videoRenderView;
 - (nonnull instancetype)initWithTileId:(NSInteger)tileId attendeeId:(NSString * _Nonnull)attendeeId videoStreamContentWidth:(NSInteger)videoStreamContentWidth videoStreamContentHeight:(NSInteger)videoStreamContentHeight isLocalTile:(BOOL)isLocalTile logger:(id <Logger> _Nonnull)logger OBJC_DESIGNATED_INITIALIZER;
 - (void)bindWithVideoRenderView:(id <VideoRenderView> _Nullable)videoRenderView;
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
+- (void)onVideoFrameReceivedWithFrame:(VideoFrame * _Nonnull)frame;
 - (void)unbind;
 - (void)setPauseStateWithPauseState:(enum VideoPauseState)pauseState;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
@@ -2452,20 +2906,16 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK19VideoTileController_")
 ///
 /// \param attendeeId a id of user who is transmitting current frame
 ///
-/// \param videoStreamContentHeight height of the video stream being transmitted
-///
-/// \param videoStreamContentWidth width of the video stream being transmitted
-///
 /// \param pauseState current pause state of the video being received
 ///
-- (void)onReceiveFrameWithFrame:(CVPixelBufferRef _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
+- (void)onReceiveFrameWithFrame:(VideoFrame * _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
 @end
 
 
 SWIFT_CLASS("_TtC14AmazonChimeSDK26DefaultVideoTileController")
 @interface DefaultVideoTileController : NSObject <VideoTileController>
 - (nonnull instancetype)initWithVideoClientController:(id <VideoClientController> _Nonnull)videoClientController logger:(id <Logger> _Nonnull)logger OBJC_DESIGNATED_INITIALIZER;
-- (void)onReceiveFrameWithFrame:(CVPixelBufferRef _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
+- (void)onReceiveFrameWithFrame:(VideoFrame * _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
 - (void)bindVideoViewWithVideoView:(id <VideoRenderView> _Nonnull)videoView tileId:(NSInteger)tileId;
 - (void)unbindVideoViewWithTileId:(NSInteger)tileId;
 - (void)addVideoTileObserverWithObserver:(id <VideoTileObserver> _Nonnull)observer;
@@ -2534,6 +2984,13 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK11MediaDevice")
 /// Audio Information based on iOS native <code>AVAudioSessionPortDescription</code>
 /// It will be null when it represent a video device.
 @property (nonatomic, readonly, strong) AVAudioSessionPortDescription * _Nullable port;
+/// List available video capture devices from the hardware
++ (NSArray<MediaDevice *> * _Nonnull)listVideoDevices SWIFT_WARN_UNUSED_RESULT;
+/// List available <code>VideoCaptureFormat</code> from the video capture device.
+/// This methods returns an empty array for <code>MediaDevice</code> that’s not used for video.
+/// \param mediaDevice Video capture device to query
+///
++ (NSArray<VideoCaptureFormat *> * _Nonnull)listSupportedVideoCaptureFormatsWithMediaDevice:(MediaDevice * _Nonnull)mediaDevice SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)initWithLabel:(NSString * _Nonnull)label type:(enum MediaDeviceType)type OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)initWithLabel:(NSString * _Nonnull)label port:(AVAudioSessionPortDescription * _Nullable)port videoDevice:(VideoDevice * _Nullable)videoDevice OBJC_DESIGNATED_INITIALIZER;
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
@@ -2771,16 +3228,28 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK10Versioning")
 @end
 
 
+/// <code>VideoCaptureFormat</code>describes a given capture format that may be possible to apply to a <code>VideoCaptureSource</code>.
+/// Note that <code>VideoCaptureSource</code> implementations may ignore or adjust unsupported values.
+SWIFT_CLASS("_TtC14AmazonChimeSDK18VideoCaptureFormat")
+@interface VideoCaptureFormat : NSObject
+- (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+
 SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21VideoClientController_")
 @protocol VideoClientController
 - (void)startWithTurnControlUrl:(NSString * _Nonnull)turnControlUrl signalingUrl:(NSString * _Nonnull)signalingUrl meetingId:(NSString * _Nonnull)meetingId joinToken:(NSString * _Nonnull)joinToken;
 - (void)stopAndDestroy;
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
 - (void)stopLocalVideo;
 - (void)startRemoteVideo;
 - (void)stopRemoteVideo;
 - (void)switchCamera;
-- (VideoDevice * _Nullable)getCurrentDevice SWIFT_WARN_UNUSED_RESULT;
+- (MediaDevice * _Nullable)getCurrentDevice SWIFT_WARN_UNUSED_RESULT;
 - (MeetingSessionConfiguration * _Nonnull)getConfiguration SWIFT_WARN_UNUSED_RESULT;
 - (void)subscribeToVideoClientStateChangeWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
 - (void)unsubscribeFromVideoClientStateChangeWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
@@ -2792,17 +3261,100 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21VideoClientController_")
 - (BOOL)sendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
 @end
 
+/// <code>VideoContentHint</code> describes the content type of a video source so that downstream encoders, etc. can properly
+/// decide on what parameters will work best. These options mirror https://www.w3.org/TR/mst-content-hint/ .
+typedef SWIFT_ENUM(NSInteger, VideoContentHint, open) {
+/// No hint has been provided.
+  VideoContentHintNone = 0,
+/// The track should be treated as if it contains video where motion is important.
+/// This is normally webcam video, movies or video games.
+  VideoContentHintMotion = 1,
+/// The track should be treated as if video details are extra important.
+/// This is generally applicable to presentations or web pages with text content, painting or line art.
+  VideoContentHintDetail = 2,
+/// The track should be treated as if video details are extra important, and that
+/// significant sharp edges and areas of consistent color can occur frequently.
+/// This is generally applicable to presentations or web pages with text content.
+  VideoContentHintText = 3,
+};
+
+enum VideoRotation : NSInteger;
+@protocol VideoFrameBuffer;
+
+/// <code>VideoFrame</code> is a class which contains a <code>VideoFrameBuffer</code> and metadata necessary for transmission.
+/// Typically produced via a <code>VideoSource</code> and consumed via a <code>VideoSink</code>
+SWIFT_CLASS("_TtC14AmazonChimeSDK10VideoFrame")
+@interface VideoFrame : NSObject
+/// Width of the video frame in pixels.
+@property (nonatomic, readonly) NSInteger width;
+/// Height of the video frame in pixels.
+@property (nonatomic, readonly) NSInteger height;
+/// Timestamp in nanoseconds at which the video frame was captured from some system monotonic clock.
+/// Will be aligned and converted to NTP (Network Time Protocol) within AmazonChimeSDKMedia framework, which will then be converted to a system
+/// monotonic clock on remote end. May be different on frames emanated from AmazonChimeSDKMedia framework.
+@property (nonatomic, readonly) int64_t timestampNs;
+/// Rotation of the video frame buffer in degrees clockwise from intended viewing horizon.
+/// e.g. If you were recording camera capture upside down relative to
+/// the orientation of the sensor, this value would be <code>VideoRotation.rotation180</code>.
+@property (nonatomic, readonly) enum VideoRotation rotation;
+/// Object containing actual video frame data in some form.
+@property (nonatomic, readonly, strong) id <VideoFrameBuffer> _Nonnull buffer;
+- (nonnull instancetype)initWithTimestampNs:(int64_t)timestampNs rotation:(enum VideoRotation)rotation buffer:(id <VideoFrameBuffer> _Nonnull)buffer OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+/// <code>VideoFrameBuffer</code> is a buffer which contains a single video buffer’s raw data.
+/// Typically owned by a <code>VideoFrame</code> which includes additional metadata.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK16VideoFrameBuffer_")
+@protocol VideoFrameBuffer
+/// Width of the video frame in pixels.
+- (NSInteger)width SWIFT_WARN_UNUSED_RESULT;
+/// Height of the video frame in pixels.
+- (NSInteger)height SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+/// <code>VideoFramePixelBuffer</code> is a buffer which contains a single video frame in the form of <code>CVPixelBuffer</code>.
+SWIFT_CLASS("_TtC14AmazonChimeSDK21VideoFramePixelBuffer")
+@interface VideoFramePixelBuffer : NSObject <VideoFrameBuffer>
+- (NSInteger)width SWIFT_WARN_UNUSED_RESULT;
+- (NSInteger)height SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly) CVPixelBufferRef _Nonnull pixelBuffer;
+- (nonnull instancetype)initWithPixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuffer OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
 /// <code>VideoPauseState</code> describes the pause status of a video tile.
 typedef SWIFT_ENUM(NSInteger, VideoPauseState, open) {
 /// The video tile is not paused
   VideoPauseStateUnpaused = 0,
 /// The video tile has been paused by the user, and will only be unpaused if the user requests it to resume.
   VideoPauseStatePausedByUserRequest = 1,
-/// The video tile has been paused to save on local downlink bandwidth.  When the connection improves,
-/// it will be automatically unpaused by the client.  User requested pauses will shadow this pause,
+/// The video tile has been paused to save on local downlink bandwidth. When the connection improves,
+/// it will be automatically unpaused by the client. User requested pauses will shadow this pause,
 /// but if the connection has not recovered on resume the tile will still be paused with this state.
   VideoPauseStatePausedForPoorConnection = 2,
 };
+
+
+/// <code>VideoRotation</code> describes the rotation of the video frame buffer in degrees clockwise
+/// from intended viewing horizon.
+/// e.g. If you were recording camera capture upside down relative to
+/// the orientation of the sensor, this value would be <code>VideoRotation.rotation180</code>.
+typedef SWIFT_ENUM(NSInteger, VideoRotation, open) {
+/// Not rotated.
+  VideoRotationRotation0 = 0,
+/// Rotated 90 degrees clockwise.
+  VideoRotationRotation90 = 90,
+/// Rotated 180 degrees clockwise.
+  VideoRotationRotation180 = 180,
+/// Rotated 270 degrees clockwise.
+  VideoRotationRotation270 = 270,
+};
+
 
 
 
@@ -3080,6 +3632,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 @import AVFoundation;
 @import AmazonChimeSDKMedia;
 @import CoreGraphics;
+@import CoreMedia;
 @import CoreVideo;
 @import Foundation;
 @import ObjectiveC;
@@ -3102,6 +3655,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #endif
 
 @class AVAudioSessionPortDescription;
+@class AVAudioSessionRouteDescription;
 
 SWIFT_PROTOCOL("_TtP14AmazonChimeSDK12AudioSession_")
 @protocol AudioSession
@@ -3109,6 +3663,7 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK12AudioSession_")
 @property (nonatomic, readonly, copy) NSArray<AVAudioSessionPortDescription *> * _Nullable availableInputs;
 - (BOOL)setPreferredInput:(AVAudioSessionPortDescription * _Nullable)inPort error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)overrideOutputAudioPort:(AVAudioSessionPortOverride)portOverride error:(NSError * _Nullable * _Nullable)error;
+@property (nonatomic, readonly, strong) AVAudioSessionRouteDescription * _Nonnull currentRoute;
 @end
 
 
@@ -3228,6 +3783,8 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK19AudioClientProtocol_")
 - (void)setPresenter:(BOOL)presenter;
 - (void)remoteMute;
 - (void)audioLogCallBack:(loglevel_t)logLevel msg:(NSString * _Null_unspecified)msg;
+- (BOOL)isBliteNSSelected SWIFT_WARN_UNUSED_RESULT;
+- (NSInteger)setBliteNSSelected:(BOOL)bliteSelected SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -3240,6 +3797,8 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21AudioClientController_")
 - (BOOL)setMuteWithMute:(BOOL)mute SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)startWithAudioFallbackUrl:(NSString * _Nonnull)audioFallbackUrl audioHostUrl:(NSString * _Nonnull)audioHostUrl meetingId:(NSString * _Nonnull)meetingId attendeeId:(NSString * _Nonnull)attendeeId joinToken:(NSString * _Nonnull)joinToken callKitEnabled:(BOOL)callKitEnabled error:(NSError * _Nullable * _Nullable)error;
 - (void)stop;
+- (BOOL)setVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)isVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 @end
 
 @protocol AudioVideoObserver;
@@ -3265,6 +3824,7 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9AudioLock_")
 
 @class MeetingSessionConfiguration;
 @protocol Logger;
+@protocol VideoSource;
 @protocol MetricsObserver;
 
 /// <code>AudioVideoControllerFacade</code> manages the signaling and peer connections.
@@ -3288,12 +3848,26 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK26AudioVideoControllerFacade_")
 - (BOOL)startAndReturnError:(NSError * _Nullable * _Nullable)error;
 /// Stop AudioVideo Controller. This will exit the meeting
 - (void)stop;
-/// Enable self video to start streaming
+/// Start local video and begin transmitting frames from an internally held <code>DefaultCameraCaptureSource</code>.
+/// <code>stopLocalVideo</code> will stop the internal capture source if being used.
+/// Calling this after passing in a custom <code>VideoSource</code> will replace it with the internal capture source.
+/// This function will only have effect if <code>start</code> has already been called
 ///
 /// throws:
 /// <code>PermissionError.videoPermissionError</code> if video permission of <code>AVCaptureDevice</code> is not granted
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
-/// Disable self video streaming
+/// Start local video with a provided custom <code>VideoSource</code> which can be used to provide custom
+/// <code>VideoFrame</code>s to be transmitted to remote clients. This will call <code>VideoSource.addVideoSink</code>
+/// on the provided source.
+/// Calling this function repeatedly will replace the previous <code>VideoSource</code> as the one being
+/// transmitted. It will also stop and replace the internal capture source if <code>startLocalVideo</code>
+/// was previously called with no arguments.
+/// This function will only have effect if <code>start</code> has already been called
+/// \param source The source of video frames to be sent to other clients
+///
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
+/// Stops sending video for local attendee. This will additionally stop the internal capture source if being used.
+/// If using a custom video source, this will call <code>VideoSource.removeVideoSink</code> on the previously provided source.
 - (void)stopLocalVideo;
 /// Enable remote video to start receiving streams
 - (void)startRemoteVideo;
@@ -3382,13 +3956,20 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK16DeviceController_")
 /// \param observer the object that will be removed
 ///
 - (void)removeDeviceChangeObserverWithObserver:(id <DeviceChangeObserver> _Nonnull)observer;
-/// Switch between front/back camera
+/// Switch between front/back camera. This will no-op if using a custom source,
+/// e.g. one passed in via <code>startLocalVideo</code>
 - (void)switchCamera;
-/// Get currently used video device
+/// Get the currently active camera, if any. This will return null if using a custom source,
+/// e.g. one passed in via <code>AudioVideoControllerFacade.startLocalVideo</code>
 ///
 /// returns:
 /// a media device or nil if no device is present
 - (MediaDevice * _Nullable)getActiveCamera SWIFT_WARN_UNUSED_RESULT;
+/// Get currently used audio device
+///
+/// returns:
+/// a media device or nil if no device is present
+- (MediaDevice * _Nullable)getActiveAudioDevice SWIFT_WARN_UNUSED_RESULT;
 @end
 
 @protocol DataMessageObserver;
@@ -3441,6 +4022,19 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK24RealtimeControllerFacade_")
 /// throws:
 /// SendDataMessageError
 - (BOOL)realtimeSendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
+/// Enable or disable Voice Focus (ML-based noise suppression) on the audio input
+/// Note: Only call this API after audioClient starts. Calling it before that results in a no-op. Voice Focus is disabled by default when audioClient starts.
+/// \param enabled A <code>Bool</code> value, where <code>true</code> to enable; <code>false</code> to disable
+///
+///
+/// returns:
+/// Whether the enable/disable action was successful
+- (BOOL)realtimeSetVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+/// Check if Voice Focus (ML-based noise suppression) is enabled or not
+///
+/// returns:
+/// <code>true</code> if Voice Focus is enabled; <code>false</code> if Voice Focus is not enabled, or the audio session was not started yet
+- (BOOL)realtimeIsVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -3500,6 +4094,98 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK18AudioVideoObserver_")
 - (void)videoSessionDidStopWithStatusWithSessionStatus:(MeetingSessionStatus * _Nonnull)sessionStatus;
 @end
 
+enum VideoContentHint : NSInteger;
+@protocol VideoSink;
+
+/// <code>VideoSource</code> is an interface for sources which produce video frames, and can send to a <code>VideoSink</code>.
+/// Implementations can be passed to the <code>AudioVideoFacade</code> to be used as the video source sent to remote
+/// participlants
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK11VideoSource_")
+@protocol VideoSource
+/// Content hint for downstream processing.
+@property (nonatomic) enum VideoContentHint videoContentHint;
+/// Add a video sink which will immediately begin to receive new frames.
+/// Multiple sinks can be added to a single <code>VideoSource</code> to allow forking of video frames,
+/// e.g. to send to both local preview and AmazonChimeSDKMedia framework (i.e. for encoding) at the same time.
+/// \param sink New video sink
+///
+- (void)addVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+/// Remove a video sink which will no longer receive new frames on return.
+/// \param sink Video sink to remove
+///
+- (void)removeVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+@end
+
+@protocol CaptureSourceObserver;
+
+/// <code>VideoCaptureSource</code> is an interface for various video capture sources (i.e. screen, camera, file) which can emit <code>VideoFrame</code> objects.
+/// All the APIs in this protocol can be called regardless of whether the <code>MeetingSession.audioVideo</code> is started or not.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK18VideoCaptureSource_")
+@protocol VideoCaptureSource <VideoSource>
+/// Start capturing on this source and emitting video frames.
+- (void)start;
+/// Stop capturing on this source and cease emitting video frames.
+- (void)stop;
+/// Add a capture source observer to receive callbacks from the source on lifecycle events
+/// which can be used to trigger UI. This observer is entirely optional.
+/// \param observer - New observer.
+///
+- (void)addCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+/// Remove a capture source observer.
+/// \param observer - Observer to remove.
+///
+- (void)removeCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+@end
+
+@class VideoCaptureFormat;
+
+/// <code>CameraCaptureSource</code> is an interface for camera capture sources with additional features
+/// not covered by <code>VideoCaptureSource</code>.
+/// All the APIs in this protocol can be called regardless of whether the <code>MeetingSession.audioVideo</code> is started or not.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK19CameraCaptureSource_")
+@protocol CameraCaptureSource <VideoCaptureSource>
+/// Current camera device. This is only null if the phone/device doesn’t have any cameras
+/// May be called regardless of whether <code>start</code> or <code>stop</code> has been called.
+@property (nonatomic, strong) MediaDevice * _Nullable device;
+/// Toggle for flashlight on the current device. Will succeed if current device has access to
+/// flashlight, otherwise will stay <code>false</code>. May be called regardless of whether <code>start</code> or <code>stop</code>
+/// has been called.
+@property (nonatomic) BOOL torchEnabled;
+/// Current camera capture format  Actual format may be adjusted to use supported camera formats.
+/// May be called regardless of whether <code>start</code> or <code>stop</code> has been called.
+@property (nonatomic, strong) VideoCaptureFormat * _Nonnull format;
+/// Helper function to switch from front to back cameras or reverse.
+- (void)switchCamera;
+@end
+
+/// <code>CaptureSourceError</code> describes an error resulting from a capture source failure.
+/// These can be used to trigger UI, or attempt to restart the capture source.
+typedef SWIFT_ENUM(NSInteger, CaptureSourceError, open) {
+/// Unknown error, and catch-all for errors not otherwise covered.
+  CaptureSourceErrorUnknown = 0,
+/// A  failure observed from a system API used for capturing.
+  CaptureSourceErrorSystemFailure = 1,
+/// A failure observed during configuration.
+  CaptureSourceErrorConfigurationFailure = 2,
+/// A temporary failure observed when capture source generates an invalid frame which is ignored.
+  CaptureSourceErrorInvalidFrame = 3,
+};
+
+
+/// <code>CaptureSourceObserver</code> observes events resulting from different types of capture devices.
+/// Builders may desire this input to decide when to show certain UI elements, or to notify users of failure.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21CaptureSourceObserver_")
+@protocol CaptureSourceObserver
+/// Called when the capture source has started successfully and has started emitting frames.
+- (void)captureDidStart;
+/// Called when the capture source has stopped when expected. This may occur when switching cameras, for example.
+- (void)captureDidStop;
+/// Called when the capture source failed permanently
+/// \param error - The reason why the source has stopped.
+///
+- (void)captureDidFailWithError:(enum CaptureSourceError)error;
+@end
+
 
 /// ClientMetricsCollector takes the raw metrics from the native client,
 /// consolidates them into a normalize map of ObservableMetric to value,
@@ -3539,7 +4225,7 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK6Logger_")
 /// ConsoleLogger writes logs with console.
 /// \code
 /// // working with the ConsoleLogger
-/// let logger = new ConsoleLogger("demo"); //default level is LogLevel.DEFAULT prints everything
+/// let logger = new ConsoleLogger("demo"); //default level is LogLevel.INFO
 /// logger.info("info");
 /// logger.debug("debug");
 /// logger.fault("fault");
@@ -3704,11 +4390,16 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK28DefaultActiveSpeakerDetector")
 
 SWIFT_CLASS("_TtC14AmazonChimeSDK26DefaultActiveSpeakerPolicy")
 @interface DefaultActiveSpeakerPolicy : NSObject <ActiveSpeakerPolicy>
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) double defaultSpeakerWeight;)
++ (double)defaultSpeakerWeight SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) double defaultCutoffThreshold;)
++ (double)defaultCutoffThreshold SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) double defaultTakeoverRate;)
++ (double)defaultTakeoverRate SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init;
 - (nonnull instancetype)initWithSpeakerWeight:(double)speakerWeight cutoffThreshold:(double)cutoffThreshold takeoverRate:(double)takeoverRate OBJC_DESIGNATED_INITIALIZER;
 - (double)calculateScoreWithAttendeeInfo:(AttendeeInfo * _Nonnull)attendeeInfo volume:(enum VolumeLevel)volume SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)prioritizeVideoSendBandwidthForActiveSpeaker SWIFT_WARN_UNUSED_RESULT;
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 @protocol VideoClientController;
@@ -3726,6 +4417,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK27DefaultAudioVideoController")
 - (void)addMetricsObserverWithObserver:(id <MetricsObserver> _Nonnull)observer;
 - (void)removeMetricsObserverWithObserver:(id <MetricsObserver> _Nonnull)observer;
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
 - (void)stopLocalVideo;
 - (void)startRemoteVideo;
 - (void)stopRemoteVideo;
@@ -3744,6 +4436,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultAudioVideoFacade")
 - (BOOL)startAndReturnError:(NSError * _Nullable * _Nullable)error;
 - (void)stop;
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
 - (void)stopLocalVideo;
 - (void)startRemoteVideo;
 - (void)stopRemoteVideo;
@@ -3754,6 +4447,8 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultAudioVideoFacade")
 - (void)addRealtimeDataMessageObserverWithTopic:(NSString * _Nonnull)topic observer:(id <DataMessageObserver> _Nonnull)observer;
 - (void)removeRealtimeDataMessageObserverFromTopicWithTopic:(NSString * _Nonnull)topic;
 - (BOOL)realtimeSendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)realtimeSetVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)realtimeIsVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 - (void)addAudioVideoObserverWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
 - (void)removeAudioVideoObserverWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
 - (void)addMetricsObserverWithObserver:(id <MetricsObserver> _Nonnull)observer;
@@ -3773,8 +4468,35 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultAudioVideoFacade")
 - (void)addActiveSpeakerObserverWithPolicy:(id <ActiveSpeakerPolicy> _Nonnull)policy observer:(id <ActiveSpeakerObserver> _Nonnull)observer;
 - (void)removeActiveSpeakerObserverWithObserver:(id <ActiveSpeakerObserver> _Nonnull)observer;
 - (void)hasBandwidthPriorityCallbackWithHasBandwidthPriority:(BOOL)hasBandwidthPriority;
+- (MediaDevice * _Nullable)getActiveAudioDevice SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+SWIFT_CLASS("_TtC14AmazonChimeSDK26DefaultCameraCaptureSource")
+@interface DefaultCameraCaptureSource : NSObject <CameraCaptureSource>
+@property (nonatomic) enum VideoContentHint videoContentHint;
+- (nonnull instancetype)initWithLogger:(id <Logger> _Nonnull)logger OBJC_DESIGNATED_INITIALIZER;
+@property (nonatomic, strong) MediaDevice * _Nullable device;
+@property (nonatomic, strong) VideoCaptureFormat * _Nonnull format;
+@property (nonatomic) BOOL torchEnabled;
+- (void)addVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+- (void)removeVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+- (void)start;
+- (void)stop;
+- (void)switchCamera;
+- (void)addCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+- (void)removeCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+@class AVCaptureOutput;
+@class AVCaptureConnection;
+
+@interface DefaultCameraCaptureSource (SWIFT_EXTENSION(AmazonChimeSDK)) <AVCaptureVideoDataOutputSampleBufferDelegate>
+- (void)captureOutput:(AVCaptureOutput * _Nonnull)_ didOutputSampleBuffer:(CMSampleBufferRef _Nonnull)sampleBuffer fromConnection:(AVCaptureConnection * _Nonnull)_;
 @end
 
 
@@ -3787,6 +4509,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultDeviceController")
 - (void)removeDeviceChangeObserverWithObserver:(id <DeviceChangeObserver> _Nonnull)observer;
 - (void)switchCamera;
 - (MediaDevice * _Nullable)getActiveCamera SWIFT_WARN_UNUSED_RESULT;
+- (MediaDevice * _Nullable)getActiveAudioDevice SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -3821,18 +4544,29 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK25DefaultRealtimeController")
 - (void)addRealtimeDataMessageObserverWithTopic:(NSString * _Nonnull)topic observer:(id <DataMessageObserver> _Nonnull)observer;
 - (void)removeRealtimeDataMessageObserverFromTopicWithTopic:(NSString * _Nonnull)topic;
 - (BOOL)realtimeSendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)realtimeSetVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)realtimeIsVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+@class VideoFrame;
 
-/// <code>VideoRenderView</code> renders frame that comes from <code>VideoTile</code>.
-SWIFT_PROTOCOL("_TtP14AmazonChimeSDK15VideoRenderView_")
-@protocol VideoRenderView
-/// Render given frame to UI
-/// \param frame a frame of video
+/// A <code>VideoSink</code> consumes video frames, typically from a <code>VideoSource</code>. It may process, fork, or render these frames.
+/// Typically connected via video <code>VideoSource.addVideoSink</code> and disconnected via <code>VideoSource.removeVideoSink</code>
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9VideoSink_")
+@protocol VideoSink
+/// Receive a video frame from some upstream source.
+/// The <code>VideoSink</code> may render, store, process, and forward the frame, among other applications.
+/// \param frame New video frame to consume
 ///
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
+- (void)onVideoFrameReceivedWithFrame:(VideoFrame * _Nonnull)frame;
+@end
+
+
+/// <code>VideoRenderView</code> is the type of VideoSink used by the <code>VideoTileController</code>
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK15VideoRenderView_")
+@protocol VideoRenderView <VideoSink>
 @end
 
 @class NSCoder;
@@ -3844,7 +4578,8 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK22DefaultVideoRenderView")
 @property (nonatomic) UIViewContentMode contentMode;
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)initWithFrame:(CGRect)frame OBJC_DESIGNATED_INITIALIZER;
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
+- (void)onVideoFrameReceivedWithFrame:(VideoFrame * _Nonnull)frame;
+- (void)resetImage;
 - (nonnull instancetype)initWithImage:(UIImage * _Nullable)image SWIFT_UNAVAILABLE;
 - (nonnull instancetype)initWithImage:(UIImage * _Nullable)image highlightedImage:(UIImage * _Nullable)highlightedImage SWIFT_UNAVAILABLE;
 @end
@@ -3854,7 +4589,7 @@ enum VideoPauseState : NSInteger;
 
 /// <code>VideoTile</code> is a tile that binds video render view to diplay the frame into the view.
 SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9VideoTile_")
-@protocol VideoTile
+@protocol VideoTile <VideoSink>
 /// State of VideoTile
 @property (nonatomic, readonly, strong) VideoTileState * _Nonnull state;
 /// View which will be used to render the Video Frame
@@ -3864,11 +4599,6 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9VideoTile_")
 /// \param videoRenderView the view created by application to render the video frame
 ///
 - (void)bindWithVideoRenderView:(id <VideoRenderView> _Nullable)videoRenderView;
-/// Renders the frame on <code>videoRenderView</code>. The call will be silently ignored if the view has not been bind
-/// to the tile using <code>bind</code>
-/// \param frame a frame of video
-///
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
 /// Unbinds the <code>videoRenderView</code> from tile.
 - (void)unbind;
 /// Update the pause state of the tile.
@@ -3882,7 +4612,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK16DefaultVideoTile")
 @property (nonatomic, strong) id <VideoRenderView> _Nullable videoRenderView;
 - (nonnull instancetype)initWithTileId:(NSInteger)tileId attendeeId:(NSString * _Nonnull)attendeeId videoStreamContentWidth:(NSInteger)videoStreamContentWidth videoStreamContentHeight:(NSInteger)videoStreamContentHeight isLocalTile:(BOOL)isLocalTile logger:(id <Logger> _Nonnull)logger OBJC_DESIGNATED_INITIALIZER;
 - (void)bindWithVideoRenderView:(id <VideoRenderView> _Nullable)videoRenderView;
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
+- (void)onVideoFrameReceivedWithFrame:(VideoFrame * _Nonnull)frame;
 - (void)unbind;
 - (void)setPauseStateWithPauseState:(enum VideoPauseState)pauseState;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
@@ -3900,20 +4630,16 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK19VideoTileController_")
 ///
 /// \param attendeeId a id of user who is transmitting current frame
 ///
-/// \param videoStreamContentHeight height of the video stream being transmitted
-///
-/// \param videoStreamContentWidth width of the video stream being transmitted
-///
 /// \param pauseState current pause state of the video being received
 ///
-- (void)onReceiveFrameWithFrame:(CVPixelBufferRef _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
+- (void)onReceiveFrameWithFrame:(VideoFrame * _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
 @end
 
 
 SWIFT_CLASS("_TtC14AmazonChimeSDK26DefaultVideoTileController")
 @interface DefaultVideoTileController : NSObject <VideoTileController>
 - (nonnull instancetype)initWithVideoClientController:(id <VideoClientController> _Nonnull)videoClientController logger:(id <Logger> _Nonnull)logger OBJC_DESIGNATED_INITIALIZER;
-- (void)onReceiveFrameWithFrame:(CVPixelBufferRef _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
+- (void)onReceiveFrameWithFrame:(VideoFrame * _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
 - (void)bindVideoViewWithVideoView:(id <VideoRenderView> _Nonnull)videoView tileId:(NSInteger)tileId;
 - (void)unbindVideoViewWithTileId:(NSInteger)tileId;
 - (void)addVideoTileObserverWithObserver:(id <VideoTileObserver> _Nonnull)observer;
@@ -3982,6 +4708,13 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK11MediaDevice")
 /// Audio Information based on iOS native <code>AVAudioSessionPortDescription</code>
 /// It will be null when it represent a video device.
 @property (nonatomic, readonly, strong) AVAudioSessionPortDescription * _Nullable port;
+/// List available video capture devices from the hardware
++ (NSArray<MediaDevice *> * _Nonnull)listVideoDevices SWIFT_WARN_UNUSED_RESULT;
+/// List available <code>VideoCaptureFormat</code> from the video capture device.
+/// This methods returns an empty array for <code>MediaDevice</code> that’s not used for video.
+/// \param mediaDevice Video capture device to query
+///
++ (NSArray<VideoCaptureFormat *> * _Nonnull)listSupportedVideoCaptureFormatsWithMediaDevice:(MediaDevice * _Nonnull)mediaDevice SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)initWithLabel:(NSString * _Nonnull)label type:(enum MediaDeviceType)type OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)initWithLabel:(NSString * _Nonnull)label port:(AVAudioSessionPortDescription * _Nullable)port videoDevice:(VideoDevice * _Nullable)videoDevice OBJC_DESIGNATED_INITIALIZER;
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
@@ -4219,16 +4952,28 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK10Versioning")
 @end
 
 
+/// <code>VideoCaptureFormat</code>describes a given capture format that may be possible to apply to a <code>VideoCaptureSource</code>.
+/// Note that <code>VideoCaptureSource</code> implementations may ignore or adjust unsupported values.
+SWIFT_CLASS("_TtC14AmazonChimeSDK18VideoCaptureFormat")
+@interface VideoCaptureFormat : NSObject
+- (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+
 SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21VideoClientController_")
 @protocol VideoClientController
 - (void)startWithTurnControlUrl:(NSString * _Nonnull)turnControlUrl signalingUrl:(NSString * _Nonnull)signalingUrl meetingId:(NSString * _Nonnull)meetingId joinToken:(NSString * _Nonnull)joinToken;
 - (void)stopAndDestroy;
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
 - (void)stopLocalVideo;
 - (void)startRemoteVideo;
 - (void)stopRemoteVideo;
 - (void)switchCamera;
-- (VideoDevice * _Nullable)getCurrentDevice SWIFT_WARN_UNUSED_RESULT;
+- (MediaDevice * _Nullable)getCurrentDevice SWIFT_WARN_UNUSED_RESULT;
 - (MeetingSessionConfiguration * _Nonnull)getConfiguration SWIFT_WARN_UNUSED_RESULT;
 - (void)subscribeToVideoClientStateChangeWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
 - (void)unsubscribeFromVideoClientStateChangeWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
@@ -4240,17 +4985,100 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21VideoClientController_")
 - (BOOL)sendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
 @end
 
+/// <code>VideoContentHint</code> describes the content type of a video source so that downstream encoders, etc. can properly
+/// decide on what parameters will work best. These options mirror https://www.w3.org/TR/mst-content-hint/ .
+typedef SWIFT_ENUM(NSInteger, VideoContentHint, open) {
+/// No hint has been provided.
+  VideoContentHintNone = 0,
+/// The track should be treated as if it contains video where motion is important.
+/// This is normally webcam video, movies or video games.
+  VideoContentHintMotion = 1,
+/// The track should be treated as if video details are extra important.
+/// This is generally applicable to presentations or web pages with text content, painting or line art.
+  VideoContentHintDetail = 2,
+/// The track should be treated as if video details are extra important, and that
+/// significant sharp edges and areas of consistent color can occur frequently.
+/// This is generally applicable to presentations or web pages with text content.
+  VideoContentHintText = 3,
+};
+
+enum VideoRotation : NSInteger;
+@protocol VideoFrameBuffer;
+
+/// <code>VideoFrame</code> is a class which contains a <code>VideoFrameBuffer</code> and metadata necessary for transmission.
+/// Typically produced via a <code>VideoSource</code> and consumed via a <code>VideoSink</code>
+SWIFT_CLASS("_TtC14AmazonChimeSDK10VideoFrame")
+@interface VideoFrame : NSObject
+/// Width of the video frame in pixels.
+@property (nonatomic, readonly) NSInteger width;
+/// Height of the video frame in pixels.
+@property (nonatomic, readonly) NSInteger height;
+/// Timestamp in nanoseconds at which the video frame was captured from some system monotonic clock.
+/// Will be aligned and converted to NTP (Network Time Protocol) within AmazonChimeSDKMedia framework, which will then be converted to a system
+/// monotonic clock on remote end. May be different on frames emanated from AmazonChimeSDKMedia framework.
+@property (nonatomic, readonly) int64_t timestampNs;
+/// Rotation of the video frame buffer in degrees clockwise from intended viewing horizon.
+/// e.g. If you were recording camera capture upside down relative to
+/// the orientation of the sensor, this value would be <code>VideoRotation.rotation180</code>.
+@property (nonatomic, readonly) enum VideoRotation rotation;
+/// Object containing actual video frame data in some form.
+@property (nonatomic, readonly, strong) id <VideoFrameBuffer> _Nonnull buffer;
+- (nonnull instancetype)initWithTimestampNs:(int64_t)timestampNs rotation:(enum VideoRotation)rotation buffer:(id <VideoFrameBuffer> _Nonnull)buffer OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+/// <code>VideoFrameBuffer</code> is a buffer which contains a single video buffer’s raw data.
+/// Typically owned by a <code>VideoFrame</code> which includes additional metadata.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK16VideoFrameBuffer_")
+@protocol VideoFrameBuffer
+/// Width of the video frame in pixels.
+- (NSInteger)width SWIFT_WARN_UNUSED_RESULT;
+/// Height of the video frame in pixels.
+- (NSInteger)height SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+/// <code>VideoFramePixelBuffer</code> is a buffer which contains a single video frame in the form of <code>CVPixelBuffer</code>.
+SWIFT_CLASS("_TtC14AmazonChimeSDK21VideoFramePixelBuffer")
+@interface VideoFramePixelBuffer : NSObject <VideoFrameBuffer>
+- (NSInteger)width SWIFT_WARN_UNUSED_RESULT;
+- (NSInteger)height SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly) CVPixelBufferRef _Nonnull pixelBuffer;
+- (nonnull instancetype)initWithPixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuffer OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
 /// <code>VideoPauseState</code> describes the pause status of a video tile.
 typedef SWIFT_ENUM(NSInteger, VideoPauseState, open) {
 /// The video tile is not paused
   VideoPauseStateUnpaused = 0,
 /// The video tile has been paused by the user, and will only be unpaused if the user requests it to resume.
   VideoPauseStatePausedByUserRequest = 1,
-/// The video tile has been paused to save on local downlink bandwidth.  When the connection improves,
-/// it will be automatically unpaused by the client.  User requested pauses will shadow this pause,
+/// The video tile has been paused to save on local downlink bandwidth. When the connection improves,
+/// it will be automatically unpaused by the client. User requested pauses will shadow this pause,
 /// but if the connection has not recovered on resume the tile will still be paused with this state.
   VideoPauseStatePausedForPoorConnection = 2,
 };
+
+
+/// <code>VideoRotation</code> describes the rotation of the video frame buffer in degrees clockwise
+/// from intended viewing horizon.
+/// e.g. If you were recording camera capture upside down relative to
+/// the orientation of the sensor, this value would be <code>VideoRotation.rotation180</code>.
+typedef SWIFT_ENUM(NSInteger, VideoRotation, open) {
+/// Not rotated.
+  VideoRotationRotation0 = 0,
+/// Rotated 90 degrees clockwise.
+  VideoRotationRotation90 = 90,
+/// Rotated 180 degrees clockwise.
+  VideoRotationRotation180 = 180,
+/// Rotated 270 degrees clockwise.
+  VideoRotationRotation270 = 270,
+};
+
 
 
 
@@ -4526,6 +5354,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 @import AVFoundation;
 @import AmazonChimeSDKMedia;
 @import CoreGraphics;
+@import CoreMedia;
 @import CoreVideo;
 @import Foundation;
 @import ObjectiveC;
@@ -4548,6 +5377,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #endif
 
 @class AVAudioSessionPortDescription;
+@class AVAudioSessionRouteDescription;
 
 SWIFT_PROTOCOL("_TtP14AmazonChimeSDK12AudioSession_")
 @protocol AudioSession
@@ -4555,6 +5385,7 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK12AudioSession_")
 @property (nonatomic, readonly, copy) NSArray<AVAudioSessionPortDescription *> * _Nullable availableInputs;
 - (BOOL)setPreferredInput:(AVAudioSessionPortDescription * _Nullable)inPort error:(NSError * _Nullable * _Nullable)error;
 - (BOOL)overrideOutputAudioPort:(AVAudioSessionPortOverride)portOverride error:(NSError * _Nullable * _Nullable)error;
+@property (nonatomic, readonly, strong) AVAudioSessionRouteDescription * _Nonnull currentRoute;
 @end
 
 
@@ -4674,6 +5505,8 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK19AudioClientProtocol_")
 - (void)setPresenter:(BOOL)presenter;
 - (void)remoteMute;
 - (void)audioLogCallBack:(loglevel_t)logLevel msg:(NSString * _Null_unspecified)msg;
+- (BOOL)isBliteNSSelected SWIFT_WARN_UNUSED_RESULT;
+- (NSInteger)setBliteNSSelected:(BOOL)bliteSelected SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -4686,6 +5519,8 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21AudioClientController_")
 - (BOOL)setMuteWithMute:(BOOL)mute SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)startWithAudioFallbackUrl:(NSString * _Nonnull)audioFallbackUrl audioHostUrl:(NSString * _Nonnull)audioHostUrl meetingId:(NSString * _Nonnull)meetingId attendeeId:(NSString * _Nonnull)attendeeId joinToken:(NSString * _Nonnull)joinToken callKitEnabled:(BOOL)callKitEnabled error:(NSError * _Nullable * _Nullable)error;
 - (void)stop;
+- (BOOL)setVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)isVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 @end
 
 @protocol AudioVideoObserver;
@@ -4711,6 +5546,7 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9AudioLock_")
 
 @class MeetingSessionConfiguration;
 @protocol Logger;
+@protocol VideoSource;
 @protocol MetricsObserver;
 
 /// <code>AudioVideoControllerFacade</code> manages the signaling and peer connections.
@@ -4734,12 +5570,26 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK26AudioVideoControllerFacade_")
 - (BOOL)startAndReturnError:(NSError * _Nullable * _Nullable)error;
 /// Stop AudioVideo Controller. This will exit the meeting
 - (void)stop;
-/// Enable self video to start streaming
+/// Start local video and begin transmitting frames from an internally held <code>DefaultCameraCaptureSource</code>.
+/// <code>stopLocalVideo</code> will stop the internal capture source if being used.
+/// Calling this after passing in a custom <code>VideoSource</code> will replace it with the internal capture source.
+/// This function will only have effect if <code>start</code> has already been called
 ///
 /// throws:
 /// <code>PermissionError.videoPermissionError</code> if video permission of <code>AVCaptureDevice</code> is not granted
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
-/// Disable self video streaming
+/// Start local video with a provided custom <code>VideoSource</code> which can be used to provide custom
+/// <code>VideoFrame</code>s to be transmitted to remote clients. This will call <code>VideoSource.addVideoSink</code>
+/// on the provided source.
+/// Calling this function repeatedly will replace the previous <code>VideoSource</code> as the one being
+/// transmitted. It will also stop and replace the internal capture source if <code>startLocalVideo</code>
+/// was previously called with no arguments.
+/// This function will only have effect if <code>start</code> has already been called
+/// \param source The source of video frames to be sent to other clients
+///
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
+/// Stops sending video for local attendee. This will additionally stop the internal capture source if being used.
+/// If using a custom video source, this will call <code>VideoSource.removeVideoSink</code> on the previously provided source.
 - (void)stopLocalVideo;
 /// Enable remote video to start receiving streams
 - (void)startRemoteVideo;
@@ -4828,13 +5678,20 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK16DeviceController_")
 /// \param observer the object that will be removed
 ///
 - (void)removeDeviceChangeObserverWithObserver:(id <DeviceChangeObserver> _Nonnull)observer;
-/// Switch between front/back camera
+/// Switch between front/back camera. This will no-op if using a custom source,
+/// e.g. one passed in via <code>startLocalVideo</code>
 - (void)switchCamera;
-/// Get currently used video device
+/// Get the currently active camera, if any. This will return null if using a custom source,
+/// e.g. one passed in via <code>AudioVideoControllerFacade.startLocalVideo</code>
 ///
 /// returns:
 /// a media device or nil if no device is present
 - (MediaDevice * _Nullable)getActiveCamera SWIFT_WARN_UNUSED_RESULT;
+/// Get currently used audio device
+///
+/// returns:
+/// a media device or nil if no device is present
+- (MediaDevice * _Nullable)getActiveAudioDevice SWIFT_WARN_UNUSED_RESULT;
 @end
 
 @protocol DataMessageObserver;
@@ -4887,6 +5744,19 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK24RealtimeControllerFacade_")
 /// throws:
 /// SendDataMessageError
 - (BOOL)realtimeSendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
+/// Enable or disable Voice Focus (ML-based noise suppression) on the audio input
+/// Note: Only call this API after audioClient starts. Calling it before that results in a no-op. Voice Focus is disabled by default when audioClient starts.
+/// \param enabled A <code>Bool</code> value, where <code>true</code> to enable; <code>false</code> to disable
+///
+///
+/// returns:
+/// Whether the enable/disable action was successful
+- (BOOL)realtimeSetVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+/// Check if Voice Focus (ML-based noise suppression) is enabled or not
+///
+/// returns:
+/// <code>true</code> if Voice Focus is enabled; <code>false</code> if Voice Focus is not enabled, or the audio session was not started yet
+- (BOOL)realtimeIsVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -4946,6 +5816,98 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK18AudioVideoObserver_")
 - (void)videoSessionDidStopWithStatusWithSessionStatus:(MeetingSessionStatus * _Nonnull)sessionStatus;
 @end
 
+enum VideoContentHint : NSInteger;
+@protocol VideoSink;
+
+/// <code>VideoSource</code> is an interface for sources which produce video frames, and can send to a <code>VideoSink</code>.
+/// Implementations can be passed to the <code>AudioVideoFacade</code> to be used as the video source sent to remote
+/// participlants
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK11VideoSource_")
+@protocol VideoSource
+/// Content hint for downstream processing.
+@property (nonatomic) enum VideoContentHint videoContentHint;
+/// Add a video sink which will immediately begin to receive new frames.
+/// Multiple sinks can be added to a single <code>VideoSource</code> to allow forking of video frames,
+/// e.g. to send to both local preview and AmazonChimeSDKMedia framework (i.e. for encoding) at the same time.
+/// \param sink New video sink
+///
+- (void)addVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+/// Remove a video sink which will no longer receive new frames on return.
+/// \param sink Video sink to remove
+///
+- (void)removeVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+@end
+
+@protocol CaptureSourceObserver;
+
+/// <code>VideoCaptureSource</code> is an interface for various video capture sources (i.e. screen, camera, file) which can emit <code>VideoFrame</code> objects.
+/// All the APIs in this protocol can be called regardless of whether the <code>MeetingSession.audioVideo</code> is started or not.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK18VideoCaptureSource_")
+@protocol VideoCaptureSource <VideoSource>
+/// Start capturing on this source and emitting video frames.
+- (void)start;
+/// Stop capturing on this source and cease emitting video frames.
+- (void)stop;
+/// Add a capture source observer to receive callbacks from the source on lifecycle events
+/// which can be used to trigger UI. This observer is entirely optional.
+/// \param observer - New observer.
+///
+- (void)addCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+/// Remove a capture source observer.
+/// \param observer - Observer to remove.
+///
+- (void)removeCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+@end
+
+@class VideoCaptureFormat;
+
+/// <code>CameraCaptureSource</code> is an interface for camera capture sources with additional features
+/// not covered by <code>VideoCaptureSource</code>.
+/// All the APIs in this protocol can be called regardless of whether the <code>MeetingSession.audioVideo</code> is started or not.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK19CameraCaptureSource_")
+@protocol CameraCaptureSource <VideoCaptureSource>
+/// Current camera device. This is only null if the phone/device doesn’t have any cameras
+/// May be called regardless of whether <code>start</code> or <code>stop</code> has been called.
+@property (nonatomic, strong) MediaDevice * _Nullable device;
+/// Toggle for flashlight on the current device. Will succeed if current device has access to
+/// flashlight, otherwise will stay <code>false</code>. May be called regardless of whether <code>start</code> or <code>stop</code>
+/// has been called.
+@property (nonatomic) BOOL torchEnabled;
+/// Current camera capture format  Actual format may be adjusted to use supported camera formats.
+/// May be called regardless of whether <code>start</code> or <code>stop</code> has been called.
+@property (nonatomic, strong) VideoCaptureFormat * _Nonnull format;
+/// Helper function to switch from front to back cameras or reverse.
+- (void)switchCamera;
+@end
+
+/// <code>CaptureSourceError</code> describes an error resulting from a capture source failure.
+/// These can be used to trigger UI, or attempt to restart the capture source.
+typedef SWIFT_ENUM(NSInteger, CaptureSourceError, open) {
+/// Unknown error, and catch-all for errors not otherwise covered.
+  CaptureSourceErrorUnknown = 0,
+/// A  failure observed from a system API used for capturing.
+  CaptureSourceErrorSystemFailure = 1,
+/// A failure observed during configuration.
+  CaptureSourceErrorConfigurationFailure = 2,
+/// A temporary failure observed when capture source generates an invalid frame which is ignored.
+  CaptureSourceErrorInvalidFrame = 3,
+};
+
+
+/// <code>CaptureSourceObserver</code> observes events resulting from different types of capture devices.
+/// Builders may desire this input to decide when to show certain UI elements, or to notify users of failure.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21CaptureSourceObserver_")
+@protocol CaptureSourceObserver
+/// Called when the capture source has started successfully and has started emitting frames.
+- (void)captureDidStart;
+/// Called when the capture source has stopped when expected. This may occur when switching cameras, for example.
+- (void)captureDidStop;
+/// Called when the capture source failed permanently
+/// \param error - The reason why the source has stopped.
+///
+- (void)captureDidFailWithError:(enum CaptureSourceError)error;
+@end
+
 
 /// ClientMetricsCollector takes the raw metrics from the native client,
 /// consolidates them into a normalize map of ObservableMetric to value,
@@ -4985,7 +5947,7 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK6Logger_")
 /// ConsoleLogger writes logs with console.
 /// \code
 /// // working with the ConsoleLogger
-/// let logger = new ConsoleLogger("demo"); //default level is LogLevel.DEFAULT prints everything
+/// let logger = new ConsoleLogger("demo"); //default level is LogLevel.INFO
 /// logger.info("info");
 /// logger.debug("debug");
 /// logger.fault("fault");
@@ -5150,11 +6112,16 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK28DefaultActiveSpeakerDetector")
 
 SWIFT_CLASS("_TtC14AmazonChimeSDK26DefaultActiveSpeakerPolicy")
 @interface DefaultActiveSpeakerPolicy : NSObject <ActiveSpeakerPolicy>
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) double defaultSpeakerWeight;)
++ (double)defaultSpeakerWeight SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) double defaultCutoffThreshold;)
++ (double)defaultCutoffThreshold SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) double defaultTakeoverRate;)
++ (double)defaultTakeoverRate SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init;
 - (nonnull instancetype)initWithSpeakerWeight:(double)speakerWeight cutoffThreshold:(double)cutoffThreshold takeoverRate:(double)takeoverRate OBJC_DESIGNATED_INITIALIZER;
 - (double)calculateScoreWithAttendeeInfo:(AttendeeInfo * _Nonnull)attendeeInfo volume:(enum VolumeLevel)volume SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)prioritizeVideoSendBandwidthForActiveSpeaker SWIFT_WARN_UNUSED_RESULT;
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 @protocol VideoClientController;
@@ -5172,6 +6139,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK27DefaultAudioVideoController")
 - (void)addMetricsObserverWithObserver:(id <MetricsObserver> _Nonnull)observer;
 - (void)removeMetricsObserverWithObserver:(id <MetricsObserver> _Nonnull)observer;
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
 - (void)stopLocalVideo;
 - (void)startRemoteVideo;
 - (void)stopRemoteVideo;
@@ -5190,6 +6158,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultAudioVideoFacade")
 - (BOOL)startAndReturnError:(NSError * _Nullable * _Nullable)error;
 - (void)stop;
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
 - (void)stopLocalVideo;
 - (void)startRemoteVideo;
 - (void)stopRemoteVideo;
@@ -5200,6 +6169,8 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultAudioVideoFacade")
 - (void)addRealtimeDataMessageObserverWithTopic:(NSString * _Nonnull)topic observer:(id <DataMessageObserver> _Nonnull)observer;
 - (void)removeRealtimeDataMessageObserverFromTopicWithTopic:(NSString * _Nonnull)topic;
 - (BOOL)realtimeSendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)realtimeSetVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)realtimeIsVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 - (void)addAudioVideoObserverWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
 - (void)removeAudioVideoObserverWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
 - (void)addMetricsObserverWithObserver:(id <MetricsObserver> _Nonnull)observer;
@@ -5219,8 +6190,35 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultAudioVideoFacade")
 - (void)addActiveSpeakerObserverWithPolicy:(id <ActiveSpeakerPolicy> _Nonnull)policy observer:(id <ActiveSpeakerObserver> _Nonnull)observer;
 - (void)removeActiveSpeakerObserverWithObserver:(id <ActiveSpeakerObserver> _Nonnull)observer;
 - (void)hasBandwidthPriorityCallbackWithHasBandwidthPriority:(BOOL)hasBandwidthPriority;
+- (MediaDevice * _Nullable)getActiveAudioDevice SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+SWIFT_CLASS("_TtC14AmazonChimeSDK26DefaultCameraCaptureSource")
+@interface DefaultCameraCaptureSource : NSObject <CameraCaptureSource>
+@property (nonatomic) enum VideoContentHint videoContentHint;
+- (nonnull instancetype)initWithLogger:(id <Logger> _Nonnull)logger OBJC_DESIGNATED_INITIALIZER;
+@property (nonatomic, strong) MediaDevice * _Nullable device;
+@property (nonatomic, strong) VideoCaptureFormat * _Nonnull format;
+@property (nonatomic) BOOL torchEnabled;
+- (void)addVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+- (void)removeVideoSinkWithSink:(id <VideoSink> _Nonnull)sink;
+- (void)start;
+- (void)stop;
+- (void)switchCamera;
+- (void)addCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+- (void)removeCaptureSourceObserverWithObserver:(id <CaptureSourceObserver> _Nonnull)observer;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+@class AVCaptureOutput;
+@class AVCaptureConnection;
+
+@interface DefaultCameraCaptureSource (SWIFT_EXTENSION(AmazonChimeSDK)) <AVCaptureVideoDataOutputSampleBufferDelegate>
+- (void)captureOutput:(AVCaptureOutput * _Nonnull)_ didOutputSampleBuffer:(CMSampleBufferRef _Nonnull)sampleBuffer fromConnection:(AVCaptureConnection * _Nonnull)_;
 @end
 
 
@@ -5233,6 +6231,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK23DefaultDeviceController")
 - (void)removeDeviceChangeObserverWithObserver:(id <DeviceChangeObserver> _Nonnull)observer;
 - (void)switchCamera;
 - (MediaDevice * _Nullable)getActiveCamera SWIFT_WARN_UNUSED_RESULT;
+- (MediaDevice * _Nullable)getActiveAudioDevice SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -5267,18 +6266,29 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK25DefaultRealtimeController")
 - (void)addRealtimeDataMessageObserverWithTopic:(NSString * _Nonnull)topic observer:(id <DataMessageObserver> _Nonnull)observer;
 - (void)removeRealtimeDataMessageObserverFromTopicWithTopic:(NSString * _Nonnull)topic;
 - (BOOL)realtimeSendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
+- (BOOL)realtimeSetVoiceFocusEnabledWithEnabled:(BOOL)enabled SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)realtimeIsVoiceFocusEnabled SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+@class VideoFrame;
 
-/// <code>VideoRenderView</code> renders frame that comes from <code>VideoTile</code>.
-SWIFT_PROTOCOL("_TtP14AmazonChimeSDK15VideoRenderView_")
-@protocol VideoRenderView
-/// Render given frame to UI
-/// \param frame a frame of video
+/// A <code>VideoSink</code> consumes video frames, typically from a <code>VideoSource</code>. It may process, fork, or render these frames.
+/// Typically connected via video <code>VideoSource.addVideoSink</code> and disconnected via <code>VideoSource.removeVideoSink</code>
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9VideoSink_")
+@protocol VideoSink
+/// Receive a video frame from some upstream source.
+/// The <code>VideoSink</code> may render, store, process, and forward the frame, among other applications.
+/// \param frame New video frame to consume
 ///
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
+- (void)onVideoFrameReceivedWithFrame:(VideoFrame * _Nonnull)frame;
+@end
+
+
+/// <code>VideoRenderView</code> is the type of VideoSink used by the <code>VideoTileController</code>
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK15VideoRenderView_")
+@protocol VideoRenderView <VideoSink>
 @end
 
 @class NSCoder;
@@ -5290,7 +6300,8 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK22DefaultVideoRenderView")
 @property (nonatomic) UIViewContentMode contentMode;
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)initWithFrame:(CGRect)frame OBJC_DESIGNATED_INITIALIZER;
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
+- (void)onVideoFrameReceivedWithFrame:(VideoFrame * _Nonnull)frame;
+- (void)resetImage;
 - (nonnull instancetype)initWithImage:(UIImage * _Nullable)image SWIFT_UNAVAILABLE;
 - (nonnull instancetype)initWithImage:(UIImage * _Nullable)image highlightedImage:(UIImage * _Nullable)highlightedImage SWIFT_UNAVAILABLE;
 @end
@@ -5300,7 +6311,7 @@ enum VideoPauseState : NSInteger;
 
 /// <code>VideoTile</code> is a tile that binds video render view to diplay the frame into the view.
 SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9VideoTile_")
-@protocol VideoTile
+@protocol VideoTile <VideoSink>
 /// State of VideoTile
 @property (nonatomic, readonly, strong) VideoTileState * _Nonnull state;
 /// View which will be used to render the Video Frame
@@ -5310,11 +6321,6 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK9VideoTile_")
 /// \param videoRenderView the view created by application to render the video frame
 ///
 - (void)bindWithVideoRenderView:(id <VideoRenderView> _Nullable)videoRenderView;
-/// Renders the frame on <code>videoRenderView</code>. The call will be silently ignored if the view has not been bind
-/// to the tile using <code>bind</code>
-/// \param frame a frame of video
-///
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
 /// Unbinds the <code>videoRenderView</code> from tile.
 - (void)unbind;
 /// Update the pause state of the tile.
@@ -5328,7 +6334,7 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK16DefaultVideoTile")
 @property (nonatomic, strong) id <VideoRenderView> _Nullable videoRenderView;
 - (nonnull instancetype)initWithTileId:(NSInteger)tileId attendeeId:(NSString * _Nonnull)attendeeId videoStreamContentWidth:(NSInteger)videoStreamContentWidth videoStreamContentHeight:(NSInteger)videoStreamContentHeight isLocalTile:(BOOL)isLocalTile logger:(id <Logger> _Nonnull)logger OBJC_DESIGNATED_INITIALIZER;
 - (void)bindWithVideoRenderView:(id <VideoRenderView> _Nullable)videoRenderView;
-- (void)renderFrameWithFrame:(CVPixelBufferRef _Nullable)frame;
+- (void)onVideoFrameReceivedWithFrame:(VideoFrame * _Nonnull)frame;
 - (void)unbind;
 - (void)setPauseStateWithPauseState:(enum VideoPauseState)pauseState;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
@@ -5346,20 +6352,16 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK19VideoTileController_")
 ///
 /// \param attendeeId a id of user who is transmitting current frame
 ///
-/// \param videoStreamContentHeight height of the video stream being transmitted
-///
-/// \param videoStreamContentWidth width of the video stream being transmitted
-///
 /// \param pauseState current pause state of the video being received
 ///
-- (void)onReceiveFrameWithFrame:(CVPixelBufferRef _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
+- (void)onReceiveFrameWithFrame:(VideoFrame * _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
 @end
 
 
 SWIFT_CLASS("_TtC14AmazonChimeSDK26DefaultVideoTileController")
 @interface DefaultVideoTileController : NSObject <VideoTileController>
 - (nonnull instancetype)initWithVideoClientController:(id <VideoClientController> _Nonnull)videoClientController logger:(id <Logger> _Nonnull)logger OBJC_DESIGNATED_INITIALIZER;
-- (void)onReceiveFrameWithFrame:(CVPixelBufferRef _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
+- (void)onReceiveFrameWithFrame:(VideoFrame * _Nullable)frame videoId:(NSInteger)videoId attendeeId:(NSString * _Nullable)attendeeId pauseState:(enum VideoPauseState)pauseState;
 - (void)bindVideoViewWithVideoView:(id <VideoRenderView> _Nonnull)videoView tileId:(NSInteger)tileId;
 - (void)unbindVideoViewWithTileId:(NSInteger)tileId;
 - (void)addVideoTileObserverWithObserver:(id <VideoTileObserver> _Nonnull)observer;
@@ -5428,6 +6430,13 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK11MediaDevice")
 /// Audio Information based on iOS native <code>AVAudioSessionPortDescription</code>
 /// It will be null when it represent a video device.
 @property (nonatomic, readonly, strong) AVAudioSessionPortDescription * _Nullable port;
+/// List available video capture devices from the hardware
++ (NSArray<MediaDevice *> * _Nonnull)listVideoDevices SWIFT_WARN_UNUSED_RESULT;
+/// List available <code>VideoCaptureFormat</code> from the video capture device.
+/// This methods returns an empty array for <code>MediaDevice</code> that’s not used for video.
+/// \param mediaDevice Video capture device to query
+///
++ (NSArray<VideoCaptureFormat *> * _Nonnull)listSupportedVideoCaptureFormatsWithMediaDevice:(MediaDevice * _Nonnull)mediaDevice SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)initWithLabel:(NSString * _Nonnull)label type:(enum MediaDeviceType)type OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)initWithLabel:(NSString * _Nonnull)label port:(AVAudioSessionPortDescription * _Nullable)port videoDevice:(VideoDevice * _Nullable)videoDevice OBJC_DESIGNATED_INITIALIZER;
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
@@ -5665,16 +6674,28 @@ SWIFT_CLASS("_TtC14AmazonChimeSDK10Versioning")
 @end
 
 
+/// <code>VideoCaptureFormat</code>describes a given capture format that may be possible to apply to a <code>VideoCaptureSource</code>.
+/// Note that <code>VideoCaptureSource</code> implementations may ignore or adjust unsupported values.
+SWIFT_CLASS("_TtC14AmazonChimeSDK18VideoCaptureFormat")
+@interface VideoCaptureFormat : NSObject
+- (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+
 SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21VideoClientController_")
 @protocol VideoClientController
 - (void)startWithTurnControlUrl:(NSString * _Nonnull)turnControlUrl signalingUrl:(NSString * _Nonnull)signalingUrl meetingId:(NSString * _Nonnull)meetingId joinToken:(NSString * _Nonnull)joinToken;
 - (void)stopAndDestroy;
 - (BOOL)startLocalVideoAndReturnError:(NSError * _Nullable * _Nullable)error;
+- (void)startLocalVideoWithSource:(id <VideoSource> _Nonnull)source;
 - (void)stopLocalVideo;
 - (void)startRemoteVideo;
 - (void)stopRemoteVideo;
 - (void)switchCamera;
-- (VideoDevice * _Nullable)getCurrentDevice SWIFT_WARN_UNUSED_RESULT;
+- (MediaDevice * _Nullable)getCurrentDevice SWIFT_WARN_UNUSED_RESULT;
 - (MeetingSessionConfiguration * _Nonnull)getConfiguration SWIFT_WARN_UNUSED_RESULT;
 - (void)subscribeToVideoClientStateChangeWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
 - (void)unsubscribeFromVideoClientStateChangeWithObserver:(id <AudioVideoObserver> _Nonnull)observer;
@@ -5686,17 +6707,100 @@ SWIFT_PROTOCOL("_TtP14AmazonChimeSDK21VideoClientController_")
 - (BOOL)sendDataMessageWithTopic:(NSString * _Nonnull)topic data:(id _Nonnull)data lifetimeMs:(int32_t)lifetimeMs error:(NSError * _Nullable * _Nullable)error;
 @end
 
+/// <code>VideoContentHint</code> describes the content type of a video source so that downstream encoders, etc. can properly
+/// decide on what parameters will work best. These options mirror https://www.w3.org/TR/mst-content-hint/ .
+typedef SWIFT_ENUM(NSInteger, VideoContentHint, open) {
+/// No hint has been provided.
+  VideoContentHintNone = 0,
+/// The track should be treated as if it contains video where motion is important.
+/// This is normally webcam video, movies or video games.
+  VideoContentHintMotion = 1,
+/// The track should be treated as if video details are extra important.
+/// This is generally applicable to presentations or web pages with text content, painting or line art.
+  VideoContentHintDetail = 2,
+/// The track should be treated as if video details are extra important, and that
+/// significant sharp edges and areas of consistent color can occur frequently.
+/// This is generally applicable to presentations or web pages with text content.
+  VideoContentHintText = 3,
+};
+
+enum VideoRotation : NSInteger;
+@protocol VideoFrameBuffer;
+
+/// <code>VideoFrame</code> is a class which contains a <code>VideoFrameBuffer</code> and metadata necessary for transmission.
+/// Typically produced via a <code>VideoSource</code> and consumed via a <code>VideoSink</code>
+SWIFT_CLASS("_TtC14AmazonChimeSDK10VideoFrame")
+@interface VideoFrame : NSObject
+/// Width of the video frame in pixels.
+@property (nonatomic, readonly) NSInteger width;
+/// Height of the video frame in pixels.
+@property (nonatomic, readonly) NSInteger height;
+/// Timestamp in nanoseconds at which the video frame was captured from some system monotonic clock.
+/// Will be aligned and converted to NTP (Network Time Protocol) within AmazonChimeSDKMedia framework, which will then be converted to a system
+/// monotonic clock on remote end. May be different on frames emanated from AmazonChimeSDKMedia framework.
+@property (nonatomic, readonly) int64_t timestampNs;
+/// Rotation of the video frame buffer in degrees clockwise from intended viewing horizon.
+/// e.g. If you were recording camera capture upside down relative to
+/// the orientation of the sensor, this value would be <code>VideoRotation.rotation180</code>.
+@property (nonatomic, readonly) enum VideoRotation rotation;
+/// Object containing actual video frame data in some form.
+@property (nonatomic, readonly, strong) id <VideoFrameBuffer> _Nonnull buffer;
+- (nonnull instancetype)initWithTimestampNs:(int64_t)timestampNs rotation:(enum VideoRotation)rotation buffer:(id <VideoFrameBuffer> _Nonnull)buffer OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+/// <code>VideoFrameBuffer</code> is a buffer which contains a single video buffer’s raw data.
+/// Typically owned by a <code>VideoFrame</code> which includes additional metadata.
+SWIFT_PROTOCOL("_TtP14AmazonChimeSDK16VideoFrameBuffer_")
+@protocol VideoFrameBuffer
+/// Width of the video frame in pixels.
+- (NSInteger)width SWIFT_WARN_UNUSED_RESULT;
+/// Height of the video frame in pixels.
+- (NSInteger)height SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+/// <code>VideoFramePixelBuffer</code> is a buffer which contains a single video frame in the form of <code>CVPixelBuffer</code>.
+SWIFT_CLASS("_TtC14AmazonChimeSDK21VideoFramePixelBuffer")
+@interface VideoFramePixelBuffer : NSObject <VideoFrameBuffer>
+- (NSInteger)width SWIFT_WARN_UNUSED_RESULT;
+- (NSInteger)height SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly) CVPixelBufferRef _Nonnull pixelBuffer;
+- (nonnull instancetype)initWithPixelBuffer:(CVPixelBufferRef _Nonnull)pixelBuffer OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
 /// <code>VideoPauseState</code> describes the pause status of a video tile.
 typedef SWIFT_ENUM(NSInteger, VideoPauseState, open) {
 /// The video tile is not paused
   VideoPauseStateUnpaused = 0,
 /// The video tile has been paused by the user, and will only be unpaused if the user requests it to resume.
   VideoPauseStatePausedByUserRequest = 1,
-/// The video tile has been paused to save on local downlink bandwidth.  When the connection improves,
-/// it will be automatically unpaused by the client.  User requested pauses will shadow this pause,
+/// The video tile has been paused to save on local downlink bandwidth. When the connection improves,
+/// it will be automatically unpaused by the client. User requested pauses will shadow this pause,
 /// but if the connection has not recovered on resume the tile will still be paused with this state.
   VideoPauseStatePausedForPoorConnection = 2,
 };
+
+
+/// <code>VideoRotation</code> describes the rotation of the video frame buffer in degrees clockwise
+/// from intended viewing horizon.
+/// e.g. If you were recording camera capture upside down relative to
+/// the orientation of the sensor, this value would be <code>VideoRotation.rotation180</code>.
+typedef SWIFT_ENUM(NSInteger, VideoRotation, open) {
+/// Not rotated.
+  VideoRotationRotation0 = 0,
+/// Rotated 90 degrees clockwise.
+  VideoRotationRotation90 = 90,
+/// Rotated 180 degrees clockwise.
+  VideoRotationRotation180 = 180,
+/// Rotated 270 degrees clockwise.
+  VideoRotationRotation270 = 270,
+};
+
 
 
 

@@ -79,6 +79,10 @@ typedef NS_ENUM(NSUInteger, AudioClientMetric) {
 
 - (NSInteger)setMicrophoneMuted:(BOOL)mute;
 
+- (BOOL)isBliteNSSelected;
+
+- (NSInteger)setBliteNSSelected:(BOOL)bliteSelected;
+
 - (void)setPresenter:(BOOL)presenter;
 
 - (void)remoteMute;

@@ -35,6 +35,7 @@
 @property (nonatomic, assign) BOOL isUsingSendSideBwe;
 @property (nonatomic, assign) BOOL isUsingPixelBufferRenderer;
 @property (nonatomic, assign) BOOL isUsingOptimizedTwoSimulcastStreamTable;
+@property (nonatomic, assign) BOOL isContentShare;
 @end
 
 @interface DataMessageInternal : NSObject
