@@ -44,7 +44,7 @@ class _AppState extends State<App>
     @override
     Widget build(BuildContext context)
     {
-        var chimeViewChildren = List<Widget>();
+        var chimeViewChildren = List<Widget>.empty();
 
         if (_attendees.length == 0)
             chimeViewChildren.add(Expanded(child: Center(child: Text('No attendees yet.'))));
@@ -85,12 +85,12 @@ class _AppState extends State<App>
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                             Text('Audio/Video:'),
-                            RaisedButton(
+                            ElevatedButton(
                                 child: Text('Start'),
                                 onPressed: ()
                                 => _audioVideoStart()
                             ),
-                            RaisedButton(
+                            ElevatedButton(
                                 child: Text('Stop'),
                                 onPressed: ()
                                 => _audioVideoStop()
@@ -103,12 +103,12 @@ class _AppState extends State<App>
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                             Text('Local Video:'),
-                            RaisedButton(
+                            ElevatedButton(
                                 child: Text('Start'),
                                 onPressed: ()
                                 => _audioVideoStartLocalVideo()
                             ),
-                            RaisedButton(
+                            ElevatedButton(
                                 child: Text('Stop'),
                                 onPressed: ()
                                 => _audioVideoStopLocalVideo()
@@ -121,12 +121,12 @@ class _AppState extends State<App>
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                             Text('Remote Video:'),
-                            RaisedButton(
+                            ElevatedButton(
                                 child: Text('Start'),
                                 onPressed: ()
                                 => _audioVideoStartRemoteVideo()
                             ),
-                            RaisedButton(
+                            ElevatedButton(
                                 child: Text('Stop'),
                                 onPressed: ()
                                 => _audioVideoStopRemoteVideo()
@@ -463,7 +463,7 @@ class _AppState extends State<App>
         int videoStreamContentHeight = arguments['VideoStreamContentHeight'];
         int videoStreamContentWidth = arguments['VideoStreamContentWidth'];
 
-        Attendee attendee = _attendees.getByTileId(tileId);
+        Attendee? attendee = _attendees.getByTileId(tileId);
         if (attendee != null)
         {
             print('_handleOnVideoTileAdded called but already mapped. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView}');
@@ -476,17 +476,18 @@ class _AppState extends State<App>
         attendee.width = videoStreamContentWidth;
         _attendees.add(attendee);
 
+        Attendee nonNullAttendee = attendee;
         setState(()
         {
-            attendee.setVideoView(
+            nonNullAttendee.setVideoView(
                 ChimeDefaultVideoRenderView(
                     onPlatformViewCreated: (int viewId)
                     async
                     {
-                        attendee.setViewId(viewId);
-                        print('ChimeDefaultVideoRenderView created. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView} => binding');
-                        await Chime.bindVideoView(attendee.viewId, attendee.tileId);
-                        print('ChimeDefaultVideoRenderView created. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView} => bound');
+                        nonNullAttendee.setViewId(viewId);
+                        print('ChimeDefaultVideoRenderView created. TileId=${nonNullAttendee.tileId}, ViewId=${nonNullAttendee.viewId}, VideoView=${nonNullAttendee.videoView} => binding');
+                        await Chime.bindVideoView(nonNullAttendee.viewId!, nonNullAttendee.tileId);
+                        print('ChimeDefaultVideoRenderView created. TileId=${nonNullAttendee.tileId}, ViewId=${nonNullAttendee.viewId}, VideoView=${nonNullAttendee.videoView} => bound');
                     }
                 )
             );
@@ -498,7 +499,7 @@ class _AppState extends State<App>
     {
         int tileId = arguments['TileId'];
 
-        Attendee attendee = _attendees.getByTileId(tileId);
+        Attendee? attendee = _attendees.getByTileId(tileId);
         if (attendee == null)
         {
             print('Error: _handleOnVideoTileRemoved: Could not find attendee for TileId=$tileId');

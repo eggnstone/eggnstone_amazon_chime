@@ -2,7 +2,7 @@ import 'package:chime_example/data/Attendee.dart';
 
 class Attendees
 {
-    final List<Attendee> _attendees = List<Attendee>();
+    final List<Attendee> _attendees = List<Attendee>.empty();
 
     get length
     => _attendees.length;
@@ -16,7 +16,7 @@ class Attendees
     void remove(Attendee attendee)
     => _attendees.remove(attendee);
 
-    Attendee getByTileId(int tileId)
+    Attendee? getByTileId(int tileId)
     {
         for (int i = 0; i < _attendees.length; i++)
             if (_attendees[i].tileId == tileId)

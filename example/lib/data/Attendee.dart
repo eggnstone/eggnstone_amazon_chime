@@ -5,20 +5,20 @@ class Attendee
     final int tileId;
     final bool isLocalTile;
 
-    int _viewId;
-    ChimeDefaultVideoRenderView _videoView;
+    int? _viewId;
+    ChimeDefaultVideoRenderView? _videoView;
 
-    int height;
-    int width;
+    int? height;
+    int? width;
 
-    get viewId
+    int? get viewId
     => _viewId;
 
-    get videoView
+    ChimeDefaultVideoRenderView? get videoView
     => _videoView;
 
     get aspectRatio
-    => height == null || height == 0 || width == null || width == 0 ? 1.0 : width / height;
+    => height == null || height == 0 || width == null || width == 0 ? 1.0 : width! / height!;
 
     Attendee(this.tileId, this.isLocalTile);
 

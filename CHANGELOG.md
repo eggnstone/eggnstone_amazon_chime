@@ -1,3 +1,7 @@
+## [1.0.0] - 04.03.2021
+
+* Supporting/requiring Dart 2.12.0 now.
+
 ## 0.5.7 - 06.01.2021
 
 * iOS: convertVideoTileStateToJson() now includes width and height.

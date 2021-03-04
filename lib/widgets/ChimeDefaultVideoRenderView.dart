@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class ChimeDefaultVideoRenderView extends StatefulWidget
 {
     /// Event to be called when the view gets created
-    final ValueChanged<int> onPlatformViewCreated;
+    final ValueChanged<int>? onPlatformViewCreated;
 
     /// Creates a [ChimeDefaultVideoRenderView].
     /// Optional: [onPlatformViewCreated] event to be called when the view gets created.
