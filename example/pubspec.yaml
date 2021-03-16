@@ -22,7 +22,7 @@ dependencies:
 
   device_info: ^2.0.0
   http: ^0.13.0
-  permission_handler: ^5.1.0+2
+  permission_handler: ^6.1.0
 
 dev_dependencies:
   flutter_test:
