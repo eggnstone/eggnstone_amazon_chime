@@ -10,7 +10,7 @@
 
 ## 1.0.0
 
-* Supporting/requiring Dart 2.12.0 now.
+* Breaking change: Requiring Dart 2.12.0 now.
 
 ## 0.5.7
 
