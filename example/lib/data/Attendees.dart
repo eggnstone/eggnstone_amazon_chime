@@ -2,7 +2,7 @@ import 'package:chime_example/data/Attendee.dart';
 
 class Attendees
 {
-    final List<Attendee> _attendees = List<Attendee>.empty();
+    final List<Attendee> _attendees = List<Attendee>.empty(growable: true);
 
     get length
     => _attendees.length;

@@ -44,7 +44,7 @@ class _AppState extends State<App>
     @override
     Widget build(BuildContext context)
     {
-        var chimeViewChildren = List<Widget>.empty();
+        var chimeViewChildren = List<Widget>.empty(growable: true);
 
         if (_attendees.length == 0)
             chimeViewChildren.add(Expanded(child: Center(child: Text('No attendees yet.'))));
@@ -207,7 +207,7 @@ class _AppState extends State<App>
 
         try
         {
-            version = await Chime.version;
+            version = (await Chime.version)!;
         }
         on PlatformException
         {
@@ -287,7 +287,7 @@ class _AppState extends State<App>
 
             // See ChimeServer.js on how to create authenticated meeting data using the AWS SDK.
 
-            meetingSessionState = await MeetingSessionCreator().create();
+            meetingSessionState = (await MeetingSessionCreator().create())!;
         }
         on PlatformException catch (e)
         {
@@ -312,7 +312,7 @@ class _AppState extends State<App>
 
         try
         {
-            result = await Chime.audioVideoStart();
+            result = (await Chime.audioVideoStart())!;
         }
         on PlatformException catch (e)
         {
@@ -337,7 +337,7 @@ class _AppState extends State<App>
 
         try
         {
-            result = await Chime.audioVideoStop();
+            result = (await Chime.audioVideoStop())!;
         }
         on PlatformException catch (e)
         {
@@ -362,7 +362,7 @@ class _AppState extends State<App>
 
         try
         {
-            result = await Chime.audioVideoStartLocalVideo();
+            result = (await Chime.audioVideoStartLocalVideo())!;
         }
         on PlatformException catch (e)
         {
@@ -387,7 +387,7 @@ class _AppState extends State<App>
 
         try
         {
-            result = await Chime.audioVideoStopLocalVideo();
+            result = (await Chime.audioVideoStopLocalVideo())!;
         }
         on PlatformException catch (e)
         {
@@ -412,7 +412,7 @@ class _AppState extends State<App>
 
         try
         {
-            result = await Chime.audioVideoStartRemoteVideo();
+            result = (await Chime.audioVideoStartRemoteVideo())!;
         }
         on PlatformException catch (e)
         {
@@ -437,7 +437,7 @@ class _AppState extends State<App>
 
         try
         {
-            result = await Chime.audioVideoStopRemoteVideo();
+            result = (await Chime.audioVideoStopRemoteVideo())!;
         }
         on PlatformException catch (e)
         {

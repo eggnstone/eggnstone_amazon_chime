@@ -1,6 +1,8 @@
 ## 1.0.1
 
-* Fixed example.
+* Fixed version getter.
+* Android: updated to Chime SDK version 0.11.2.
+* Added instructions on how to create amazon-chime-sdk-combined-without-libc++_shared.so.aar.
 
 ## 1.0.0
 
