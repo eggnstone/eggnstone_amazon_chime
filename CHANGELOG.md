@@ -1,11 +1,11 @@
 ## 1.0.2
 
-* 
+* Updated readme and changelog.
 
 ## 1.0.1
 
-* Fixed version getter.
-* Android: updated to Chime SDK version 0.11.2.
+* Fixed plugin methods which were broken by the change to sound null safety (they return Future<String?> instead of Future<String> now).
+* Android: updated to Chime SDK version 0.11.2 (media 0.11.2).
 * Added instructions on how to create amazon-chime-sdk-combined-without-libc++_shared.so.aar.
 
 ## 1.0.0
