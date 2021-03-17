@@ -1,4 +1,4 @@
-# How to combine amazon-chime-sdk and amazon-chime-sdk-media
+## How to combine amazon-chime-sdk and amazon-chime-sdk-media
 
 * Download the latest version from
 https://github.com/aws/amazon-chime-sdk-android/releases/latest
@@ -9,11 +9,11 @@ https://github.com/aws/amazon-chime-sdk-android/releases/latest
 - Extract `amazon-chime-sdk-media.aar` from `amazon-chime-sdk-media-VERSION.tar.gz` to `amazon-chime-sdk-media`
 
 
-- Extract `amazon-chime-sdk.aar`       to `amazon-chime-sdk-combined` (notice the *-combined* here)
+- Extract `amazon-chime-sdk.aar`       to `amazon-chime-sdk-combined` (notice the **-combined** here)
 - Extract `amazon-chime-sdk-media.aar` to `amazon-chime-sdk-media`
 
 
-- Move all `directories from amazon-chime-sdk-media`   to `amazon-chime-sdk-combined`
+- Move all directories from `amazon-chime-sdk-media`   to `amazon-chime-sdk-combined`
 - Add rules from `amazon-chime-sdk-media\proguard.txt` to `amazon-chime-sdk-combined\proguard.txt`
 
 
@@ -33,5 +33,6 @@ https://github.com/aws/amazon-chime-sdk-android/releases/latest
 - Copy `amazon-chime-sdk-combined-without-libc++_shared.so.aar` to `eggnstone_amazon_chime\android\amazon-chime-sdk` 
 
 
-Note: "zip contents" means to go into that directory and zip all files there.  
+###Note
+"Zip contents" means to go into that directory and zip all files there.  
 Do not zip the directory from within the directory above.
