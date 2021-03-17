@@ -33,6 +33,6 @@ https://github.com/aws/amazon-chime-sdk-android/releases/latest
 - Copy `amazon-chime-sdk-combined-without-libc++_shared.so.aar` to `eggnstone_amazon_chime\android\amazon-chime-sdk` 
 
 
-###Note
+### Note
 "Zip contents" means to go into that directory and zip all files there.  
 Do not zip the directory from within the directory above.
