@@ -31,8 +31,8 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 * Then I moved the libc++_shared.so out in order to be able to use the plugin in apps that already have that library. Again, if anyone knows a better solution I'll be happy to use it!
 
 **Used versions**
-* [amazon-chime-sdk-0.7.4.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/sdk/0.7.4/amazon-chime-sdk-0.7.4.tar.gz)
-* [amazon-chime-sdk-media-0.7.0.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/media/0.7.0/amazon-chime-sdk-media-0.7.0.tar.gz)
+* [amazon-chime-sdk-0.11.2.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/sdk/0.11.2/amazon-chime-sdk-0.11.2.tar.gz)
+* [amazon-chime-sdk-media-0.11.2.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/media/0.11.2/amazon-chime-sdk-media-0.11.2.tar.gz)
 
 **References**
 * https://github.com/aws/amazon-chime-sdk-android
@@ -55,8 +55,10 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 
 ## Web
 
-TODO
+Not included yet and currently no plan/time to do so. Sorry.
 
 **References**
-* https://github.com/aws/amazon-chime-sdk-js
 * https://aws.github.io/amazon-chime-sdk-js/
+* https://github.com/aws/amazon-chime-sdk-android/releases/latest
+* https://github.com/aws/amazon-chime-sdk-ios/releases/latest
+* https://github.com/aws/amazon-chime-sdk-js
