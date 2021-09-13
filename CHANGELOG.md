@@ -1,3 +1,8 @@
+## 2.0.1
+
+* Android: Removed amazon-chime-sdk-combined-without-libc++_shared.so.aar. 
+* Android: Added amazon-chime-sdk.aar and amazon-chime-sdk-media.aar.
+
 ## 2.0.0
 
 * Breaking change: iOS part temporarily disabled because files too large to publish.

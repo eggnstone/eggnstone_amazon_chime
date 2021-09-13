@@ -21,18 +21,11 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"
 // https://frontbackend.com/maven/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core  
 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"  
 ```
-* If your app already uses libc++_shared.so then no further change necessary. 
-* If your app does not use libc++_shared.so then
-  * Copy the **folder** libc++_shared.so from example\android to your app's **android** folder
-  * Add ```implementation fileTree(dir: '../libc++_shared.so', include: ['libc++_shared.so.aar'])``` to the **dependencies** section of your app's android/app/build.gradle
+* If your app already uses libc++_shared.so then you need to delete libc++_shared.so from the supplied amazon-chime-sdk.aar/amazon-chime-sdk-media.aar files.
   
-**Request for help**     
-* I had to manually combine amazon-chime-sdk.aar and amazon-chime-sdk-media.aar because otherwise the contents clash. If anyone knows a better solution I'll be happy to use it!
-* Then I moved the libc++_shared.so out in order to be able to use the plugin in apps that already have that library. Again, if anyone knows a better solution I'll be happy to use it!
-
 **Used versions**
-* [amazon-chime-sdk-0.11.2.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/sdk/0.11.2/amazon-chime-sdk-0.11.2.tar.gz)
-* [amazon-chime-sdk-media-0.11.2.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/media/0.11.2/amazon-chime-sdk-media-0.11.2.tar.gz)
+* [amazon-chime-sdk-0.12.0.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/sdk/0.12.0/amazon-chime-sdk-0.12.0.tar.gz)
+* [amazon-chime-sdk-media-0.12.1.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/media/0.12.1/amazon-chime-sdk-media-0.12.1.tar.gz)
 
 **References**
 * https://github.com/aws/amazon-chime-sdk-android/releases/latest
