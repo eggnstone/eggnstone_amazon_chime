@@ -17,9 +17,9 @@ dependencies:
     # the parent directory to use the current plugin's version. 
     path: ../
 
-  device_info: ^2.0.0
-  http: ^0.13.0
-  permission_handler: ^6.1.0
+  device_info: ^2.0.2
+  http: ^0.13.3
+  permission_handler: ^8.1.6
 
 dev_dependencies:
   flutter_test:

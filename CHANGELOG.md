@@ -1,6 +1,6 @@
 ## 1.0.3
 
-* 
+* Android: updated to Chime SDK version 0.12.0 (media 0.12.1). 
 
 ## 1.0.2
 
