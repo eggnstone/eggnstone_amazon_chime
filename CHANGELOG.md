@@ -1,5 +1,7 @@
-## 1.0.3
+## 2.0.0
 
+* Breaking change: iOS part temporarily disabled because files too large to publish.
+* HELP! We need someone willing to fix the iOS part.
 * Android: updated to Chime SDK version 0.12.0 (media 0.12.1). 
 
 ## 1.0.2
