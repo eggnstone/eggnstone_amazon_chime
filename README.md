@@ -7,7 +7,8 @@ A wrapper for the Amazon Chime SDKs. Allows to join Chime meetings using audio a
 * **Chime does not work on Android emulators!**
 
 https://github.com/aws/amazon-chime-sdk-android  
-```"NOTE: Please make sure that you are running on ARM supported devices (real devices) or simulator with arm supported. We do not support x86 currently, so simulators with x86 will not work."```  
+"NOTE: Please make sure that you are running on ARM supported devices (real devices) or simulator with arm supported. We do not support x86 currently, so simulators with x86 will not work."  
+
 The example works on Android emulators as far as showing the version of the SDK.  
 Anything else will trigger UnsatisfiedLinkErrors.
 
@@ -15,18 +16,18 @@ Anything else will trigger UnsatisfiedLinkErrors.
 
 * Min SDK version is 21
 * Download the files mentioned in [Used versions](#used-versions).
-* Extract the contained .aar files to your-app-name/android/amazon-chime-sdk 
-* Add the following lines to your android/app/build.gradle in the **dependencies** section:
+* Extract the contained ```.aar``` files to a new directory named ```your-app-name/android/amazon-chime-sdk```.
+* Add the following lines to your ```your-app-name/android/app/build.gradle``` in the **dependencies** section:
 ```
 // https://frontbackend.com/maven/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-android  
 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"  
 // https://frontbackend.com/maven/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core  
 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 
-implementation fileTree(dir: '../../amazon-chime-sdk', include: ['amazon-chime-sdk.aar'])
-implementation fileTree(dir: '../../amazon-chime-sdk', include: ['amazon-chime-sdk-media.aar'])
+implementation fileTree(dir: '../amazon-chime-sdk', include: ['amazon-chime-sdk.aar'])
+implementation fileTree(dir: '../amazon-chime-sdk', include: ['amazon-chime-sdk-media.aar'])
 ```
-* If your app already uses libc++_shared.so then you need to delete libc++_shared.so from the .aar files.
+* If your app already uses ```libc++_shared.so``` then you need to delete ```libc++_shared.so``` from the ```.aar``` files.
 
 #### Used Versions
 * [amazon-chime-sdk-0.12.0.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/sdk/0.12.0/amazon-chime-sdk-0.12.0.tar.gz)

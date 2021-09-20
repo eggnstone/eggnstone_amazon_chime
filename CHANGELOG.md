@@ -1,4 +1,4 @@
-## 2.0.2
+## 2.0.3
 
 * Breaking change: Android: You need to add the .aar files to your app (see below and README.md).
 * Android: Switched vom JCenter to MavenCentral.
