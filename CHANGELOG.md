@@ -1,8 +1,8 @@
-## 2.0.2-dev1
+## 2.0.2-dev2
 
 * Android: Switched vom JCenter to MavenCentral.
 * Android: Updated Gradle.
-* Android: AAR: Switched plugin to use compileOnly() instead of implementation() to fix #23.
+* Android: AAR: Switched plugin to use compileOnly() instead of implementation() to fix #23
 
 ## 2.0.1
 
