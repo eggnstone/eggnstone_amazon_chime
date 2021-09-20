@@ -2,7 +2,7 @@
 
 * Android: Switched vom JCenter to MavenCentral.
 * Android: Updated Gradle.
-* Android: AAR: Switched plugin to use compileOnly() instead of implementation() to fix #23
+* Android: AAR: Switched plugin to use compileOnly() instead of implementation() to fix https://github.com/eggnstone/eggnstone_amazon_chime/issues/23
 
 ## 2.0.1
 
