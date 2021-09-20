@@ -14,16 +14,21 @@ Anything else will trigger UnsatisfiedLinkErrors.
 **Instructions for your app**
 
 * Min SDK version is 21
+* Download the files mentioned in [Used versions](#used-versions).
+* Extract the contained .aar files to your-app-name/android/amazon-chime-sdk 
 * Add the following lines to your android/app/build.gradle in the **dependencies** section:
 ```
 // https://frontbackend.com/maven/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-android  
 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"  
 // https://frontbackend.com/maven/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core  
-implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"  
+implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
+
+implementation fileTree(dir: '../../amazon-chime-sdk', include: ['amazon-chime-sdk.aar'])
+implementation fileTree(dir: '../../amazon-chime-sdk', include: ['amazon-chime-sdk-media.aar'])
 ```
-* If your app already uses libc++_shared.so then you need to delete libc++_shared.so from the supplied amazon-chime-sdk.aar/amazon-chime-sdk-media.aar files.
-  
-**Used versions**
+* If your app already uses libc++_shared.so then you need to delete libc++_shared.so from the .aar files.
+
+#### Used Versions
 * [amazon-chime-sdk-0.12.0.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/sdk/0.12.0/amazon-chime-sdk-0.12.0.tar.gz)
 * [amazon-chime-sdk-media-0.12.1.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/media/0.12.1/amazon-chime-sdk-media-0.12.1.tar.gz)
 
@@ -31,7 +36,13 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 * https://github.com/aws/amazon-chime-sdk-android/releases/latest
 * https://aws.amazon.com/blogs/business-productivity/building-a-meeting-application-on-android-using-the-amazon-chime-sdk/
 
-## iOS
+## ~~iOS~~
+
+**Version 2 does not support iOS**
+
+**I need a maintainer for the iOS version!**
+
+Version 1 has support for iOS but due to file size problems version 2 current does not support iOS. 
 
 * **Chime does not work on iOS simulators!**
 
@@ -46,7 +57,7 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 **References**
 * https://github.com/aws/amazon-chime-sdk-ios/releases/latest
 
-## Web
+## ~~Web~~
 
 Not included yet and currently no plan/time to do so. Sorry.
 

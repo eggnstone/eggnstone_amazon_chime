@@ -1,5 +1,6 @@
-## 2.0.2-dev2
+## 2.0.2
 
+* Breaking change: Android: You need to add the .aar files to your app (see below and README.md).
 * Android: Switched vom JCenter to MavenCentral.
 * Android: Updated Gradle.
 * Android: AAR: Switched plugin to use compileOnly() instead of implementation() to fix [#23](https://github.com/eggnstone/eggnstone_amazon_chime/issues/23).
