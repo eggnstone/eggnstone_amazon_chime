@@ -1,3 +1,9 @@
+## 2.0.2-dev1
+
+* Android: Switched vom JCenter to MavenCentral.
+* Android: Updated Gradle.
+* Android: AAR: Switched plugin to use compileOnly() instead of implementation() to fix #23.
+
 ## 2.0.1
 
 * Android: Removed amazon-chime-sdk-combined-without-libc++_shared.so.aar. 

@@ -1,3 +1,4 @@
+# Auto.generated
 .DS_Store
 .dart_tool/
 
@@ -7,3 +8,6 @@
 build/
 /temp
 /pubspec.lock
+
+# Manually added
+.idea/*

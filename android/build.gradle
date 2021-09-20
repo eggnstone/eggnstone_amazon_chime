@@ -1,15 +1,21 @@
-group 'dev.eggnstone.chime'
+//noinspection GrPackage
+
+group 'dev.eggnstone.eggnstone_amazon_chime'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.3.50'
+    ext.kotlin_version = '1.4.10'
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.4'
+        // Update gradle/wrapper/gradle-wrapper.properties according to
+        // https://developer.android.com/studio/releases/gradle-plugin#updating-gradle
+        // https://services.gradle.org/distributions/
+        classpath 'com.android.tools.build:gradle:4.2.2'
+
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -17,7 +23,7 @@ buildscript {
 rootProject.allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
@@ -27,6 +33,15 @@ apply plugin: 'kotlin-android'
 android {
     compileSdkVersion 30
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -34,15 +49,13 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
-
-    lintOptions {
-        disable 'InvalidPackage'
-    }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
     implementation "com.google.code.gson:gson:2.8.6" // required by Chime
-    implementation fileTree(dir: 'amazon-chime-sdk', include: ['amazon-chime-sdk.aar'])
-    implementation fileTree(dir: 'amazon-chime-sdk', include: ['amazon-chime-sdk-media.aar'])
+
+    compileOnly fileTree(dir: 'amazon-chime-sdk', include: ['amazon-chime-sdk.aar'])
+    compileOnly fileTree(dir: 'amazon-chime-sdk', include: ['amazon-chime-sdk-media.aar'])
 }
