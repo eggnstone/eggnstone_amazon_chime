@@ -60,7 +60,7 @@ Version 1 has support for iOS but due to file size problems version 2 currently 
 
 ## ~~Web~~
 
-Not included yet and currently time to do so. Sorry.
+Not included yet and currently no time to do so. Sorry.
 
 **References**
 * https://aws.github.io/amazon-chime-sdk-js/
