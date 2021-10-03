@@ -17,7 +17,7 @@ Anything else will trigger ```UnsatisfiedLinkError```.
 * Min SDK version is 21
 * Download the files mentioned in [Used versions](#used-versions).
 * Extract the contained ```.aar``` files to a new directory named ```your-app-name/android/amazon-chime-sdk```.
-* Add the following lines to your ```your-app-name/android/app/build.gradle``` in the **dependencies** section:
+* Add the following lines to ```your-app-name/android/app/build.gradle``` in the **dependencies** section:
 ```
 // https://frontbackend.com/maven/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-android  
 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"  
@@ -43,7 +43,7 @@ implementation fileTree(dir: '../amazon-chime-sdk', include: ['amazon-chime-sdk-
 
 **I need a maintainer for the iOS version!**
 
-Version 1 has support for iOS but due to file size problems version 2 current does not support iOS. 
+Version 1 has support for iOS but due to file size problems version 2 currently does not support iOS. 
 
 🚩 **Chime does not work on iOS simulators!**
 
@@ -60,7 +60,7 @@ Version 1 has support for iOS but due to file size problems version 2 current do
 
 ## ~~Web~~
 
-Not included yet and currently no plan/time to do so. Sorry.
+Not included yet and currently time to do so. Sorry.
 
 **References**
 * https://aws.github.io/amazon-chime-sdk-js/
