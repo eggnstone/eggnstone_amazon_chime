@@ -102,12 +102,15 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
         _meetingSession = DefaultMeetingSession(configuration, ConsoleLogger(), _applicationContext!!)
         _audioVideoFacade = _meetingSession!!.audioVideo
-        _audioVideoFacade!!.addAudioVideoObserver(ChimeAudioVideoObserver(_eventSink!!))
-        _audioVideoFacade!!.addMetricsObserver(ChimeMetricsObserver(_eventSink!!))
-        _audioVideoFacade!!.addRealtimeObserver(ChimeRealtimeObserver(_eventSink!!))
-        _audioVideoFacade!!.addDeviceChangeObserver(ChimeDeviceChangeObserver(_eventSink!!))
-        _audioVideoFacade!!.addVideoTileObserver(ChimeVideoTileObserver(_eventSink!!))
         _audioVideoFacade!!.addActiveSpeakerObserver(DefaultActiveSpeakerPolicy(), ChimeActiveSpeakerDetectedObserver(_eventSink!!))
+        _audioVideoFacade!!.addAudioVideoObserver(ChimeAudioVideoObserver(_eventSink!!))
+        // addContentShareObserver: onContentShareStarted, onContentShareStopped
+        _audioVideoFacade!!.addDeviceChangeObserver(ChimeDeviceChangeObserver(_eventSink!!))
+        // addEventAnalyticsObserver: onEventReceived
+        _audioVideoFacade!!.addMetricsObserver(ChimeMetricsObserver(_eventSink!!))
+        // addRealtimeDataMessageObserver: onDataMessageReceived
+        _audioVideoFacade!!.addRealtimeObserver(ChimeRealtimeObserver(_eventSink!!))
+        _audioVideoFacade!!.addVideoTileObserver(ChimeVideoTileObserver(_eventSink!!))
 
         result.success("OK")
     }
