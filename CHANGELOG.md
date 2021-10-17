@@ -1,6 +1,6 @@
 ## 3.0.0
 
-* Breaking change: Methods now return null on simple success (before they returned "OK").
+* Breaking change: Methods now return null on simple success (they used to return "OK").
 * Breaking change: Calling audioVideoStop() does not clear the view IDs anymore. Instead use clearViewIds().
 
 ## 2.0.3
