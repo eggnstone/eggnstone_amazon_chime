@@ -93,28 +93,72 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         }
 
         val attendeeId = call.argument<String>("AttendeeId")
-        val externalMeetingId = call.argument<String>("ExternalMeetingId")
-        val externalUserId = call.argument<String>("ExternalUserId")
-        val joinToken = call.argument<String>("JoinToken")
-        val mediaRegion = call.argument<String>("MediaRegion")
-        val meetingId = call.argument<String>("MeetingId")
-        val mediaPlacementAudioFallbackUrl = call.argument<String>("MediaPlacementAudioFallbackUrl")
-        val mediaPlacementAudioHostUrl = call.argument<String>("MediaPlacementAudioHostUrl")
-        val mediaPlacementSignalingUrl = call.argument<String>("MediaPlacementSignalingUrl")
-        val mediaPlacementTurnControlUrl = call.argument<String>("MediaPlacementTurnControlUrl")
-
-        if (attendeeId == null ||
-                externalMeetingId == null ||
-                externalUserId == null ||
-                joinToken == null ||
-                mediaRegion == null ||
-                meetingId == null ||
-                mediaPlacementAudioFallbackUrl == null ||
-                mediaPlacementAudioHostUrl == null ||
-                mediaPlacementSignalingUrl == null ||
-                mediaPlacementTurnControlUrl == null)
+        if (attendeeId == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "AttendeeId", null)
+            return
+        }
+
+        val externalMeetingId = call.argument<String>("ExternalMeetingId")
+        if (externalMeetingId == null)
+        {
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "ExternalMeetingId", null)
+            return
+        }
+
+        val externalUserId = call.argument<String>("ExternalUserId")
+        if (externalUserId == null)
+        {
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "ExternalUserId", null)
+            return
+        }
+
+        val joinToken = call.argument<String>("JoinToken")
+        if (joinToken == null)
+        {
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "JoinToken", null)
+            return
+        }
+
+        val mediaRegion = call.argument<String>("MediaRegion")
+        if (mediaRegion == null)
+        {
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "MediaRegion", null)
+            return
+        }
+
+        val meetingId = call.argument<String>("MeetingId")
+        if (meetingId == null)
+        {
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "MeetingId", null)
+            return
+        }
+
+        val mediaPlacementAudioFallbackUrl = call.argument<String>("MediaPlacementAudioFallbackUrl")
+        if (mediaPlacementAudioFallbackUrl == null)
+        {
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "MediaPlacementAudioFallbackUrl", null)
+            return
+        }
+
+        val mediaPlacementAudioHostUrl = call.argument<String>("MediaPlacementAudioHostUrl")
+        if (mediaPlacementAudioHostUrl == null)
+        {
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "MediaPlacementAudioHostUrl", null)
+            return
+        }
+
+        val mediaPlacementSignalingUrl = call.argument<String>("MediaPlacementSignalingUrl")
+        if (mediaPlacementSignalingUrl == null)
+        {
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "MediaPlacementSignalingUrl", null)
+            return
+        }
+
+        val mediaPlacementTurnControlUrl = call.argument<String>("MediaPlacementTurnControlUrl")
+        if (mediaPlacementTurnControlUrl == null)
+        {
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "MediaPlacementTurnControlUrl", null)
             return
         }
 
@@ -253,20 +297,17 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         if (!checkAudioVideoFacade(result, "BindVideoView"))
             return
 
-        Log.d(TAG, "handleBindVideoView ViewId:" + call.argument("ViewId"))
-        Log.d(TAG, "handleBindVideoView TileId:" + call.argument("TileId"))
-
         val viewId = call.argument<Int>("ViewId")
         if (viewId == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "ViewId", null)
             return
         }
 
         val tileId = call.argument<Int>("TileId")
         if (tileId == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "TileId", null)
             return
         }
 
@@ -298,7 +339,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         val tileId = call.argument<Int>("TileId")
         if (tileId == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "TileId", null)
             return
         }
 
@@ -379,7 +420,6 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             return
         }
 
-        // ​val deviceName = call.argument<String>("label")
         val deviceLabel = call.argument<String>("Label")
 
         for (device in safeAudioVideoFacade.listAudioDevices())
@@ -421,6 +461,8 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         private const val NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE = "No AudioVideoFacade created."
         private const val VIEW_NOT_FOUND__ERROR_CODE = "3"
         private const val VIEW_NOT_FOUND__ERROR_MESSAGE = "No View found with ViewId="
+        private const val UNEXPECTED_NULL_PARAMETER__ERROR_CODE = "4"
+        private const val UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE = "Unexpected null parameter: "
         private const val UNEXPECTED_ERROR__ERROR_CODE = "99"
         private const val UNEXPECTED_ERROR__ERROR_MESSAGE = "Unexpected error."
     }
