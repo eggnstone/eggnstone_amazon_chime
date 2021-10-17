@@ -22,7 +22,6 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 {
     private var _applicationContext: Context? = null
     private var _methodChannel: MethodChannel? = null
-    private var _meetingSession: MeetingSession? = null
     private var _audioVideoFacade: AudioVideoFacade? = null
     private var _eventSink: EventSink? = null
 
@@ -56,7 +55,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding)
     {
-        val safeMethodChannel: MethodChannel = _methodChannel
+        val safeMethodChannel: MethodChannel? = _methodChannel
         if (safeMethodChannel != null)
             safeMethodChannel.setMethodCallHandler(null)
     }
@@ -73,6 +72,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             "AudioVideoStopRemoteVideo" -> handleAudioVideoStopRemoteVideo(result)
             "BindVideoView" -> handleBindVideoView(call, result)
             "ChooseAudioDevice" -> handleChooseAudioDevice(call, result)
+            "ClearViewIds" -> handleClearViewIds(call, result)
             "CreateMeetingSession" -> handleCreateMeetingSession(call, result)
             "GetVersion" -> result.success("Chime SDK " + sdkVersion())
             "ListAudioDevices" -> handleListAudioDevices(result)
@@ -81,6 +81,12 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             "Unmute" -> handleUnmute(result)
             else -> result.notImplemented()
         }
+    }
+
+    private fun handleClearViewIds(call: MethodCall, result: MethodChannel.Result)
+    {
+        ChimeDefaultVideoRenderViewFactory.clearViewIds()
+        result.success(null)
     }
 
     private fun handleCreateMeetingSession(call: MethodCall, result: MethodChannel.Result)
@@ -169,10 +175,8 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         val ar = CreateAttendeeResponse(attendee)
         val configuration = MeetingSessionConfiguration(mr, ar) { s: String? -> s!! }
 
-        val safeMeetingSession: MeetingSession = DefaultMeetingSession(configuration, ConsoleLogger(), safeApplicationContext)
-        _meetingSession = safeMeetingSession;
-
-        val safeAudioVideoFacade: AudioVideoFacade = safeMeetingSession.audioVideo
+        val meetingSession: MeetingSession = DefaultMeetingSession(configuration, ConsoleLogger(), safeApplicationContext)
+        val safeAudioVideoFacade: AudioVideoFacade = meetingSession.audioVideo
         _audioVideoFacade = safeAudioVideoFacade
 
         val safeEventSink: EventSink? = _eventSink
@@ -197,13 +201,10 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleAudioVideoStart(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "AudioVideoStart"))
-            return
-
         val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
         if (safeAudioVideoFacade == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
             return
         }
 
@@ -213,30 +214,23 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleAudioVideoStop(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "AudioVideoStop"))
-            return
-
         val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
         if (safeAudioVideoFacade == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
             return
         }
 
         safeAudioVideoFacade.stop()
-        ChimeDefaultVideoRenderViewFactory.clearViewIds()
         result.success(null)
     }
 
     private fun handleAudioVideoStartLocalVideo(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "AudioVideoStartLocalVideo"))
-            return
-
         val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
         if (safeAudioVideoFacade == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
             return
         }
 
@@ -246,13 +240,10 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleAudioVideoStopLocalVideo(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "AudioVideoStopLocalVideo"))
-            return
-
         val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
         if (safeAudioVideoFacade == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
             return
         }
 
@@ -262,13 +253,10 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleAudioVideoStartRemoteVideo(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "AudioVideoStartRemoteVideo"))
-            return
-
         val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
         if (safeAudioVideoFacade == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
             return
         }
 
@@ -278,13 +266,10 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleAudioVideoStopRemoteVideo(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "AudioVideoStopRemoteVideo"))
-            return
-
         val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
         if (safeAudioVideoFacade == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
             return
         }
 
@@ -294,8 +279,12 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleBindVideoView(call: MethodCall, result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "BindVideoView"))
+        val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
+        if (safeAudioVideoFacade == null)
+        {
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
             return
+        }
 
         val viewId = call.argument<Int>("ViewId")
         if (viewId == null)
@@ -320,21 +309,18 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
         val videoRenderView: VideoRenderView = view.videoRenderView
 
-        val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
-        if (safeAudioVideoFacade == null)
-        {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
-            return
-        }
-
         safeAudioVideoFacade.bindVideoView(videoRenderView, tileId)
         result.success(null)
     }
 
     private fun handleUnbindVideoView(call: MethodCall, result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "UnbindVideoView"))
+        val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
+        if (safeAudioVideoFacade == null)
+        {
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
             return
+        }
 
         val tileId = call.argument<Int>("TileId")
         if (tileId == null)
@@ -343,26 +329,15 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             return
         }
 
-        val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
-        if (safeAudioVideoFacade == null)
-        {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
-            return
-        }
-
-        safeAudioVideoFacade.unbindVideoView(tileId)
         result.success(null)
     }
 
     private fun handleMute(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "Mute"))
-            return
-
         val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
         if (safeAudioVideoFacade == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
             return
         }
 
@@ -372,13 +347,10 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleUnmute(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "Unmute"))
-            return
-
         val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
         if (safeAudioVideoFacade == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
             return
         }
 
@@ -388,13 +360,10 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleListAudioDevices(result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "ListAudioDevices"))
-            return
-
         val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
         if (safeAudioVideoFacade == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
             return
         }
 
@@ -410,13 +379,10 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
 
     private fun handleChooseAudioDevice(call: MethodCall, result: MethodChannel.Result)
     {
-        if (!checkAudioVideoFacade(result, "ChooseAudioDevice"))
-            return
-
         val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
         if (safeAudioVideoFacade == null)
         {
-            result.error(UNEXPECTED_ERROR__ERROR_CODE, UNEXPECTED_ERROR__ERROR_MESSAGE, null)
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
             return
         }
 
@@ -435,28 +401,9 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         // result.error(ERROR__NO_AUDIO_VIDEO_FACADE__ERROR_CODE, "exception caught during choosing an audio device", null)
     }
 
-    private fun checkAudioVideoFacade(result: MethodChannel.Result, source: String): Boolean
-    {
-        if (_meetingSession == null)
-        {
-            result.error(NO_MEETING_SESSION__ERROR_CODE, "$source: $NO_MEETING_SESSION__ERROR_MESSAGE", null)
-            return false
-        }
-
-        if (_audioVideoFacade == null)
-        {
-            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, "$source: $NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE", null)
-            return false
-        }
-
-        return true
-    }
-
     companion object
     {
         private const val TAG = "ChimePlugin"
-        private const val NO_MEETING_SESSION__ERROR_CODE = "1"
-        private const val NO_MEETING_SESSION__ERROR_MESSAGE = "No MeetingSession created."
         private const val NO_AUDIO_VIDEO_FACADE__ERROR_CODE = "2"
         private const val NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE = "No AudioVideoFacade created."
         private const val VIEW_NOT_FOUND__ERROR_CODE = "3"

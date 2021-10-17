@@ -36,6 +36,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             case "AudioVideoStopRemoteVideo": self.handleAudioVideoStopRemoteVideo(result: result)
             case "BindVideoView": self.handleBindVideoView(call: call, result: result)
             case "ChooseAudioDevice": self.handleChooseAudioDevice(call: call, result: result)
+            case "ClearViewIds": self.handleClearViewIds(call: call, result: result)
             case "CreateMeetingSession": self.handleCreateMeetingSession(call: call, result: result)
             case "GetVersion": result("Amazon Chime Version currently unknown")
             case "ListAudioDevices": self.handleListAudioDevices(result: result)
@@ -112,7 +113,6 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStop") == false {
             return
         }
-        ChimeDefaultVideoRenderViewFactory._viewIdToViewMap = [Int64: ChimeDefaultVideoRenderView]()
         do {
             _audioVideoFacade?.stop()
             result(nil)

@@ -20,7 +20,7 @@ class Chime
         return _methodChannel.invokeMethod('GetVersion');
     }
 
-    /// Creates a meeting session
+    /// Creates a meeting session.
     static Future<String?> createMeetingSession({
         required String meetingId,
         required String externalMeetingId,
@@ -52,49 +52,56 @@ class Chime
         return _methodChannel.invokeMethod('CreateMeetingSession', params);
     }
 
-    /// Starts audio and video (get ready to receive and send audio and video)
+    /// Clears all view ids of the ChimeDefaultVideoRenderViewFactory.
+    static Future<String?> clearViewIds()
+    async
+    {
+        return _methodChannel.invokeMethod('ClearViewIds');
+    }
+
+    /// Starts audio and video (get ready to receive and send audio and video).
     static Future<String?> audioVideoStart()
     async
     {
         return _methodChannel.invokeMethod('AudioVideoStart');
     }
 
-    /// Stops audio and video
+    /// Stops audio and video.
     static Future<String?> audioVideoStop()
     async
     {
         return _methodChannel.invokeMethod('AudioVideoStop');
     }
 
-    /// Starts local video
+    /// Starts local video.
     static Future<String?> audioVideoStartLocalVideo()
     async
     {
         return _methodChannel.invokeMethod('AudioVideoStartLocalVideo');
     }
 
-    /// Stops local video
+    /// Stops local video.
     static Future<String?> audioVideoStopLocalVideo()
     async
     {
         return _methodChannel.invokeMethod('AudioVideoStopLocalVideo');
     }
 
-    /// Starts all remote videos
+    /// Starts all remote videos.
     static Future<String?> audioVideoStartRemoteVideo()
     async
     {
         return _methodChannel.invokeMethod('AudioVideoStartRemoteVideo');
     }
 
-    /// Stops all remote videos
+    /// Stops all remote videos.
     static Future<String?> audioVideoStopRemoteVideo()
     async
     {
         return _methodChannel.invokeMethod('AudioVideoStopRemoteVideo');
     }
 
-    /// Binds a view to a video tile
+    /// Binds a view to a video tile.
     static Future<String?> bindVideoView(int viewId, int tileId)
     async
     {
@@ -102,7 +109,7 @@ class Chime
         return _methodChannel.invokeMethod('BindVideoView', params);
     }
 
-    /// Unbinds a video tile
+    /// Unbinds a video tile.
     static Future<String?> unbindVideoView(int tileId)
     async
     {
@@ -110,28 +117,28 @@ class Chime
         return _methodChannel.invokeMethod('UnbindVideoView', params);
     }
 
-    /// Mutes local audio
+    /// Mutes local audio.
     static Future<String?> mute()
     async
     {
         return _methodChannel.invokeMethod('Mute');
     }
 
-    /// Unmutes local audio
+    /// Unmutes local audio.
     static Future<String?> unmute()
     async
     {
         return _methodChannel.invokeMethod('Unmute');
     }
 
-    /// Lists all available audio devices
+    /// Lists all available audio devices.
     static Future<String?> listAudioDevices()
     async
     {
         return _methodChannel.invokeMethod('ListAudioDevices');
     }
 
-    /// Chooses a device by label
+    /// Chooses a device by label.
     static Future<String?> chooseAudioDevice(String label)
     async
     {
