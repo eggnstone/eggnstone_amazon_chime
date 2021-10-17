@@ -89,7 +89,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             
             _audioVideoFacade?.addActiveSpeakerObserver(policy:  DefaultActiveSpeakerPolicy(speakerWeight: 0, cutoffThreshold: 0, takeoverRate: 0), observer: ChimeActiveSpeakerObserver(eventSink: eventSink))
             
-            result("OK")
+            result(nil)
         }
         else {
             print("Not gone through creation process")
@@ -102,7 +102,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
         do {
             try _audioVideoFacade?.start()
-            result("OK")
+            result(nil)
         } catch {
             result(FlutterError())
         }
@@ -115,7 +115,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         ChimeDefaultVideoRenderViewFactory._viewIdToViewMap = [Int64: ChimeDefaultVideoRenderView]()
         do {
             _audioVideoFacade?.stop()
-            result("OK")
+            result(nil)
         } catch {
             result(FlutterError())
         }
@@ -127,7 +127,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
         do {
             try _audioVideoFacade?.startLocalVideo()
-            result("OK")
+            result(nil)
         } catch {
             result(FlutterError())
         }
@@ -139,7 +139,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
         do {
             try _audioVideoFacade?.stopLocalVideo()
-            result("OK")
+            result(nil)
         } catch {
             result(FlutterError())
         }
@@ -151,7 +151,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
         do {
             try _audioVideoFacade?.startRemoteVideo()
-            result("OK")
+            result(nil)
         } catch {
             result(FlutterError())
         }
@@ -163,7 +163,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
         do {
             try _audioVideoFacade?.stopRemoteVideo()
-            result("OK")
+            result(nil)
         } catch {
             result(FlutterError())
         }
@@ -184,7 +184,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             
             try? _audioVideoFacade?.bindVideoView(videoView: videoRenderView , tileId: tileId)
         }
-        result("OK")
+        result(nil)
     }
 
     func handleUnbindVideoView(call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -198,7 +198,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             let tileId = myArgs["tileId"] as? Int {
             try? _audioVideoFacade?.unbindVideoView(tileId: tileId)
         }
-        result("OK")
+        result(nil)
     }
 
     func handleChooseAudioDevice(call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -215,7 +215,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             let deviceName = myArgs["Label"] as? String {
             if let device = _audioOutputs.first(where: {$0.label == deviceName}) {
                 _audioVideoFacade?.chooseAudioDevice(mediaDevice: device)
-                result("OK")
+                result(nil)
             }
             else {
                 result(FlutterError())
@@ -260,7 +260,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
 //        }
 //        do {
 //            try _audioVideoFacade?.chooseAudioDevice(mediaDevice: <#T##MediaDevice#>)()
-//            result("OK")
+//            result(nil)
 //        } catch {
 //            result(FlutterError())
 //        }
@@ -284,7 +284,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
         
         try? _audioVideoFacade?.realtimeLocalMute()
-        result("OK")
+        result(nil)
     }
     
     func handleUnmute(result: @escaping FlutterResult) {
@@ -293,7 +293,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
         
         try? _audioVideoFacade?.realtimeLocalUnmute()
-        result("OK")
+        result(nil)
     }
 }
 

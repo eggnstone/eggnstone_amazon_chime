@@ -1,3 +1,7 @@
+## 3.0.0
+
+* Breaking change: Methods now return null on simple success (before they returned "OK").
+
 ## 2.0.3
 
 * Breaking change: Android: You need to add the .aar files to your app (see below and README.md).
