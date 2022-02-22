@@ -31,7 +31,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -54,8 +54,5 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    implementation "com.google.code.gson:gson:2.8.6" // required by Chime
-
-    compileOnly fileTree(dir: 'amazon-chime-sdk', include: ['amazon-chime-sdk.aar'])
-    compileOnly fileTree(dir: 'amazon-chime-sdk', include: ['amazon-chime-sdk-media.aar'])
+    implementation("software.aws.chimesdk:amazon-chime-sdk:0.14.3")
 }

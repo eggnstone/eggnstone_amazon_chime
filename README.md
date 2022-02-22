@@ -15,8 +15,6 @@ Anything else will trigger ```UnsatisfiedLinkError```.
 **Instructions for your app**
 
 * Min SDK version is 21
-* Download the files mentioned in [Used versions](#used-versions).
-* Extract the contained ```.aar``` files to a new directory named ```your-app-name/android/amazon-chime-sdk```.
 * Add the following lines to ```your-app-name/android/app/build.gradle``` in the **dependencies** section:
 ```
 // https://frontbackend.com/maven/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-android  
@@ -24,14 +22,11 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"
 // https://frontbackend.com/maven/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core  
 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
 
-implementation fileTree(dir: '../amazon-chime-sdk', include: ['amazon-chime-sdk.aar'])
-implementation fileTree(dir: '../amazon-chime-sdk', include: ['amazon-chime-sdk-media.aar'])
+implementation("software.aws.chimesdk:amazon-chime-sdk:0.14.3")
 ```
-* If your app already uses ```libc++_shared.so``` then you need to delete ```libc++_shared.so``` from the ```.aar``` files.
 
 #### Used Versions
-* [amazon-chime-sdk-0.12.0.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/sdk/0.12.0/amazon-chime-sdk-0.12.0.tar.gz)
-* [amazon-chime-sdk-media-0.12.1.tar.gz](https://amazon-chime-sdk-android.s3.amazonaws.com/media/0.12.1/amazon-chime-sdk-media-0.12.1.tar.gz)
+* [v0.14.3](https://github.com/aws/amazon-chime-sdk-android/releases/tag/v0.14.3)
 
 **References**
 * https://github.com/aws/amazon-chime-sdk-android/releases/latest
