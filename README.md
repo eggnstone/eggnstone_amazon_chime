@@ -34,11 +34,11 @@ implementation("software.aws.chimesdk:amazon-chime-sdk:0.14.3")
 
 ## ~~iOS~~
 
-**Version 2+ of this plugin does not support iOS**
+**Versions 2 and above do not support iOS**
 
 **I need a maintainer for the iOS version!**
 
-Version 1 has support for iOS but due to file size problems version 2 currently does not support iOS. 
+Version 1 has support for iOS but due to file size problems versions 2 and above currently do not support iOS. 
 
 🚩 **Chime does not work on iOS simulators!**
 
