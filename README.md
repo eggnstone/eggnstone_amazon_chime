@@ -34,7 +34,7 @@ implementation("software.aws.chimesdk:amazon-chime-sdk:0.14.3")
 
 ## ~~iOS~~
 
-**Version 2 does not support iOS**
+**Version 2+ of this plugin does not support iOS**
 
 **I need a maintainer for the iOS version!**
 
