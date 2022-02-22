@@ -1,3 +1,7 @@
+## 4.0.0
+
+* Breaking change: Android: Removed SDK binaries. Getting SDK from repository now.
+
 ## 3.0.0
 
 * Breaking change: Methods now return null on simple success (they used to return "OK").
