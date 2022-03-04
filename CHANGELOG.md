@@ -1,3 +1,8 @@
+## 4.0.1
+
+* Fixed example.
+* Removed unnecessary dependencies. 
+
 ## 4.0.0
 
 * Breaking change: Android: Removed SDK binaries. Getting SDK from repository now.

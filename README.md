@@ -14,16 +14,7 @@ Anything else will trigger ```UnsatisfiedLinkError```.
 
 **Instructions for your app**
 
-* Min SDK version is 21
-* Add the following lines to ```your-app-name/android/app/build.gradle``` in the **dependencies** section:
-```
-// https://frontbackend.com/maven/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-android  
-implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7"  
-// https://frontbackend.com/maven/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core  
-implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
-
-implementation("software.aws.chimesdk:amazon-chime-sdk:0.14.3")
-```
+* Set the min SDK version to 21 or above.
 
 #### Used Versions
 * [v0.14.3](https://github.com/aws/amazon-chime-sdk-android/releases/tag/v0.14.3)
