@@ -17,7 +17,7 @@ Anything else will trigger ```UnsatisfiedLinkError```.
 * Set the min SDK version to 21 or above.
 
 **Used Versions**
-* [v0.14.3](https://github.com/aws/amazon-chime-sdk-android/releases/tag/v0.14.3)
+* [v0.16.0](https://github.com/aws/amazon-chime-sdk-android/releases/tag/v0.16.0)
 
 **References**
 * https://github.com/aws/amazon-chime-sdk-android/releases/latest
