@@ -52,5 +52,6 @@ android {
 }
 
 dependencies {
-    implementation("software.aws.chimesdk:amazon-chime-sdk:0.14.3")
+    implementation 'software.aws.chimesdk:amazon-chime-sdk-media:0.16.0'
+    implementation 'software.aws.chimesdk:amazon-chime-sdk:0.16.0'
 }

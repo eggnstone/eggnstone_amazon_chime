@@ -1,8 +1,10 @@
 package dev.eggnstone.chime.observers
 
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.AudioVideoObserver
+import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.RemoteVideoSource
 import com.amazonaws.services.chime.sdk.meetings.session.MeetingSessionStatus
 import io.flutter.plugin.common.EventChannel.EventSink
+import org.json.JSONArray
 import org.json.JSONObject
 
 class ChimeAudioVideoObserver(private val _eventSink: EventSink) : AudioVideoObserver
@@ -65,6 +67,26 @@ class ChimeAudioVideoObserver(private val _eventSink: EventSink) : AudioVideoObs
         _eventSink.success(jsonObject.toString())
     }
 
+    override fun onRemoteVideoSourceAvailable(sources: List<RemoteVideoSource>)
+    {
+        val jsonObject = JSONObject()
+        val eventArguments = JSONObject()
+        eventArguments.put("RemoteVideoSources", convertRemoteVideoSourcesToJson(sources))
+        jsonObject.put("Name", "OnRemoteVideoSourceAvailable")
+        jsonObject.put("Arguments", eventArguments)
+        _eventSink.success(jsonObject.toString())
+    }
+
+    override fun onRemoteVideoSourceUnavailable(sources: List<RemoteVideoSource>)
+    {
+        val jsonObject = JSONObject()
+        val eventArguments = JSONObject()
+        eventArguments.put("RemoteVideoSources", convertRemoteVideoSourcesToJson(sources))
+        jsonObject.put("Name", "OnRemoteVideoSourceUnavailable")
+        jsonObject.put("Arguments", eventArguments)
+        _eventSink.success(jsonObject.toString())
+    }
+
     override fun onVideoSessionStarted(sessionStatus: MeetingSessionStatus)
     {
         val jsonObject = JSONObject()
@@ -90,5 +112,19 @@ class ChimeAudioVideoObserver(private val _eventSink: EventSink) : AudioVideoObs
         jsonObject.put("Name", "OnVideoSessionStopped")
         jsonObject.put("Arguments", eventArguments)
         _eventSink.success(jsonObject.toString())
+    }
+
+    private fun convertRemoteVideoSourcesToJson(sources: List<RemoteVideoSource>): JSONArray
+    {
+        val list = JSONArray()
+
+        for (source in sources)
+        {
+            val item = JSONObject()
+            item.put("AttendeeId", source.attendeeId)
+            list.put(item)
+        }
+
+        return list
     }
 }
