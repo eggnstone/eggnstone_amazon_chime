@@ -1,4 +1,0 @@
-framework module AmazonChimeSDK {
-  header "AmazonChimeSDK-Swift.h"
-  requires objc
-}
