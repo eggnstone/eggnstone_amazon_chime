@@ -14,10 +14,11 @@ Anything else will trigger ```UnsatisfiedLinkError```.
 
 **Instructions for your app**
 
-* Set the min SDK version to 21 or above.
+* Set the min SDK version to 23 or above.
+(Chime needs API level 21, but platform views cannot be displayed below API level 23.)
 
 **Used Versions**
-* [v0.16.0](https://github.com/aws/amazon-chime-sdk-android/releases/tag/v0.16.0)
+* [v0.17.1](https://github.com/aws/amazon-chime-sdk-android/releases/tag/v0.17.1)
 
 **References**
 * https://github.com/aws/amazon-chime-sdk-android/releases/latest

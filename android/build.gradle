@@ -31,7 +31,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -47,11 +47,15 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 21
+        // Chime needs API level 21.
+        // Platform views cannot be displayed below API level 23.
+        minSdkVersion 23
     }
 }
 
 dependencies {
-    implementation 'software.aws.chimesdk:amazon-chime-sdk-media:0.16.0'
-    implementation 'software.aws.chimesdk:amazon-chime-sdk:0.16.0'
+    // https://search.maven.org/search?q=software.aws.chimesdk
+    implementation 'software.aws.chimesdk:amazon-chime-sdk:0.17.1'
+    implementation 'software.aws.chimesdk:amazon-chime-sdk-media:0.17.1'
+    implementation 'software.aws.chimesdk:amazon-chime-sdk-machine-learning:0.1.0'
 }

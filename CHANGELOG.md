@@ -1,6 +1,11 @@
+## 4.2.0
+
+* Android: Updated to Chime SDK version 0.17.1.
+* Android: Increased SDK min version to 23 because platform views cannot be displayed below API level 23.
+
 ## 4.1.0
 
-* Android: updated to Chime SDK version 0.16.0 (media 0.16.0). 
+* Android: Updated to Chime SDK version 0.16.0 (media 0.16.0). 
 
 ## 4.0.1
 
@@ -32,7 +37,7 @@
 
 * Breaking change: iOS part temporarily disabled because files too large to publish.
 * HELP! We need someone willing to fix the iOS part.
-* Android: updated to Chime SDK version 0.12.0 (media 0.12.1). 
+* Android: Updated to Chime SDK version 0.12.0 (media 0.12.1). 
 
 ## 1.0.2
 
@@ -41,7 +46,7 @@
 ## 1.0.1
 
 * Fixed plugin methods which were broken by the change to sound null safety (they return Future<String?> instead of Future<String> now).
-* Android: updated to Chime SDK version 0.11.2 (media 0.11.2).
+* Android: Updated to Chime SDK version 0.11.2 (media 0.11.2).
 * Added instructions on how to create amazon-chime-sdk-combined-without-libc++_shared.so.aar.
 
 ## 1.0.0
@@ -54,7 +59,7 @@
 
 ## 0.5.6
 
-* iOS: updated to Chime SDK version 0.11.1 (media 0.7.1).
+* iOS: Updated to Chime SDK version 0.11.1 (media 0.7.1).
 
 ## 0.5.5
 
@@ -63,7 +68,7 @@
 ## 0.5.4
 
 * Added ListAudioDevices and ChooseAudioDevice. 
-* Android: updated to Chime SDK version 0.7.4 (media 0.7.0).
+* Android: Updated to Chime SDK version 0.7.4 (media 0.7.0).
 
 ## 0.5.3
 
