@@ -55,6 +55,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Chime needs API level 21.
+            // Platform views cannot be displayed below API level 23.
+            // Allowing API level 21 for debug builds (display of video will not work but everything else should).
+            defaultConfig.minSdkVersion 21
+        }
+
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.

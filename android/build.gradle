@@ -51,6 +51,15 @@ android {
         // Platform views cannot be displayed below API level 23.
         minSdkVersion 23
     }
+
+    buildTypes {
+        debug {
+            // Chime needs API level 21.
+            // Platform views cannot be displayed below API level 23.
+            // Allowing API level 21 for debug builds (display of video will not work but everything else should).
+            defaultConfig.minSdkVersion 21
+        }
+    }
 }
 
 dependencies {

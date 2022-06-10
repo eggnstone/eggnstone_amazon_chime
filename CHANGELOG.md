@@ -1,3 +1,7 @@
+## 4.2.1
+
+* Android: Allowing SDK min version of 21 for debug builds (display of video will not work but everything else should).
+
 ## 4.2.0
 
 * Android: Updated to Chime SDK version 0.17.1.
