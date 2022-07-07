@@ -79,7 +79,9 @@ typedef enum {
     VIDEO_CLIENT_ERR_SEND_CLIENT_INFO_FAILED = 62,
     VIDEO_CLIENT_ERR_INVALID_RESOLUTION = 63,
     VIDEO_CLIENT_ERR_PROXY_AUTHENTICATION_FAILED = 64,
-    VIDEO_CLIENT_STATUS_ENUM_END = 65, /* this should always be last */
+    VIDEO_CLIENT_ERR_PRIMARY_MEETING_JOIN_AUTHENTICATION_FAILED = 65,
+    VIDEO_CLIENT_ERR_PRIMARY_MEETING_JOIN_AT_CAPACITY = 66,
+    VIDEO_CLIENT_STATUS_ENUM_END = 67, /* this should always be last */
 } video_client_status_t;
 
 typedef enum {
@@ -117,8 +119,8 @@ typedef enum {
 } video_client_turn_status_t;
 
 typedef struct {
-    const char* app_version_name;
-    const char* app_version_code;
+    const char* app_name;
+    const char* app_version;
     const char* device_model;
     const char* device_make;
     const char* platform_name;
@@ -135,6 +137,30 @@ typedef struct {
     const char** turn_data_uris;
     int size;
 } turn_session_response_t;
+
+typedef enum {
+    LOWEST = 0,
+    LOW = 10,
+    MEDIUM = 20,
+    HIGH = 30,
+    HIGHEST = 40,
+} priority_t;
+
+typedef struct {
+      int width;
+      int height;
+      int targetBitrate;
+} target_resolution_t ;
+
+typedef struct {
+    priority_t priority;
+    target_resolution_t target_resolution;
+} remote_video_subscription_configuration_t;
+
+typedef struct {
+    char *attendee_id;
+    remote_video_subscription_configuration_t config;
+} remote_video_subscription_map_t;
 
 #ifdef __cplusplus
 }

@@ -109,7 +109,8 @@ typedef enum {
     AUDIO_CLIENT_ERR_INVALID_CLIENT                         = 81,
     AUDIO_CLIENT_ERR_INPUT_DEVICE_NOT_RESPONDING            = 82,
     AUDIO_CLIENT_ERR_OUTPUT_DEVICE_NOT_RESPONDING           = 83,
-    AUDIO_CLIENT_STATUS_ENUM_END                            = 84 /* this should always be last */
+    AUDIO_CLIENT_ATTENDEE_REMOVED                           = 84,
+    AUDIO_CLIENT_STATUS_ENUM_END                            = 85 /* this should always be last */
 } audio_client_status_t;
 
 typedef struct audio_client_s                   audio_client_t;

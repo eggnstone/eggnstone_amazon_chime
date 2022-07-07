@@ -13,29 +13,28 @@
 
 #import "VideoRendererDelegate.h"
 #import "VideoClientMetric.h"
+#import "RemoteVideoSource.h"
 
 #import "video_client_enum.h"
 
 @protocol VideoClientDelegate;
 @protocol VideoClientObserverAdapterDelegate;
 
-@interface VideoDevice : NSObject
-@property (atomic, strong, readonly) NSString* identifier;
-@property (atomic, strong, readonly) NSString* name;
-@property (atomic, assign, readonly) BOOL isDefault;
-@property (atomic, assign, readonly) BOOL isBuiltIn;
-@end
-
 // Note: If adding to this, make sure to add correspondingly to VideoClient.m
 @interface VideoConfiguration : NSObject
 // Feature flags
 @property (nonatomic, assign) BOOL isUsing16by9AspectRatio;
+@property (nonatomic, assign) BOOL isSend16By9AspectRatio;
 @property (nonatomic, assign) BOOL isUsingUnifiedPlan;
 @property (nonatomic, assign) BOOL isUsingProbingAdaptiveSubscribe;
 @property (nonatomic, assign) BOOL isUsingSendSideBwe;
 @property (nonatomic, assign) BOOL isUsingPixelBufferRenderer;
 @property (nonatomic, assign) BOOL isUsingOptimizedTwoSimulcastStreamTable;
 @property (nonatomic, assign) BOOL isContentShare;
+@property (nonatomic, assign) BOOL isExcludeSelfContentInIndex;
+@property (nonatomic, assign) NSString* audioHostUrl;
+@property (nonatomic, assign) BOOL isUsingInbandTurnCreds;
+@property (nonatomic, assign) BOOL isDisablingSimulcastP2P;
 @end
 
 @interface DataMessageInternal : NSObject
@@ -73,8 +72,12 @@
 
 + (void)globalInitialize;
 
-// Set the dynamic media client config whenever it is passed down from application
-+ (void)setMediaClientConfig:(NSString*)configStr;
+- (void)start:(NSString*)callId
+            token:(NSString*)token
+          sending:(BOOL)sending
+           config:(VideoConfiguration*)config
+          appInfo:(app_detailed_info_t)appInfo
+     signalingUrl:(NSString*)signalingUrl;
 
 - (void)start:(NSString*)callId
             token:(NSString*)token
@@ -87,8 +90,6 @@
 - (void)updateTurnCreds:(turn_session_response_t)turnResponse
              turnStatus:(video_client_turn_status_t)turnStatus;
 
-- (NSString*)stateString;
-
 - (void)setSending:(BOOL)sending;
 
 - (void)setReceiving:(BOOL)receiving;
@@ -98,18 +99,9 @@
 - (void)setRemotePause:(uint32_t)video_id
                  pause:(BOOL)pause;
 
-- (NSArray*)activeTracks;
-
-+ (NSArray*)devices;
-
-- (void)setCurrentDevice:(VideoDevice*)captureDevice;
-
 // Log callback
 - (void)videoLogCallBack:(video_client_loglevel_t)logLevel
                      msg:(NSString*)msg;
-
-// currently selected device
-+ (VideoDevice*)currentDevice;
 
 // send data message
 - (void)sendDataMessage:(NSString*)topic
@@ -117,6 +109,17 @@
              lifetimeMs:(int)lifetimeMs;
 
 - (void)setExternalVideoSource:(NSObject<VideoSourceInternal>*)source;
+
+-(void)updateVideoSourceSubscriptions:(NSDictionary*)addedOrUpdated
+                          withRemoved:(NSArray*)removed;
+
+- (void)promotePrimaryMeeting:(NSString*)attendeeId
+               externalUserId:(NSString*)externalUserId
+                    joinToken:(NSString*)joinToken;
+
+- (void)demoteFromPrimaryMeeting;
+
+- (void)setSimulcast:(bool)simulcastEnabled;
 
 @end
 
@@ -164,6 +167,16 @@
 - (void)videoClientMetricsReceived:(NSDictionary*)metrics;
 
 - (void)videoClientDataMessageReceived:(NSArray<DataMessageInternal*>*)message;
+
+- (NSArray<NSString*>*)videoClientTurnURIsReceived:(NSArray<NSString*>*)uris;
+
+- (void)remoteVideoSourcesDidBecomeAvailable:(NSArray<RemoteVideoSourceInternal*>*) sources;
+
+- (void)remoteVideoSourcesDidBecomeUnavailable:(NSArray<RemoteVideoSourceInternal*>*) sources;
+
+- (void)videoClientDidPromoteToPrimaryMeeting:(video_client_status_t)status;
+
+- (void)videoClientDidDemoteFromPrimaryMeeting:(video_client_status_t)status;
 @end
 
 #endif /* VideoClient_sdk_h */

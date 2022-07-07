@@ -24,4 +24,5 @@ A new flutter plugin project.
   s.preserve_paths = 'AmazonChimeSDK.framework', 'AmazonChimeSDKMedia.framework'
   s.xcconfig = { 'OTHER_LDFLAGS' => '-framework AmazonChimeSDK -framework AmazonChimeSDKMedia' }
   s.vendored_frameworks = 'AmazonChimeSDK.framework', 'AmazonChimeSDKMedia.framework'
+  s.public_header_files = 'Classes/EggnstoneAmazonChimePlugin.h'
 end

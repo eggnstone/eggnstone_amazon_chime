@@ -10,6 +10,15 @@ import Flutter
 import AmazonChimeSDK
 
 public class ChimeAudioVideoObserver: AudioVideoObserver {
+    public func remoteVideoSourcesDidBecomeAvailable(sources: [RemoteVideoSource]) {
+//        <#code#>
+    }
+    
+    public func remoteVideoSourcesDidBecomeUnavailable(sources: [RemoteVideoSource]) {
+//        <#code#>
+    }
+    
+    
     let _eventSink: FlutterEventSink
     
     init(eventSink: @escaping FlutterEventSink) {
