@@ -10,18 +10,22 @@ import Flutter
 import AmazonChimeSDK
 
 public class ChimeAudioVideoObserver: AudioVideoObserver {
-    public func remoteVideoSourcesDidBecomeAvailable(sources: [RemoteVideoSource]) {
-// TODO:       <#code#>
-    }
-    
-    public func remoteVideoSourcesDidBecomeUnavailable(sources: [RemoteVideoSource]) {
-//  TODO:        <#code#>
-    }
-    
     let _eventSink: FlutterEventSink
     
     init(eventSink: @escaping FlutterEventSink) {
         self._eventSink = eventSink
+    }
+    
+    public func remoteVideoSourcesDidBecomeAvailable(sources: [RemoteVideoSource]) {
+//    sources:利用可能なリモートビデオソースの配列
+// TODO:
+    }
+    
+    public func remoteVideoSourcesDidBecomeUnavailable(sources: [RemoteVideoSource]) {
+        
+//        sources 利用できないビデオソースの配列
+//  TODO:
+        
     }
     
     public func audioSessionDidStartConnecting(reconnecting: Bool) {

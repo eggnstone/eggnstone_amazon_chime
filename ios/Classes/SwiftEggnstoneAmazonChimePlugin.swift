@@ -56,7 +56,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
 
         if let myArgs = args as? [String:Any],
             let meetingId = myArgs["MeetingId"] as? String,
-            //let externalMeetingId = myArgs["ExternalMeetingId"] as? String,
+            let externalMeetingId = myArgs["ExternalMeetingId"] as? String,
             let mediaRegion = myArgs["MediaRegion"] as? String,
             let mediaPlacementAudioHostUrl = myArgs["MediaPlacementAudioHostUrl"] as? String,
             let mediaPlacementAudioFallbackUrl = myArgs["MediaPlacementAudioFallbackUrl"]as? String,
