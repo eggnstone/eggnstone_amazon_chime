@@ -36,9 +36,9 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             case "AudioVideoStopRemoteVideo": self.handleAudioVideoStopRemoteVideo(result: result)
             case "BindVideoView": self.handleBindVideoView(call: call, result: result)
             case "ChooseAudioDevice": self.handleChooseAudioDevice(call: call, result: result)
-//TODO:          case "ClearViewIds": self.handleClearViewIds(call: call, result: result)
+            //TODO:createFunction  case "ClearViewIds": self.handleClearViewIds(call: call, result: result)
             case "CreateMeetingSession": self.handleCreateMeetingSession(call: call, result: result)
-            case "GetVersion": result("Amazon Chime Version currently unknown")
+            case "GetVersion": self.getSDKVersion(result: result)
             case "ListAudioDevices": self.handleListAudioDevices(result: result)
             case "Mute": self.handleMute(result: result)
             case "UnbindVideoView": self.handleUnbindVideoView(call: call, result: result)
@@ -50,6 +50,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
 
     func handleCreateMeetingSession(call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let args = call.arguments else {
+            print("error:handleCreateMeetingSession"); //TODO:delete
             result(FlutterError())
             return
         }
@@ -68,7 +69,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         {
             let mediaPlacement = MediaPlacement.init(audioFallbackUrl: mediaPlacementAudioFallbackUrl, audioHostUrl: mediaPlacementAudioHostUrl, signalingUrl: mediaPlacementSignalingUrl, turnControlUrl: mediaPlacementTurnControlUrl)
 
-            let meeting = Meeting(externalMeetingId: "", mediaPlacement: mediaPlacement, mediaRegion: mediaRegion, meetingId: meetingId)
+            let meeting = Meeting(externalMeetingId: externalMeetingId, mediaPlacement: mediaPlacement, mediaRegion: mediaRegion, meetingId: meetingId)
 
             let meetingResponse = CreateMeetingResponse(meeting: meeting)
 
@@ -107,6 +108,10 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         } catch {
             result(FlutterError())
         }
+    }
+
+    func getSDKVersion(result: @escaping FlutterResult) {
+        result(Versioning.sdkVersion())
     }
 
     func handleAudioVideoStop(result: @escaping FlutterResult) {
@@ -269,6 +274,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     func checkAudioVideoFacade(result: FlutterResult, source: String) -> Bool
     {
         if _meetingSession != nil {
+               print("audioVideoFacade meetingSession != null && not available")
             if _audioVideoFacade != nil {
                 return true
             }
