@@ -5,6 +5,7 @@ import AmazonChimeSDKMedia
 
 public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     var _meetingSession: MeetingSession?
+    var audioVideoConfig = AudioVideoConfiguration()
     //var _applicationContext: Context?
     var _methodChannel: FlutterMethodChannel?
     var _audioVideoFacade: AudioVideoFacade?
@@ -36,7 +37,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             case "AudioVideoStopRemoteVideo": self.handleAudioVideoStopRemoteVideo(result: result)
             case "BindVideoView": self.handleBindVideoView(call: call, result: result)
             case "ChooseAudioDevice": self.handleChooseAudioDevice(call: call, result: result)
-            //TODO:createFunction  case "ClearViewIds": self.handleClearViewIds(call: call, result: result)
+            // case "ClearViewIds": self.handleClearViewIds(call: call, result: result)
             case "CreateMeetingSession": self.handleCreateMeetingSession(call: call, result: result)
             case "GetVersion": self.getSDKVersion(result: result)
             case "ListAudioDevices": self.handleListAudioDevices(result: result)
@@ -50,7 +51,6 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
 
     func handleCreateMeetingSession(call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let args = call.arguments else {
-            print("error:handleCreateMeetingSession"); //TODO:delete
             result(FlutterError())
             return
         }
@@ -68,34 +68,30 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             let joinToken = myArgs["JoinToken"]as? String
         {
             let mediaPlacement = MediaPlacement.init(audioFallbackUrl: mediaPlacementAudioFallbackUrl, audioHostUrl: mediaPlacementAudioHostUrl, signalingUrl: mediaPlacementSignalingUrl, turnControlUrl: mediaPlacementTurnControlUrl)
-
             let meeting = Meeting(externalMeetingId: externalMeetingId, mediaPlacement: mediaPlacement, mediaRegion: mediaRegion, meetingId: meetingId)
-
-            let meetingResponse = CreateMeetingResponse(meeting: meeting)
-
+            let mr = CreateMeetingResponse(meeting: meeting)
             let attendee = Attendee(attendeeId: attendeeId, externalUserId: externalUserId, joinToken: joinToken)
-
-            let attendeeResponse = CreateAttendeeResponse(attendee: attendee)
-
-            let configuration = MeetingSessionConfiguration(createMeetingResponse: meetingResponse, createAttendeeResponse: attendeeResponse)
+            let ar = CreateAttendeeResponse(attendee: attendee)
+            let configuration = MeetingSessionConfiguration(createMeetingResponse: mr, createAttendeeResponse: ar)
 
             _meetingSession = DefaultMeetingSession(configuration: configuration, logger: AmazonChimeSDK.ConsoleLogger(name: "debug"))
             _audioVideoFacade = _meetingSession?.audioVideo
-
             let eventSink = ExampleStreamHandler.get().getEventSink()!
+            _audioVideoFacade?.addActiveSpeakerObserver(policy:  DefaultActiveSpeakerPolicy(speakerWeight: 0, cutoffThreshold: 0, takeoverRate: 0), observer: ChimeActiveSpeakerObserver(eventSink: eventSink))
             _audioVideoFacade?.addAudioVideoObserver(observer: ChimeAudioVideoObserver(eventSink: eventSink))
+            _audioVideoFacade?.addDeviceChangeObserver(observer: ChimeDeviceChangeObserver(eventSink: eventSink))
             _audioVideoFacade?.addMetricsObserver(observer: ChimeMetricsObserver(eventSink: eventSink))
             _audioVideoFacade?.addRealtimeObserver(observer: ChimeRealtimeObserver(eventSink: eventSink))
-            _audioVideoFacade?.addDeviceChangeObserver(observer: ChimeDeviceChangeObserver(eventSink: eventSink))
             _audioVideoFacade?.addVideoTileObserver(observer: ChimeVideoTileObserver(eventSink: eventSink))
-
-            _audioVideoFacade?.addActiveSpeakerObserver(policy:  DefaultActiveSpeakerPolicy(speakerWeight: 0, cutoffThreshold: 0, takeoverRate: 0), observer: ChimeActiveSpeakerObserver(eventSink: eventSink))
-
             result(nil)
         }
         else {
             print("Not gone through creation process")
         }
+    }
+    
+    func getSDKVersion(result: @escaping FlutterResult) {
+        result(Versioning.sdkVersion())
     }
 
     func handleAudioVideoStart(result: @escaping FlutterResult) {
@@ -103,15 +99,11 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             return
         }
         do {
-            try _audioVideoFacade?.start()
+            try _audioVideoFacade?.start();
             result(nil)
         } catch {
             result(FlutterError())
         }
-    }
-
-    func getSDKVersion(result: @escaping FlutterResult) {
-        result(Versioning.sdkVersion())
     }
 
     func handleAudioVideoStop(result: @escaping FlutterResult) {
@@ -259,22 +251,9 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
     }
 
-//    func chooseAudioDevice(result: @escaping FlutterResult) {
-//        if checkAudioVideoFacade(result: result, source: "ChooseAudioDevice") == false {
-//            return
-//        }
-//        do {
-//            try _audioVideoFacade?.chooseAudioDevice(mediaDevice: <#T##MediaDevice#>)()
-//            result(nil)
-//        } catch {
-//            result(FlutterError())
-//        }
-//    }
-
     func checkAudioVideoFacade(result: FlutterResult, source: String) -> Bool
     {
         if _meetingSession != nil {
-               print("audioVideoFacade meetingSession != null && not available")
             if _audioVideoFacade != nil {
                 return true
             }

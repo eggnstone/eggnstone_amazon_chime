@@ -11,11 +11,11 @@ import Flutter
 
 public class ChimeRealtimeObserver : RealtimeObserver {
     let _eventSink: FlutterEventSink
-    
+
     init(eventSink: @escaping FlutterEventSink) {
         self._eventSink = eventSink
     }
-    
+
     public func volumeDidChange(volumeUpdates: [VolumeUpdate]) {
         _eventSink("""
             {
@@ -24,7 +24,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             }
             """)
     }
-    
+
     public func signalStrengthDidChange(signalUpdates: [SignalUpdate]) {
         _eventSink("""
             {
@@ -33,7 +33,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             }
             """)
     }
-    
+
     public func attendeesDidJoin(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
@@ -42,7 +42,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             }
             """)
     }
-    
+
     public func attendeesDidLeave(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
@@ -51,7 +51,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             }
             """)
     }
-    
+
     public func attendeesDidDrop(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
@@ -60,7 +60,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             }
             """)
     }
-    
+
     public func attendeesDidMute(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
@@ -69,7 +69,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             }
             """)
     }
-    
+
     public func attendeesDidUnmute(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
@@ -78,7 +78,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             }
             """)
     }
-    
+
     func convertAttendeeInfosToJson(attendeeInfo: [AttendeeInfo]) -> String {
         return """
             [
@@ -93,7 +93,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             ]
             """
     }
-    
+
     func convertSignalUpdatesToJson(signalUpdates: [SignalUpdate]) -> String {
         return signalUpdates.map({ (update: SignalUpdate) -> String in
             return """
@@ -105,7 +105,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
                 """
                 }).joined(separator: ",")
     }
-    
+
     func convertSignalUpdatesToJson(volumeUpdates: [VolumeUpdate]) -> String {
         return
         volumeUpdates.map({ (update: VolumeUpdate) -> String in
