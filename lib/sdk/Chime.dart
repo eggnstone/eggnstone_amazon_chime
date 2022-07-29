@@ -93,6 +93,18 @@ class Chime {
     return _methodChannel.invokeMethod('UnbindVideoView', params);
   }
 
+  /// Send a message.
+  static Future<String?> sendDataMessage(String text) async {
+    var params = {
+      "Action": "sendmessage",
+      "Cmd": "text",
+      "Data": text,
+      "SenderName": "hogehoge",
+      "SenderIcon": "hogehoge"
+    };
+    return _methodChannel.invokeMethod('SendDataMessage', params);
+  }
+
   /// Mutes local audio.
   static Future<String?> mute() async {
     return _methodChannel.invokeMethod('Mute');

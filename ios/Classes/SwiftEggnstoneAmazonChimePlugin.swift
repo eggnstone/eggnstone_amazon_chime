@@ -42,6 +42,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             case "GetVersion": self.getSDKVersion(result: result)
             case "ListAudioDevices": self.handleListAudioDevices(result: result)
             case "Mute": self.handleMute(result: result)
+            case "SendDataMessage": self.handleSendDataMessage(call: call, result: result)
             case "UnbindVideoView": self.handleUnbindVideoView(call: call, result: result)
             case "Unmute": self.handleUnmute(result: result)
 
@@ -83,13 +84,14 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             _audioVideoFacade?.addMetricsObserver(observer: ChimeMetricsObserver(eventSink: eventSink))
             _audioVideoFacade?.addRealtimeObserver(observer: ChimeRealtimeObserver(eventSink: eventSink))
             _audioVideoFacade?.addVideoTileObserver(observer: ChimeVideoTileObserver(eventSink: eventSink))
+            _audioVideoFacade?.addRealtimeDataMessageObserver(topic: "CHAT", observer: ChimeDataMessageObserver(eventSink: eventSink))
             result(nil)
         }
         else {
             print("Not gone through creation process")
         }
     }
-    
+
     func getSDKVersion(result: @escaping FlutterResult) {
         result(Versioning.sdkVersion())
     }
@@ -262,6 +264,41 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
 
         return false
     }
+
+
+     func handleSendDataMessage(call: FlutterMethodCall, result: @escaping FlutterResult) {
+         if checkAudioVideoFacade(result: result, source: "SendDataMessage") == false{
+             return
+         }
+
+         let args = call.arguments as? [String: Any]
+
+         if let myArgs = args,
+            let action = myArgs["Action"] as? String,
+            let cmd = myArgs["Cmd"] as? String,
+            let data = myArgs["Data"] as? String,
+            let senderName = myArgs["SenderName"] as? String,
+            let senderIcon = myArgs["SenderIcon"] as? String{
+             let data: Dictionary<String, Any> = ["uuid": (UUID().uuidString),
+                                                        "action": action,
+                                                        "cmd": cmd,
+                                                        "data": data,
+                                                        "createdDate": Int(Date().timeIntervalSince1970),
+                                                        "senderName": senderName,
+                                                        "senderIcon": senderIcon]
+
+             do {
+                 let json = try JSONSerialization.data(withJSONObject: data)
+                 let jsonStr = String(bytes: json, encoding: .utf8)!
+                 try  _audioVideoFacade?.realtimeSendDataMessage(topic: "CHAT", data: jsonStr, lifetimeMs: 0)
+                 result(nil)
+             } catch {
+                 result(FlutterError())
+             }
+
+         }
+         result(nil)
+     }
 
     func handleMute(result: @escaping FlutterResult) {
         if checkAudioVideoFacade(result: result, source: "AudioVideoMute") == false{

@@ -11,11 +11,11 @@ import Flutter
 
 public class ChimeVideoTileObserver : VideoTileObserver {
     let _eventSink: FlutterEventSink
-    
+
     init(eventSink: @escaping FlutterEventSink) {
         self._eventSink = eventSink
     }
-    
+
     public func videoTileDidAdd(tileState: VideoTileState) {
         let json = """
         {
@@ -23,10 +23,10 @@ public class ChimeVideoTileObserver : VideoTileObserver {
         "Arguments": \(self.convertVideoTileStateToJson(tileState: tileState))
         }
         """
-        
+
         _eventSink(json)
     }
-    
+
     public func videoTileDidRemove(tileState: VideoTileState) {
         let json = """
         {
@@ -34,10 +34,10 @@ public class ChimeVideoTileObserver : VideoTileObserver {
         "Arguments": \(self.convertVideoTileStateToJson(tileState: tileState))
         }
         """
-        
+
         _eventSink(json)
     }
-    
+
     public func videoTileDidPause(tileState: VideoTileState) {
         let json = """
         {
@@ -48,7 +48,7 @@ public class ChimeVideoTileObserver : VideoTileObserver {
 
         _eventSink(json)
     }
-    
+
     public func videoTileDidResume(tileState: VideoTileState) {
         let json = """
         {
@@ -59,7 +59,7 @@ public class ChimeVideoTileObserver : VideoTileObserver {
 
         _eventSink(json)
     }
-    
+
     public func videoTileSizeDidChange(tileState: VideoTileState) {
         let json = """
         {
@@ -70,7 +70,7 @@ public class ChimeVideoTileObserver : VideoTileObserver {
 
         _eventSink(json)
     }
-    
+
     func convertVideoTileStateToJson(tileState: VideoTileState) -> String {
         return """
         {
