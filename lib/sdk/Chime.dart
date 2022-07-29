@@ -94,13 +94,14 @@ class Chime {
   }
 
   /// Send a message.
-  static Future<String?> sendDataMessage(String text) async {
+  static Future<String?> sendDataMessage(
+      String text, String senderName, String senderIcon) async {
     var params = {
       "Action": "sendmessage",
       "Cmd": "text",
       "Data": text,
-      "SenderName": "hogehoge",
-      "SenderIcon": "hogehoge"
+      "SenderName": senderName,
+      "SenderIcon": senderIcon
     };
     return _methodChannel.invokeMethod('SendDataMessage', params);
   }
