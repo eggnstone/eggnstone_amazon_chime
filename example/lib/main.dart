@@ -4,6 +4,9 @@ import 'dart:io';
 import 'package:chime_example/MeetingSessionCreator.dart';
 import 'package:chime_example/data/Attendee.dart';
 import 'package:chime_example/data/Attendees.dart';
+import 'package:chime_example/data/attendee_info.dart';
+import 'package:chime_example/data/attendee_infos.dart';
+import 'package:chime_example/data/audio_device.dart';
 import 'package:device_info/device_info.dart';
 import 'package:eggnstone_amazon_chime/eggnstone_amazon_chime.dart';
 import 'package:flutter/material.dart';
@@ -25,8 +28,14 @@ class _AppState extends State<App> {
   String _audioVideoStartResult = 'AudioVideo: Unknown';
   String _audioVideoStartLocalVideoResult = 'AudioVideoLocalVideo: Unknown';
   String _audioVideoStartRemoteVideoResult = 'AudioVideoRemoteVideo: Unknown';
+  String _audioVideoMuteResult = 'AudioVideoMute: Unknown';
+  String _listAudioDevicesResult = 'ListAudioDevices: Unknown';
+  String _sendDataMessageResult = 'SendDataMessage: Unknown';
+  List<AudioDevice> _audioDeviceList = [];
 
   Attendees _attendees = Attendees();
+  final AttendeeInfos _attendeeInfos = AttendeeInfos();
+  final AttendeeInfos _attendeeInfosMute = AttendeeInfos();
   bool _isAndroidEmulator = false;
   bool _isIosSimulator = false;
 
@@ -101,6 +110,50 @@ class _AppState extends State<App> {
               onPressed: () => _audioVideoStopRemoteVideo())
         ]),
         Text(_audioVideoStartRemoteVideoResult),
+        SizedBox(height: 8),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+          Text('Mute Microphone:'),
+          ElevatedButton(
+              child: Text('Start'), onPressed: () => _audioVideoMute()),
+          ElevatedButton(
+              child: Text('Stop'), onPressed: () => _audioVideoUnmute())
+        ]),
+        Text(_audioVideoMuteResult),
+        SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text('Send Message:'),
+            ElevatedButton(
+                child: const Text('Start'),
+                onPressed: () => _sendDataMessage('message')),
+          ],
+        ),
+        Text(_sendDataMessageResult),
+        SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text('Number Of Attendees:'),
+            Text(_attendeeInfos.length.toString()),
+          ],
+        ),
+        SizedBox(height: 8),
+        ExpansionTile(
+          title: Text('Audio Lists:'),
+          children: [
+            ListTile(
+              title: Text('getList'),
+              onTap: () => _listAudioDevices(),
+            ),
+            for (AudioDevice _audioDevice in _audioDeviceList)
+              ListTile(
+                title: Text(_audioDevice.label),
+                onTap: () => _chooseAudioDevice(_audioDevice.label),
+              ),
+          ],
+        ),
+        Text(_listAudioDevicesResult),
         SizedBox(height: 8),
         Expanded(child: chimeViewColumn)
       ]);
@@ -182,17 +235,31 @@ class _AppState extends State<App> {
         case 'OnVideoTileRemoved':
           _handleOnVideoTileRemoved(eventArguments);
           break;
+        case 'OnAttendeesDidJoin':
+          _handleOnAttendeesDidJoin(eventArguments);
+          break;
+        case 'OnAttendeesDidLeave':
+          _handleOnAttendeesDidLeave(eventArguments);
+          break;
+        case 'OnAttendeesDidMute':
+          _handleOnAttendeesDidMute(eventArguments);
+          break;
+        case 'OnAttendeesDidUnmute':
+          _handleOnAttendeesDidUnmute(eventArguments);
+          break;
         default:
-          print(
+          debugPrint(
               'Chime.eventChannel.receiveBroadcastStream().listen()/onData()');
-          print('Warning: Unhandled event: $eventName');
-          print('Data: $data');
+          debugPrint('Warning: Unhandled event: $eventName');
+          debugPrint('Data: $data');
           break;
       }
     }, onDone: () {
-      print('Chime.eventChannel.receiveBroadcastStream().listen()/onDone()');
+      debugPrint(
+          'Chime.eventChannel.receiveBroadcastStream().listen()/onDone()');
     }, onError: (e) {
-      print('Chime.eventChannel.receiveBroadcastStream().listen()/onError()');
+      debugPrint(
+          'Chime.eventChannel.receiveBroadcastStream().listen()/onError()');
     });
   }
 
@@ -334,24 +401,135 @@ class _AppState extends State<App> {
       });
   }
 
+  Future<void> _audioVideoMute() async {
+    String result;
+    try {
+      result = await Chime.mute() ?? 'OK';
+    } on PlatformException catch (e) {
+      result = 'AudioVideoMute failed: PlatformException: $e';
+    } catch (e) {
+      result = 'AudioVideoMute failed: Error: $e';
+    }
+
+    if (mounted) {
+      setState(() {
+        _audioVideoMuteResult = result;
+      });
+    }
+  }
+
+  Future<void> _audioVideoUnmute() async {
+    String result;
+    try {
+      result = await Chime.unmute() ?? 'OK';
+    } on PlatformException catch (e) {
+      result = 'AudioVideoUnmute failed: PlatformException: $e';
+    } catch (e) {
+      result = 'AudioVideoUnmute failed: Error: $e';
+    }
+
+    if (mounted) {
+      setState(() {
+        _audioVideoMuteResult = result;
+      });
+    }
+  }
+
+  Future<void> _sendDataMessage(String text) async {
+    String result;
+    try {
+      result = await Chime.sendDataMessage({'data': text}) ?? 'OK';
+    } on PlatformException catch (e) {
+      result = 'SendDataMessage failed: PlatformException: $e';
+    } catch (e) {
+      result = 'SendDataMessage failed: Error: $e';
+    }
+
+    if (mounted) {
+      setState(() {
+        _sendDataMessageResult = result;
+      });
+    }
+  }
+
+  Future<void> _listAudioDevices() async {
+    String result;
+    List<AudioDevice> resultList = [];
+    try {
+      resultList = await _getListAudioDevices();
+      result = 'OK';
+    } on PlatformException catch (e) {
+      result = 'ListAudioDevices failed: PlatformException: $e';
+    } catch (e) {
+      result = 'ListAudioDevices failed: Error: $e';
+    }
+    debugPrint(result);
+
+    if (mounted) {
+      setState(() {
+        _audioDeviceList = resultList;
+        _listAudioDevicesResult = result;
+      });
+    }
+  }
+
+  Future<List<AudioDevice>> _getListAudioDevices() async {
+    final String? listAudioDevices = await Chime.listAudioDevices();
+    if (listAudioDevices == null) {
+      return [];
+    }
+    List<AudioDevice> list = [];
+    final List<dynamic> data = jsonDecode(listAudioDevices);
+
+    for (dynamic audioDevice in data) {
+      list = [
+        AudioDevice(
+          audioDevice['label'],
+          audioDevice['type'],
+          audioDevice['port'],
+          audioDevice['description'],
+        ),
+        ...list
+      ];
+    }
+    return list;
+  }
+
+  Future<void> _chooseAudioDevice(String label) async {
+    String result;
+    try {
+      result = await Chime.chooseAudioDevice(label) ?? 'OK';
+    } on PlatformException catch (e) {
+      result = 'ChooseAudioDevice failed: PlatformException: $e';
+    } catch (e) {
+      result = 'ChooseAudioDevice failed: Error: $e';
+    }
+
+    if (mounted) {
+      setState(() {
+        _listAudioDevicesResult = result;
+      });
+    }
+  }
+
   void _handleOnVideoTileAdded(dynamic arguments) async {
     bool isLocalTile = arguments['IsLocalTile'];
     int tileId = arguments['TileId'];
+    String attendeeId = arguments['AttendeeId'];
     int videoStreamContentHeight = arguments['VideoStreamContentHeight'];
     int videoStreamContentWidth = arguments['VideoStreamContentWidth'];
 
     Attendee? attendee = _attendees.getByTileId(tileId);
     if (attendee != null) {
-      print(
+      debugPrint(
           '_handleOnVideoTileAdded called but already mapped. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView}');
       return;
     }
 
-    print(
+    debugPrint(
         '_handleOnVideoTileAdded: New attendee: TileId=$tileId => creating ChimeDefaultVideoRenderView');
-    attendee = Attendee(tileId, isLocalTile);
-    attendee.height = videoStreamContentHeight;
-    attendee.width = videoStreamContentWidth;
+    attendee = Attendee(tileId, isLocalTile, attendeeId,
+        videoStreamContentHeight, videoStreamContentWidth);
     _attendees.add(attendee);
 
     Attendee nonNullAttendee = attendee;
@@ -359,11 +537,11 @@ class _AppState extends State<App> {
       nonNullAttendee.setVideoView(ChimeDefaultVideoRenderView(
           onPlatformViewCreated: (int viewId) async {
         nonNullAttendee.setViewId(viewId);
-        print(
+        debugPrint(
             'ChimeDefaultVideoRenderView created. TileId=${nonNullAttendee.tileId}, ViewId=${nonNullAttendee.viewId}, VideoView=${nonNullAttendee.videoView} => binding');
         await Chime.bindVideoView(
             nonNullAttendee.viewId!, nonNullAttendee.tileId);
-        print(
+        debugPrint(
             'ChimeDefaultVideoRenderView created. TileId=${nonNullAttendee.tileId}, ViewId=${nonNullAttendee.viewId}, VideoView=${nonNullAttendee.videoView} => bound');
       }));
     });
@@ -374,20 +552,94 @@ class _AppState extends State<App> {
 
     Attendee? attendee = _attendees.getByTileId(tileId);
     if (attendee == null) {
-      print(
+      debugPrint(
           'Error: _handleOnVideoTileRemoved: Could not find attendee for TileId=$tileId');
       return;
     }
 
-    print(
+    debugPrint(
         '_handleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbinding');
     _attendees.remove(attendee);
     await Chime.unbindVideoView(tileId);
-    print(
+    debugPrint(
         '_handleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbound');
 
     setState(() {
       // refresh
     });
+  }
+
+  void _handleOnAttendeesDidJoin(dynamic arguments) async {
+    for (final info in arguments.first.first) {
+      dynamic event = const JsonDecoder().convert(info);
+
+      AttendeeInfo? attendeeInfo =
+          _attendeeInfos.getByAttendeeId(event['AttendeeId']);
+      if (attendeeInfo != null) {
+        debugPrint(
+            '_handleOnAttendeesDidJoin called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExernalUserId=${attendeeInfo.exernalUserId}');
+      } else {
+        final AttendeeInfo newAttendeeInfo = AttendeeInfo(
+          event['AttendeeId'],
+          event['ExernalUserId'],
+        );
+        _attendeeInfos.add(newAttendeeInfo);
+      }
+    }
+
+    setState(() {});
+  }
+
+  void _handleOnAttendeesDidLeave(dynamic arguments) async {
+    for (final info in arguments.first.first) {
+      dynamic event = const JsonDecoder().convert(info);
+      AttendeeInfo? attendeeInfo =
+          _attendeeInfos.getByAttendeeId(event['AttendeeId']);
+      if (attendeeInfo == null) {
+        debugPrint(
+            'Error: _handleOnAttendeesDidLeave: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExernalUserId=${event['ExernalUserId']}');
+      } else {
+        _attendeeInfos.remove(attendeeInfo);
+      }
+    }
+
+    setState(() {});
+  }
+
+  void _handleOnAttendeesDidUnmute(dynamic arguments) async {
+    for (final info in arguments.first.first) {
+      dynamic event = const JsonDecoder().convert(info);
+      AttendeeInfo? attendeeInfo =
+          _attendeeInfosMute.getByAttendeeId(event['AttendeeId']);
+      if (attendeeInfo == null) {
+        debugPrint(
+            'Error: _handleOnAttendeesDidUnmute: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExernalUserId=${event['ExernalUserId']}');
+        return;
+      } else {
+        _attendeeInfosMute.remove(attendeeInfo);
+      }
+    }
+
+    setState(() {});
+  }
+
+  void _handleOnAttendeesDidMute(dynamic arguments) async {
+    for (final info in arguments.first.first) {
+      dynamic event = const JsonDecoder().convert(info);
+
+      AttendeeInfo? attendeeInfo =
+          _attendeeInfosMute.getByAttendeeId(event['AttendeeId']);
+      if (attendeeInfo != null) {
+        debugPrint(
+            '_handleOnAttendeesDidMute called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExernalUserId=${attendeeInfo.exernalUserId}');
+        return;
+      } else {
+        final AttendeeInfo newAttendeeInfo = AttendeeInfo(
+          event['AttendeeId'],
+          event['ExernalUserId'],
+        );
+        _attendeeInfosMute.add(newAttendeeInfo);
+      }
+    }
   }
 }
