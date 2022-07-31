@@ -265,40 +265,25 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         return false
     }
 
+    func handleSendDataMessage(call: FlutterMethodCall, result: @escaping FlutterResult) {
+        if checkAudioVideoFacade(result: result, source: "SendDataMessage") == false{
+            return
+        }
 
-     func handleSendDataMessage(call: FlutterMethodCall, result: @escaping FlutterResult) {
-         if checkAudioVideoFacade(result: result, source: "SendDataMessage") == false{
-             return
-         }
+        let args = call.arguments as? [String: Any]
+        if let myArgs = args,
+           let data = myArgs["Data"] as? Dictionary<String, Any>{
 
-         let args = call.arguments as? [String: Any]
+            do {
+                try  _audioVideoFacade?.realtimeSendDataMessage(topic: "CHAT", data: data, lifetimeMs: 0)
+                result(nil)
+            } catch {
+                result(FlutterError())
+            }
 
-         if let myArgs = args,
-            let action = myArgs["Action"] as? String,
-            let cmd = myArgs["Cmd"] as? String,
-            let data = myArgs["Data"] as? String,
-            let senderName = myArgs["SenderName"] as? String,
-            let senderIcon = myArgs["SenderIcon"] as? String{
-             let data: Dictionary<String, Any> = ["uuid": (UUID().uuidString),
-                                                        "action": action,
-                                                        "cmd": cmd,
-                                                        "data": data,
-                                                        "createdDate": Int(Date().timeIntervalSince1970),
-                                                        "senderName": senderName,
-                                                        "senderIcon": senderIcon]
-
-             do {
-                 let json = try JSONSerialization.data(withJSONObject: data)
-                 let jsonStr = String(bytes: json, encoding: .utf8)!
-                 try  _audioVideoFacade?.realtimeSendDataMessage(topic: "CHAT", data: jsonStr, lifetimeMs: 0)
-                 result(nil)
-             } catch {
-                 result(FlutterError())
-             }
-
-         }
-         result(nil)
-     }
+        }
+        result(nil)
+    }
 
     func handleMute(result: @escaping FlutterResult) {
         if checkAudioVideoFacade(result: result, source: "AudioVideoMute") == false{
