@@ -24,23 +24,27 @@ Anything else will trigger ```UnsatisfiedLinkError```.
 * https://github.com/aws/amazon-chime-sdk-android/releases/latest
 * https://aws.amazon.com/blogs/business-productivity/building-a-meeting-application-on-android-using-the-amazon-chime-sdk/
 
-## ~~iOS~~
-
-**Versions 2 and above do not support iOS**
-
-**I need a maintainer for the iOS version!**
-
-Version 1 has support for iOS but due to file size problems versions 2 and above currently do not support iOS. 
+## iOS
 
 🚩 **Chime does not work on iOS simulators!**
+https://github.com/aws/amazon-chime-sdk-ios
+The example works on iOS simulators as far as showing the version of the SDK.
 
 **Instructions for your app**
 
-* Update your project file according to the instructions at https://github.com/aws/amazon-chime-sdk-ios#2-update-project-file.
+* Update the project file as follows. Replace the following four files `eggnstone_amazon_chime/ios` with the ones you downloaded from [AmazonChimeSDK-0.21.3.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/sdk/0.21.3/AmazonChimeSDK-0.21.3.tar.gz), [AmazonChimeSDKMedia-0.17.3.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/media/0.17.3/AmazonChimeSDKMedia-0.17.3.tar.gz)
+  - AmazonChimeSDK.framework
+  - AmazonChimeSDK.xcframework
+  - AmazonChimeSDKMedia.framework
+  - AmazonChimeSDKMedia.xcframework
+
 
 **Used versions**
-* [amazon-chime-sdk-0.11.1.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/sdk-without-bitcode/0.11.1/AmazonChimeSDK-0.11.1.tar.gz)
-* [amazon-chime-sdk-media-0.7.1.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/media-without-bitcode/0.7.1/AmazonChimeSDKMedia-0.7.1.tar.gz)
+* [AmazonChimeSDK-0.21.3.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/sdk/0.21.3/AmazonChimeSDK-0.21.3.tar.gz)
+* [AmazonChimeSDKMedia-0.17.3.tar.gz](https://amazon-chime-sdk-ios.s3.amazonaws.com/media/0.17.3/AmazonChimeSDKMedia-0.17.3.tar.gz)
+
+
+
 
 **References**
 * https://github.com/aws/amazon-chime-sdk-ios/releases/latest
