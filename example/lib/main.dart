@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:chime_example/MeetingSessionCreator.dart';
 import 'package:chime_example/data/Attendee.dart';
 import 'package:chime_example/data/Attendees.dart';
 import 'package:chime_example/data/attendee_info.dart';
@@ -120,16 +119,17 @@ class _AppState extends State<App> {
         ]),
         Text(_audioVideoMuteResult),
         SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text('Send Message:'),
-            ElevatedButton(
-                child: const Text('Start'),
-                onPressed: () => _sendDataMessage('message')),
-          ],
-        ),
-        Text(_sendDataMessageResult),
+        // This only works on IOS.
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+        //   children: [
+        //     Text('Send Message:'),
+        //     ElevatedButton(
+        //         child: const Text('Start'),
+        //         onPressed: () => _sendDataMessage('message')),
+        //   ],
+        // ),
+        // Text(_sendDataMessageResult),
         SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -143,7 +143,7 @@ class _AppState extends State<App> {
           title: Text('Audio Lists:'),
           children: [
             ListTile(
-              title: Text('getList'),
+              title: Text('GetList'),
               onTap: () => _listAudioDevices(),
             ),
             for (AudioDevice _audioDevice in _audioDeviceList)
@@ -435,6 +435,7 @@ class _AppState extends State<App> {
     }
   }
 
+  // This only works on IOS.
   Future<void> _sendDataMessage(String text) async {
     String result;
     try {
@@ -463,7 +464,6 @@ class _AppState extends State<App> {
     } catch (e) {
       result = 'ListAudioDevices failed: Error: $e';
     }
-    debugPrint(result);
 
     if (mounted) {
       setState(() {
@@ -522,12 +522,12 @@ class _AppState extends State<App> {
     Attendee? attendee = _attendees.getByTileId(tileId);
     if (attendee != null) {
       debugPrint(
-          '_handleOnVideoTileAdded called but already mapped. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView}');
+          'HandleOnVideoTileAdded called but already mapped. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView}');
       return;
     }
 
     debugPrint(
-        '_handleOnVideoTileAdded: New attendee: TileId=$tileId => creating ChimeDefaultVideoRenderView');
+        'HandleOnVideoTileAdded: New attendee: TileId=$tileId => creating ChimeDefaultVideoRenderView');
     attendee = Attendee(tileId, isLocalTile, attendeeId,
         videoStreamContentHeight, videoStreamContentWidth);
     _attendees.add(attendee);
@@ -553,16 +553,16 @@ class _AppState extends State<App> {
     Attendee? attendee = _attendees.getByTileId(tileId);
     if (attendee == null) {
       debugPrint(
-          'Error: _handleOnVideoTileRemoved: Could not find attendee for TileId=$tileId');
+          'Error: HandleOnVideoTileRemoved: Could not find attendee for TileId=$tileId');
       return;
     }
 
     debugPrint(
-        '_handleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbinding');
+        'HandleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbinding');
     _attendees.remove(attendee);
     await Chime.unbindVideoView(tileId);
     debugPrint(
-        '_handleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbound');
+        'HandleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbound');
 
     setState(() {
       // refresh
@@ -577,7 +577,7 @@ class _AppState extends State<App> {
           _attendeeInfos.getByAttendeeId(event['AttendeeId']);
       if (attendeeInfo != null) {
         debugPrint(
-            '_handleOnAttendeesDidJoin called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExernalUserId=${attendeeInfo.exernalUserId}');
+            'HandleOnAttendeesDidJoin called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExernalUserId=${attendeeInfo.exernalUserId}');
       } else {
         final AttendeeInfo newAttendeeInfo = AttendeeInfo(
           event['AttendeeId'],
@@ -597,7 +597,7 @@ class _AppState extends State<App> {
           _attendeeInfos.getByAttendeeId(event['AttendeeId']);
       if (attendeeInfo == null) {
         debugPrint(
-            'Error: _handleOnAttendeesDidLeave: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExernalUserId=${event['ExernalUserId']}');
+            'Error: HandleOnAttendeesDidLeave: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExernalUserId=${event['ExernalUserId']}');
       } else {
         _attendeeInfos.remove(attendeeInfo);
       }
@@ -613,7 +613,7 @@ class _AppState extends State<App> {
           _attendeeInfosMute.getByAttendeeId(event['AttendeeId']);
       if (attendeeInfo == null) {
         debugPrint(
-            'Error: _handleOnAttendeesDidUnmute: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExernalUserId=${event['ExernalUserId']}');
+            'Error: HandleOnAttendeesDidUnmute: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExernalUserId=${event['ExernalUserId']}');
         return;
       } else {
         _attendeeInfosMute.remove(attendeeInfo);
@@ -631,7 +631,7 @@ class _AppState extends State<App> {
           _attendeeInfosMute.getByAttendeeId(event['AttendeeId']);
       if (attendeeInfo != null) {
         debugPrint(
-            '_handleOnAttendeesDidMute called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExernalUserId=${attendeeInfo.exernalUserId}');
+            'HandleOnAttendeesDidMute called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExernalUserId=${attendeeInfo.exernalUserId}');
         return;
       } else {
         final AttendeeInfo newAttendeeInfo = AttendeeInfo(
