@@ -1,7 +1,8 @@
 class AudioDevice {
-  AudioDevice(this.label, this.type, this.port, this.description);
+  AudioDevice(this.label, this.type, this.order, this.port, this.description);
   String label;
   String type;
-  String port;
-  String description;
+  String? order;
+  String? port;
+  String? description;
 }

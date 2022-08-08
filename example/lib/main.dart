@@ -119,17 +119,16 @@ class _AppState extends State<App> {
         ]),
         Text(_audioVideoMuteResult),
         SizedBox(height: 8),
-        // This only works on IOS.
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-        //   children: [
-        //     Text('Send Message:'),
-        //     ElevatedButton(
-        //         child: const Text('Start'),
-        //         onPressed: () => _sendDataMessage('message')),
-        //   ],
-        // ),
-        // Text(_sendDataMessageResult),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text('Send Message:'),
+            ElevatedButton(
+                child: const Text('Start'),
+                onPressed: () => _sendDataMessage('message')),
+          ],
+        ),
+        Text(_sendDataMessageResult),
         SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -235,16 +234,16 @@ class _AppState extends State<App> {
         case 'OnVideoTileRemoved':
           _handleOnVideoTileRemoved(eventArguments);
           break;
-        case 'OnAttendeesDidJoin':
+        case 'OnAttendeesJoined':
           _handleOnAttendeesDidJoin(eventArguments);
           break;
-        case 'OnAttendeesDidLeave':
+        case 'OnAttendeesLeft':
           _handleOnAttendeesDidLeave(eventArguments);
           break;
-        case 'OnAttendeesDidMute':
+        case 'OnAttendeesMuted':
           _handleOnAttendeesDidMute(eventArguments);
           break;
-        case 'OnAttendeesDidUnmute':
+        case 'OnAttendeesUnmuted':
           _handleOnAttendeesDidUnmute(eventArguments);
           break;
         default:
@@ -484,10 +483,11 @@ class _AppState extends State<App> {
     for (dynamic audioDevice in data) {
       list = [
         AudioDevice(
-          audioDevice['label'],
-          audioDevice['type'],
-          audioDevice['port'],
-          audioDevice['description'],
+          audioDevice['Label'],
+          audioDevice['Type'],
+          audioDevice['Order'],
+          audioDevice['Port'],
+          audioDevice['Description'],
         ),
         ...list
       ];
@@ -577,11 +577,11 @@ class _AppState extends State<App> {
           _attendeeInfos.getByAttendeeId(event['AttendeeId']);
       if (attendeeInfo != null) {
         debugPrint(
-            'HandleOnAttendeesDidJoin called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExernalUserId=${attendeeInfo.exernalUserId}');
+            'HandleOnAttendeesDidJoin called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
       } else {
         final AttendeeInfo newAttendeeInfo = AttendeeInfo(
           event['AttendeeId'],
-          event['ExernalUserId'],
+          event['ExternalUserId'],
         );
         _attendeeInfos.add(newAttendeeInfo);
       }
@@ -597,7 +597,7 @@ class _AppState extends State<App> {
           _attendeeInfos.getByAttendeeId(event['AttendeeId']);
       if (attendeeInfo == null) {
         debugPrint(
-            'Error: HandleOnAttendeesDidLeave: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExernalUserId=${event['ExernalUserId']}');
+            'Error: HandleOnAttendeesDidLeave: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExternalUserId=${event['ExternalUserId']}');
       } else {
         _attendeeInfos.remove(attendeeInfo);
       }
@@ -613,7 +613,7 @@ class _AppState extends State<App> {
           _attendeeInfosMute.getByAttendeeId(event['AttendeeId']);
       if (attendeeInfo == null) {
         debugPrint(
-            'Error: HandleOnAttendeesDidUnmute: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExernalUserId=${event['ExernalUserId']}');
+            'Error: HandleOnAttendeesDidUnmute: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExternalUserId=${event['ExternalUserId']}');
         return;
       } else {
         _attendeeInfosMute.remove(attendeeInfo);
@@ -631,12 +631,12 @@ class _AppState extends State<App> {
           _attendeeInfosMute.getByAttendeeId(event['AttendeeId']);
       if (attendeeInfo != null) {
         debugPrint(
-            'HandleOnAttendeesDidMute called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExernalUserId=${attendeeInfo.exernalUserId}');
+            'HandleOnAttendeesDidMute called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
         return;
       } else {
         final AttendeeInfo newAttendeeInfo = AttendeeInfo(
           event['AttendeeId'],
-          event['ExernalUserId'],
+          event['ExternalUserId'],
         );
         _attendeeInfosMute.add(newAttendeeInfo);
       }
