@@ -235,16 +235,16 @@ class _AppState extends State<App> {
           _handleOnVideoTileRemoved(eventArguments);
           break;
         case 'OnAttendeesJoined':
-          _handleOnAttendeesDidJoin(eventArguments);
+          _handleOnAttendeesJoined(eventArguments);
           break;
         case 'OnAttendeesLeft':
-          _handleOnAttendeesDidLeave(eventArguments);
+          _handleOnAttendeesLeft(eventArguments);
           break;
         case 'OnAttendeesMuted':
-          _handleOnAttendeesDidMute(eventArguments);
+          _handleOnAttendeesMuted(eventArguments);
           break;
         case 'OnAttendeesUnmuted':
-          _handleOnAttendeesDidUnmute(eventArguments);
+          _handleOnAttendeesUnmuted(eventArguments);
           break;
         default:
           debugPrint(
@@ -569,19 +569,17 @@ class _AppState extends State<App> {
     });
   }
 
-  void _handleOnAttendeesDidJoin(dynamic arguments) async {
-    for (final info in arguments.first.first) {
-      dynamic event = const JsonDecoder().convert(info);
-
+  void _handleOnAttendeesJoined(dynamic arguments) async {
+    for (final info in arguments['AttendeeInfos']) {
       AttendeeInfo? attendeeInfo =
-          _attendeeInfos.getByAttendeeId(event['AttendeeId']);
+          _attendeeInfos.getByAttendeeId(info['AttendeeId']);
       if (attendeeInfo != null) {
         debugPrint(
-            'HandleOnAttendeesDidJoin called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
+            'HandleOnAttendeesJoined called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
       } else {
         final AttendeeInfo newAttendeeInfo = AttendeeInfo(
-          event['AttendeeId'],
-          event['ExternalUserId'],
+          info['AttendeeId'],
+          info['ExternalUserId'],
         );
         _attendeeInfos.add(newAttendeeInfo);
       }
@@ -590,14 +588,13 @@ class _AppState extends State<App> {
     setState(() {});
   }
 
-  void _handleOnAttendeesDidLeave(dynamic arguments) async {
-    for (final info in arguments.first.first) {
-      dynamic event = const JsonDecoder().convert(info);
+  void _handleOnAttendeesLeft(dynamic arguments) async {
+    for (final info in arguments['AttendeeInfos']) {
       AttendeeInfo? attendeeInfo =
-          _attendeeInfos.getByAttendeeId(event['AttendeeId']);
+          _attendeeInfos.getByAttendeeId(info['AttendeeId']);
       if (attendeeInfo == null) {
         debugPrint(
-            'Error: HandleOnAttendeesDidLeave: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExternalUserId=${event['ExternalUserId']}');
+            'Error: HandleOnAttendeesLeft: Could not find attendee for AttendeeId=${info['AttendeeId']}, ExternalUserId=${info['ExternalUserId']}');
       } else {
         _attendeeInfos.remove(attendeeInfo);
       }
@@ -606,14 +603,13 @@ class _AppState extends State<App> {
     setState(() {});
   }
 
-  void _handleOnAttendeesDidUnmute(dynamic arguments) async {
-    for (final info in arguments.first.first) {
-      dynamic event = const JsonDecoder().convert(info);
+  void _handleOnAttendeesUnmuted(dynamic arguments) async {
+    for (final info in arguments['AttendeeInfos']) {
       AttendeeInfo? attendeeInfo =
-          _attendeeInfosMute.getByAttendeeId(event['AttendeeId']);
+          _attendeeInfosMute.getByAttendeeId(info['AttendeeId']);
       if (attendeeInfo == null) {
         debugPrint(
-            'Error: HandleOnAttendeesDidUnmute: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExternalUserId=${event['ExternalUserId']}');
+            'Error: HandleOnAttendeesUnmuted: Could not find attendee for AttendeeId=${info['AttendeeId']}, ExternalUserId=${info['ExternalUserId']}');
         return;
       } else {
         _attendeeInfosMute.remove(attendeeInfo);
@@ -623,23 +619,23 @@ class _AppState extends State<App> {
     setState(() {});
   }
 
-  void _handleOnAttendeesDidMute(dynamic arguments) async {
-    for (final info in arguments.first.first) {
-      dynamic event = const JsonDecoder().convert(info);
-
+  void _handleOnAttendeesMuted(dynamic arguments) async {
+    for (final info in arguments['AttendeeInfos']) {
       AttendeeInfo? attendeeInfo =
-          _attendeeInfosMute.getByAttendeeId(event['AttendeeId']);
+          _attendeeInfosMute.getByAttendeeId(info['AttendeeId']);
       if (attendeeInfo != null) {
         debugPrint(
-            'HandleOnAttendeesDidMute called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
+            'HandleOnAttendeesMuted called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
         return;
       } else {
         final AttendeeInfo newAttendeeInfo = AttendeeInfo(
-          event['AttendeeId'],
-          event['ExternalUserId'],
+          info['AttendeeId'],
+          info['ExternalUserId'],
         );
         _attendeeInfosMute.add(newAttendeeInfo);
       }
     }
+
+    setState(() {});
   }
 }
