@@ -37,8 +37,8 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     public func attendeesDidJoin(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
-            "Name": "OnAttendeesDidJoin",
-            "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
+            "Name": "OnAttendeesJoined",
+            "Arguments": \(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))
             }
             """)
     }
@@ -46,8 +46,8 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     public func attendeesDidLeave(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
-            "Name": "OnAttendeesDidLeave",
-            "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
+            "Name": "OnAttendeesLeft",
+            "Arguments": \(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))
             }
             """)
     }
@@ -55,8 +55,8 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     public func attendeesDidDrop(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
-            "Name": "OnAttendeesDidDrop",
-            "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
+            "Name": "OnAttendeesDropped",
+            "Arguments": \(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))
             }
             """)
     }
@@ -64,8 +64,8 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     public func attendeesDidMute(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
-            "Name": "OnAttendeesDidMute",
-            "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
+            "Name": "OnAttendeesMuted",
+            "Arguments": \(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))
             }
             """)
     }
@@ -73,24 +73,24 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     public func attendeesDidUnmute(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
-            "Name": "OnAttendeesDidUnmute",
-            "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
+            "Name": "OnAttendeesUnmuted",
+            "Arguments": \(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))
             }
             """)
     }
 
     func convertAttendeeInfosToJson(attendeeInfo: [AttendeeInfo]) -> String {
         return """
-            [
-            \(attendeeInfo.map({ (info: AttendeeInfo) -> String in
-            return """
             {
-            "AttendeeId": "\(info.attendeeId)",
-            "ExernalUserId": "\(info.externalUserId)"
+            "AttendeeInfos": [\(attendeeInfo.map({ (info: AttendeeInfo) -> String in
+            return """
+                {
+                "AttendeeId": "\(info.attendeeId)",
+                "ExternalUserId": "\(info.externalUserId)"
+                }
+                """
+                }).joined(separator: ","))]
             }
-            """
-            }))
-            ]
             """
     }
 
@@ -99,7 +99,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             return """
                 {
                 "AttendeeId": "\(update.attendeeInfo.attendeeId)",
-                "ExernalUserId": "\(update.attendeeInfo.externalUserId)",
+                "ExternalUserId": "\(update.attendeeInfo.externalUserId)",
                 "SignalStrength": "\(update.signalStrength)"
                 }
                 """
@@ -107,12 +107,11 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     }
 
     func convertSignalUpdatesToJson(volumeUpdates: [VolumeUpdate]) -> String {
-        return
-        volumeUpdates.map({ (update: VolumeUpdate) -> String in
+        return volumeUpdates.map({ (update: VolumeUpdate) -> String in
             return """
             {
             "AttendeeId": "\(update.attendeeInfo.attendeeId)",
-            "ExernalUserId": "\(update.attendeeInfo.externalUserId)",
+            "ExternalUserId": "\(update.attendeeInfo.externalUserId)",
             "VolumeLevel": "\(update.volumeLevel)"
             }
             """

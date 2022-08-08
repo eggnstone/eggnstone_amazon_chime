@@ -94,7 +94,6 @@ class Chime {
   }
 
   /// Send a message.
-  /// This only works on IOS.
   static Future<String?> sendDataMessage(Map<String, dynamic> data) async {
     var params = {"Data": data};
     return _methodChannel.invokeMethod('SendDataMessage', params);

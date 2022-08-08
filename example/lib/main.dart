@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:chime_example/MeetingSessionCreator.dart';
 import 'package:chime_example/data/Attendee.dart';
 import 'package:chime_example/data/Attendees.dart';
 import 'package:chime_example/data/attendee_info.dart';
@@ -79,7 +80,6 @@ class _AppState extends State<App> {
     else
       content = Column(children: [
         Text(_createMeetingSessionResult),
-        SizedBox(height: 8),
         Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
           Text('Audio/Video:'),
           ElevatedButton(
@@ -119,17 +119,16 @@ class _AppState extends State<App> {
         ]),
         Text(_audioVideoMuteResult),
         SizedBox(height: 8),
-        // This only works on IOS.
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-        //   children: [
-        //     Text('Send Message:'),
-        //     ElevatedButton(
-        //         child: const Text('Start'),
-        //         onPressed: () => _sendDataMessage('message')),
-        //   ],
-        // ),
-        // Text(_sendDataMessageResult),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text('Send Message:'),
+            ElevatedButton(
+                child: const Text('Start'),
+                onPressed: () => _sendDataMessage('message')),
+          ],
+        ),
+        Text(_sendDataMessageResult),
         SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -140,12 +139,12 @@ class _AppState extends State<App> {
         ),
         SizedBox(height: 8),
         ExpansionTile(
+          trailing: TextButton(
+            child: Text('Get List'),
+            onPressed: () => _listAudioDevices(),
+          ),
           title: Text('Audio Lists:'),
           children: [
-            ListTile(
-              title: Text('GetList'),
-              onTap: () => _listAudioDevices(),
-            ),
             for (AudioDevice _audioDevice in _audioDeviceList)
               ListTile(
                 title: Text(_audioDevice.label),
@@ -161,12 +160,8 @@ class _AppState extends State<App> {
     return MaterialApp(
         home: Scaffold(
             appBar: AppBar(title: Text('ChimePlugin')),
-            body: Column(children: [
-              SizedBox(height: 8),
-              Text(_version),
-              SizedBox(height: 8),
-              Expanded(child: content)
-            ])));
+            body:
+                Column(children: [Text(_version), Expanded(child: content)])));
   }
 
   Future<void> _getPermission() async {
@@ -191,7 +186,6 @@ class _AppState extends State<App> {
         });
       }
     } else if (Platform.isIOS) {
-      debugPrint('iOS:createMeetingSession');
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       if (iosInfo.isPhysicalDevice) {
@@ -235,17 +229,17 @@ class _AppState extends State<App> {
         case 'OnVideoTileRemoved':
           _handleOnVideoTileRemoved(eventArguments);
           break;
-        case 'OnAttendeesDidJoin':
-          _handleOnAttendeesDidJoin(eventArguments);
+        case 'OnAttendeesJoined':
+          _handleOnAttendeesJoined(eventArguments);
           break;
-        case 'OnAttendeesDidLeave':
-          _handleOnAttendeesDidLeave(eventArguments);
+        case 'OnAttendeesLeft':
+          _handleOnAttendeesLeft(eventArguments);
           break;
-        case 'OnAttendeesDidMute':
-          _handleOnAttendeesDidMute(eventArguments);
+        case 'OnAttendeesMuted':
+          _handleOnAttendeesMuted(eventArguments);
           break;
-        case 'OnAttendeesDidUnmute':
-          _handleOnAttendeesDidUnmute(eventArguments);
+        case 'OnAttendeesUnmuted':
+          _handleOnAttendeesUnmuted(eventArguments);
           break;
         default:
           debugPrint(
@@ -435,7 +429,6 @@ class _AppState extends State<App> {
     }
   }
 
-  // This only works on IOS.
   Future<void> _sendDataMessage(String text) async {
     String result;
     try {
@@ -484,10 +477,11 @@ class _AppState extends State<App> {
     for (dynamic audioDevice in data) {
       list = [
         AudioDevice(
-          audioDevice['label'],
-          audioDevice['type'],
-          audioDevice['port'],
-          audioDevice['description'],
+          audioDevice['Label'],
+          audioDevice['Type'],
+          audioDevice['Order'],
+          audioDevice['Port'],
+          audioDevice['Description'],
         ),
         ...list
       ];
@@ -564,24 +558,20 @@ class _AppState extends State<App> {
     debugPrint(
         'HandleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbound');
 
-    setState(() {
-      // refresh
-    });
+    setState(() {});
   }
 
-  void _handleOnAttendeesDidJoin(dynamic arguments) async {
-    for (final info in arguments.first.first) {
-      dynamic event = const JsonDecoder().convert(info);
-
+  void _handleOnAttendeesJoined(dynamic arguments) async {
+    for (final info in arguments['AttendeeInfos']) {
       AttendeeInfo? attendeeInfo =
-          _attendeeInfos.getByAttendeeId(event['AttendeeId']);
+          _attendeeInfos.getByAttendeeId(info['AttendeeId']);
       if (attendeeInfo != null) {
         debugPrint(
-            'HandleOnAttendeesDidJoin called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExernalUserId=${attendeeInfo.exernalUserId}');
+            'HandleOnAttendeesJoined called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
       } else {
         final AttendeeInfo newAttendeeInfo = AttendeeInfo(
-          event['AttendeeId'],
-          event['ExernalUserId'],
+          info['AttendeeId'],
+          info['ExternalUserId'],
         );
         _attendeeInfos.add(newAttendeeInfo);
       }
@@ -590,14 +580,13 @@ class _AppState extends State<App> {
     setState(() {});
   }
 
-  void _handleOnAttendeesDidLeave(dynamic arguments) async {
-    for (final info in arguments.first.first) {
-      dynamic event = const JsonDecoder().convert(info);
+  void _handleOnAttendeesLeft(dynamic arguments) async {
+    for (final info in arguments['AttendeeInfos']) {
       AttendeeInfo? attendeeInfo =
-          _attendeeInfos.getByAttendeeId(event['AttendeeId']);
+          _attendeeInfos.getByAttendeeId(info['AttendeeId']);
       if (attendeeInfo == null) {
         debugPrint(
-            'Error: HandleOnAttendeesDidLeave: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExernalUserId=${event['ExernalUserId']}');
+            'Error: HandleOnAttendeesLeft: Could not find attendee for AttendeeId=${info['AttendeeId']}, ExternalUserId=${info['ExternalUserId']}');
       } else {
         _attendeeInfos.remove(attendeeInfo);
       }
@@ -606,14 +595,13 @@ class _AppState extends State<App> {
     setState(() {});
   }
 
-  void _handleOnAttendeesDidUnmute(dynamic arguments) async {
-    for (final info in arguments.first.first) {
-      dynamic event = const JsonDecoder().convert(info);
+  void _handleOnAttendeesUnmuted(dynamic arguments) async {
+    for (final info in arguments['AttendeeInfos']) {
       AttendeeInfo? attendeeInfo =
-          _attendeeInfosMute.getByAttendeeId(event['AttendeeId']);
+          _attendeeInfosMute.getByAttendeeId(info['AttendeeId']);
       if (attendeeInfo == null) {
         debugPrint(
-            'Error: HandleOnAttendeesDidUnmute: Could not find attendee for AttendeeId=${event['AttendeeId']}, ExernalUserId=${event['ExernalUserId']}');
+            'Error: HandleOnAttendeesUnmuted: Could not find attendee for AttendeeId=${info['AttendeeId']}, ExternalUserId=${info['ExternalUserId']}');
         return;
       } else {
         _attendeeInfosMute.remove(attendeeInfo);
@@ -623,23 +611,23 @@ class _AppState extends State<App> {
     setState(() {});
   }
 
-  void _handleOnAttendeesDidMute(dynamic arguments) async {
-    for (final info in arguments.first.first) {
-      dynamic event = const JsonDecoder().convert(info);
-
+  void _handleOnAttendeesMuted(dynamic arguments) async {
+    for (final info in arguments['AttendeeInfos']) {
       AttendeeInfo? attendeeInfo =
-          _attendeeInfosMute.getByAttendeeId(event['AttendeeId']);
+          _attendeeInfosMute.getByAttendeeId(info['AttendeeId']);
       if (attendeeInfo != null) {
         debugPrint(
-            'HandleOnAttendeesDidMute called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExernalUserId=${attendeeInfo.exernalUserId}');
+            'HandleOnAttendeesMuted called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
         return;
       } else {
         final AttendeeInfo newAttendeeInfo = AttendeeInfo(
-          event['AttendeeId'],
-          event['ExernalUserId'],
+          info['AttendeeId'],
+          info['ExternalUserId'],
         );
         _attendeeInfosMute.add(newAttendeeInfo);
       }
     }
+
+    setState(() {});
   }
 }

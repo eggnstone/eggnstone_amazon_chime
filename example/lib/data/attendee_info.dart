@@ -1,5 +1,5 @@
 class AttendeeInfo {
-  AttendeeInfo(this.attendeeId, this.exernalUserId);
+  AttendeeInfo(this.attendeeId, this.externalUserId);
   String attendeeId;
-  String exernalUserId;
+  String externalUserId;
 }

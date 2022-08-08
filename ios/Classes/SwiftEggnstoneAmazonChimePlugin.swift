@@ -239,10 +239,10 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             concatenatedDevices = "[" + devices.map({(device: MediaDevice) -> String in
             return """
                 {
-                "label": "\(device.label)",
-                "type": "\(device.type)",
-                "port": "\(device.port)",
-                "description": "\(device.description)"
+                "Label": "\(device.label)",
+                "Type": "\(device.type)",
+                "Port": "\(device.port)",
+                "Description": "\(device.description)"
                 }
                 """
                 }).joined(separator: ",") + "]"
