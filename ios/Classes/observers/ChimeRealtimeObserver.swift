@@ -37,7 +37,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     public func attendeesDidJoin(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
-            "Name": "OnAttendeesDidJoin",
+            "Name": "OnAttendeesJoined",
             "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
             """)
@@ -46,7 +46,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     public func attendeesDidLeave(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
-            "Name": "OnAttendeesDidLeave",
+            "Name": "OnAttendeesLeft",
             "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
             """)
@@ -64,7 +64,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     public func attendeesDidMute(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
-            "Name": "OnAttendeesDidMute",
+            "Name": "OnAttendeesMuted",
             "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
             """)
@@ -73,7 +73,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     public func attendeesDidUnmute(attendeeInfo: [AttendeeInfo]) {
         _eventSink("""
             {
-            "Name": "OnAttendeesDidUnmute",
+            "Name": "OnAttendeesUnmuted",
             "Arguments": [\(convertAttendeeInfosToJson(attendeeInfo: attendeeInfo))]
             }
             """)
@@ -86,7 +86,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             return """
             {
             "AttendeeId": "\(info.attendeeId)",
-            "ExernalUserId": "\(info.externalUserId)"
+            "ExternalUserId": "\(info.externalUserId)"
             }
             """
             }))
@@ -99,7 +99,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             return """
                 {
                 "AttendeeId": "\(update.attendeeInfo.attendeeId)",
-                "ExernalUserId": "\(update.attendeeInfo.externalUserId)",
+                "ExternalUserId": "\(update.attendeeInfo.externalUserId)",
                 "SignalStrength": "\(update.signalStrength)"
                 }
                 """
@@ -112,7 +112,7 @@ public class ChimeRealtimeObserver : RealtimeObserver {
             return """
             {
             "AttendeeId": "\(update.attendeeInfo.attendeeId)",
-            "ExernalUserId": "\(update.attendeeInfo.externalUserId)",
+            "ExternalUserId": "\(update.attendeeInfo.externalUserId)",
             "VolumeLevel": "\(update.volumeLevel)"
             }
             """
