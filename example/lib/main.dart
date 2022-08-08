@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:chime_example/MeetingSessionCreator.dart';
 import 'package:chime_example/data/Attendee.dart';
 import 'package:chime_example/data/Attendees.dart';
 import 'package:chime_example/data/attendee_info.dart';
@@ -79,7 +80,6 @@ class _AppState extends State<App> {
     else
       content = Column(children: [
         Text(_createMeetingSessionResult),
-        SizedBox(height: 8),
         Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
           Text('Audio/Video:'),
           ElevatedButton(
@@ -139,12 +139,12 @@ class _AppState extends State<App> {
         ),
         SizedBox(height: 8),
         ExpansionTile(
+          trailing: TextButton(
+            child: Text('Get List'),
+            onPressed: () => _listAudioDevices(),
+          ),
           title: Text('Audio Lists:'),
           children: [
-            ListTile(
-              title: Text('GetList'),
-              onTap: () => _listAudioDevices(),
-            ),
             for (AudioDevice _audioDevice in _audioDeviceList)
               ListTile(
                 title: Text(_audioDevice.label),
@@ -160,12 +160,8 @@ class _AppState extends State<App> {
     return MaterialApp(
         home: Scaffold(
             appBar: AppBar(title: Text('ChimePlugin')),
-            body: Column(children: [
-              SizedBox(height: 8),
-              Text(_version),
-              SizedBox(height: 8),
-              Expanded(child: content)
-            ])));
+            body:
+                Column(children: [Text(_version), Expanded(child: content)])));
   }
 
   Future<void> _getPermission() async {
@@ -190,7 +186,6 @@ class _AppState extends State<App> {
         });
       }
     } else if (Platform.isIOS) {
-      debugPrint('iOS:createMeetingSession');
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       if (iosInfo.isPhysicalDevice) {
@@ -434,7 +429,6 @@ class _AppState extends State<App> {
     }
   }
 
-  // This only works on IOS.
   Future<void> _sendDataMessage(String text) async {
     String result;
     try {
@@ -564,9 +558,7 @@ class _AppState extends State<App> {
     debugPrint(
         'HandleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbound');
 
-    setState(() {
-      // refresh
-    });
+    setState(() {});
   }
 
   void _handleOnAttendeesJoined(dynamic arguments) async {
