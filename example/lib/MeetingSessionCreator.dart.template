@@ -2,7 +2,7 @@ import 'package:eggnstone_amazon_chime/eggnstone_amazon_chime.dart';
 
 class MeetingSessionCreator
 {
-    Future<String> create()
+    Future<String?> create()
     {
         return Chime.createMeetingSession(
             meetingId: 'Test-MeetingId',

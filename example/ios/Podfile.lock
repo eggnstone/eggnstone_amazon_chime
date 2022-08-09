@@ -4,14 +4,14 @@ PODS:
   - eggnstone_amazon_chime (0.0.1):
     - Flutter
   - Flutter (1.0.0)
-  - "permission_handler (5.0.1+1)":
+  - permission_handler_apple (9.0.4):
     - Flutter
 
 DEPENDENCIES:
   - device_info (from `.symlinks/plugins/device_info/ios`)
   - eggnstone_amazon_chime (from `.symlinks/plugins/eggnstone_amazon_chime/ios`)
   - Flutter (from `Flutter`)
-  - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
 
 EXTERNAL SOURCES:
   device_info:
@@ -20,15 +20,15 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/eggnstone_amazon_chime/ios"
   Flutter:
     :path: Flutter
-  permission_handler:
-    :path: ".symlinks/plugins/permission_handler/ios"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
 
 SPEC CHECKSUMS:
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   eggnstone_amazon_chime: aeed1caf6dc2b4fb4153a844491de6de696a777b
-  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
-  permission_handler: eac8e15b4a1a3fba55b761d19f3f4e6b005d15b6
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
 
-PODFILE CHECKSUM: a75497545d4391e2d394c3668e20cfb1c2bbd4aa
+PODFILE CHECKSUM: ed6c5131fc0a3f11053f8efcaea585072bb3f992
 
-COCOAPODS: 1.10.0
+COCOAPODS: 1.11.3
