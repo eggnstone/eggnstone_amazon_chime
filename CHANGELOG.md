@@ -1,3 +1,27 @@
+## 4.2.5
+
+* Unified function names and data types for iOS and Android that can be retrieved from several observers.
+
+* Added message sending/receiving function.
+
+* Updated samples.
+
+* Refactoring.
+
+* Updated README.md.
+
+* Updated CHANGELOG.md.
+
+* iOS: Modified to build by simply replacing the following 4 files in eggnstone_amazon_chime/ios with reference to the readme.
+
+  * AmazonChimeSDK.framework (Amazon Chime SDK framework)
+  * AmazonChimeSDK.xcframework (Amazon Chime SDK framework)
+  * AmazonChimeSDKMedia.framework (Amazon Chime SDK Media Framework)
+  * AmazonChimeSDKMedia.xcframework (Amazon Chime SDK Media Framework)
+  * Modified to build with simulator
+
+* iOS: Added ability to get SDK version.
+
 ## 4.2.1
 
 * Android: Allowing SDK min version of 21 for debug builds (display of video will not work but everything else should).
@@ -9,12 +33,12 @@
 
 ## 4.1.0
 
-* Android: Updated to Chime SDK version 0.16.0 (media 0.16.0). 
+* Android: Updated to Chime SDK version 0.16.0 (media 0.16.0).
 
 ## 4.0.1
 
 * Fixed example.
-* Removed unnecessary dependencies. 
+* Removed unnecessary dependencies.
 
 ## 4.0.0
 
@@ -34,14 +58,14 @@
 
 ## 2.0.1
 
-* Android: Removed amazon-chime-sdk-combined-without-libc++_shared.so.aar. 
+* Android: Removed amazon-chime-sdk-combined-without-libc++_shared.so.aar.
 * Android: Added amazon-chime-sdk.aar and amazon-chime-sdk-media.aar.
 
 ## 2.0.0
 
 * Breaking change: iOS part temporarily disabled because files too large to publish.
 * HELP! We need someone willing to fix the iOS part.
-* Android: Updated to Chime SDK version 0.12.0 (media 0.12.1). 
+* Android: Updated to Chime SDK version 0.12.0 (media 0.12.1).
 
 ## 1.0.2
 
@@ -71,7 +95,7 @@
 
 ## 0.5.4
 
-* Added ListAudioDevices and ChooseAudioDevice. 
+* Added ListAudioDevices and ChooseAudioDevice.
 * Android: Updated to Chime SDK version 0.7.4 (media 0.7.0).
 
 ## 0.5.3
@@ -88,19 +112,19 @@
 
 ## 0.5.0
 
-* Added iOS part. 
+* Added iOS part.
 * Updated to Android SDK version 0.7.0 (media 0.6.0).
 * Added mute/unmute.
 
 ## 0.4.2
 
-* Adjusted example so that it can receive proper authenticated meeting data. 
+* Adjusted example so that it can receive proper authenticated meeting data.
 
 ## 0.4.1
 
 * Added more references to the README.md.
 * Added documentation about Chime not running on Android emulators (no x86 devices supported).
-* Adjusted example so that it shows a note when running on an Android emulator. 
+* Adjusted example so that it shows a note when running on an Android emulator.
 
 ## 0.4.0
 
@@ -110,30 +134,30 @@
 ## 0.3.0
 
 * Breaking change: Changed command field names.
-* Added all params to ChimeVideoTileObserver. 
-* Added onPlatformViewCreated to ChimeDefaultVideoRenderView. 
-* Fixed mapping between views and tiles. 
+* Added all params to ChimeVideoTileObserver.
+* Added onPlatformViewCreated to ChimeDefaultVideoRenderView.
+* Fixed mapping between views and tiles.
 
 ## 0.2.0
 
-* Breaking change: Changed event field names.  
-* Added params to all AudioVideoFacade events. 
+* Breaking change: Changed event field names.
+* Added params to all AudioVideoFacade events.
 
 ## 0.1.4
 
-* Added all AudioVideoFacade events. 
+* Added all AudioVideoFacade events.
 
 ## 0.1.3
 
-* Updated homepage / link to github 
+* Updated homepage / link to github
 
 ## 0.1.2
 
-* Adding documentation 
+* Adding documentation
 
 ## 0.1.1
 
-* Longer description and added link to Amazon Chime SDK. 
+* Longer description and added link to Amazon Chime SDK.
 
 ## 0.1.0
 
