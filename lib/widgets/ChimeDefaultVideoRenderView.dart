@@ -10,7 +10,7 @@ class ChimeDefaultVideoRenderView extends StatefulWidget
 
     /// Creates a [ChimeDefaultVideoRenderView].
     /// Optional: [onPlatformViewCreated] event to be called when the view gets created.
-    ChimeDefaultVideoRenderView({this.onPlatformViewCreated});
+    ChimeDefaultVideoRenderView({Key? key, this.onPlatformViewCreated}) : super(key: key);
 
     @override
     _ChimeDefaultVideoRenderViewState createState()
