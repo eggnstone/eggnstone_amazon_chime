@@ -1,4 +1,4 @@
-## 4.2.5
+## 4.2.6
 
 * Unified function names and data types for iOS and Android that can be retrieved from several observers.
 
