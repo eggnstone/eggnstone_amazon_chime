@@ -19,8 +19,8 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     public func volumeDidChange(volumeUpdates: [VolumeUpdate]) {
         _eventSink("""
             {
-            "Name": "OnVolumeDidChange",
-            "Arguments": [\(convertSignalUpdatesToJson(volumeUpdates: volumeUpdates))]
+            "Name": "OnVolumeChanged",
+            "Arguments": \(convertVolumeUpdatesToJson(volumeUpdates: volumeUpdates))
             }
             """)
     }
@@ -28,8 +28,8 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     public func signalStrengthDidChange(signalUpdates: [SignalUpdate]) {
         _eventSink("""
             {
-            "Name": "OnSignalStrengthDidChange",
-            "Arguments": [\(convertSignalUpdatesToJson(signalUpdates: signalUpdates)) ]
+            "Name": "OnSignalStrengthChanged",
+            "Arguments": \(convertSignalUpdatesToJson(signalUpdates: signalUpdates))
             }
             """)
     }
@@ -95,7 +95,9 @@ public class ChimeRealtimeObserver : RealtimeObserver {
     }
 
     func convertSignalUpdatesToJson(signalUpdates: [SignalUpdate]) -> String {
-        return signalUpdates.map({ (update: SignalUpdate) -> String in
+        return """
+            {
+            "SignalUpdates": [\(signalUpdates.map({ (update: SignalUpdate) -> String in
             return """
                 {
                 "AttendeeId": "\(update.attendeeInfo.attendeeId)",
@@ -103,18 +105,24 @@ public class ChimeRealtimeObserver : RealtimeObserver {
                 "SignalStrength": "\(update.signalStrength)"
                 }
                 """
-                }).joined(separator: ",")
-    }
-
-    func convertSignalUpdatesToJson(volumeUpdates: [VolumeUpdate]) -> String {
-        return volumeUpdates.map({ (update: VolumeUpdate) -> String in
-            return """
-            {
-            "AttendeeId": "\(update.attendeeInfo.attendeeId)",
-            "ExternalUserId": "\(update.attendeeInfo.externalUserId)",
-            "VolumeLevel": "\(update.volumeLevel)"
+                }).joined(separator: ","))]
             }
             """
-            }).joined(separator: ",")
+    }
+
+    func convertVolumeUpdatesToJson(volumeUpdates: [VolumeUpdate]) -> String {
+        return """
+            {
+            "VolumeUpdates": [\(volumeUpdates.map({ (update: VolumeUpdate) -> String in
+            return """
+                {
+                "AttendeeId": "\(update.attendeeInfo.attendeeId)",
+                "ExternalUserId": "\(update.attendeeInfo.externalUserId)",
+                "VolumeLevel": "\(update.volumeLevel)"
+                }
+                """
+                }).joined(separator: ","))]
+        }
+        """
     }
 }
