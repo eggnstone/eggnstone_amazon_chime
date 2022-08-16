@@ -47,9 +47,9 @@ class Chime {
   }
 
   /// Clears all view ids of the ChimeDefaultVideoRenderViewFactory.
-  // static Future<String?> clearViewIds() async {
-  //   return _methodChannel.invokeMethod('ClearViewIds');
-  // }
+  static Future<String?> clearViewIds() async {
+    return _methodChannel.invokeMethod('ClearViewIds');
+  }
 
   /// Starts audio and video (get ready to receive and send audio and video).
   static Future<String?> audioVideoStart() async {

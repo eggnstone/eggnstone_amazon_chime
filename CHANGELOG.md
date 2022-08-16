@@ -1,3 +1,7 @@
+## 4.2.7
+
+* Fixed example.
+
 ## 4.2.6
 
 * Unified function names and data types for iOS and Android that can be retrieved from several observers.
