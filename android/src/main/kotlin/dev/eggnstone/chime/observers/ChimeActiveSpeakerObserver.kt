@@ -8,7 +8,7 @@ import io.flutter.plugin.common.EventChannel
 import org.json.JSONArray
 import org.json.JSONObject
 
-class ChimeActiveSpeakerDetectedObserver(private val _eventSink: EventChannel.EventSink) : ActiveSpeakerObserver
+class ChimeActiveSpeakerDetectedObserver(private val _eventSink: EventSink) : ActiveSpeakerObserver
 {
     override val scoreCallbackIntervalMs: Int?
         get() = null
