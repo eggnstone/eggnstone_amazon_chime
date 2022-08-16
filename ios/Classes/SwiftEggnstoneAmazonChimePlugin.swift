@@ -6,10 +6,8 @@ import AmazonChimeSDKMedia
 public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
     var _meetingSession: MeetingSession?
     var audioVideoConfig = AudioVideoConfiguration()
-    //var _applicationContext: Context?
     var _methodChannel: FlutterMethodChannel?
     var _audioVideoFacade: AudioVideoFacade?
-
     var _audioOutputs: [MediaDevice] = [MediaDevice]()
 
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -84,6 +82,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             _audioVideoFacade?.addMetricsObserver(observer: ChimeMetricsObserver(eventSink: eventSink))
             _audioVideoFacade?.addRealtimeObserver(observer: ChimeRealtimeObserver(eventSink: eventSink))
             _audioVideoFacade?.addVideoTileObserver(observer: ChimeVideoTileObserver(eventSink: eventSink))
+            // TODO: topic
             _audioVideoFacade?.addRealtimeDataMessageObserver(topic: "CHAT", observer: ChimeDataMessageObserver(eventSink: eventSink))
             result(nil)
         }
@@ -275,6 +274,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
            let data = myArgs["Data"] as? Dictionary<String, Any>{
 
             do {
+                // TODO: topic
                 try  _audioVideoFacade?.realtimeSendDataMessage(topic: "CHAT", data: data, lifetimeMs: 0)
                 result(nil)
             } catch {

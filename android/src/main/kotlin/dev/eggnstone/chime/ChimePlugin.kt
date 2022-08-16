@@ -314,26 +314,6 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         result.success(null)
     }
 
-    private fun handleSendDataMessage(call: MethodCall, result: MethodChannel.Result)
-    {
-        val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
-        if (safeAudioVideoFacade == null)
-        {
-            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
-            return
-        }
-
-        val data = call.argument<Map<String,Any>>("Data")
-        if (data == null)
-        {
-            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "data", null)
-            return
-        }
-
-        safeAudioVideoFacade.realtimeSendDataMessage("CHAT", data, 0)
-        result.success(null)
-    }
-
     private fun handleUnbindVideoView(call: MethodCall, result: MethodChannel.Result)
     {
         val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
@@ -420,6 +400,28 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         }
 
         // result.error(ERROR__NO_AUDIO_VIDEO_FACADE__ERROR_CODE, "exception caught during choosing an audio device", null)
+    }
+
+    private fun handleSendDataMessage(call: MethodCall, result: MethodChannel.Result)
+    {
+        val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
+        if (safeAudioVideoFacade == null)
+        {
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
+            return
+        }
+
+        // TODO: topic
+        val data = call.argument<Map<String,Any>>("Data")
+        if (data == null)
+        {
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "Data", null)
+            return
+        }
+
+        // TODO: topic
+        safeAudioVideoFacade.realtimeSendDataMessage("CHAT", data, 0)
+        result.success(null)
     }
 
     companion object

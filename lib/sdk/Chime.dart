@@ -21,7 +21,8 @@ class Chime
     }
 
     /// Creates a meeting session.
-    static Future<String?> createMeetingSession({required String meetingId,
+    static Future<String?> createMeetingSession({
+        required String meetingId,
         required String externalMeetingId,
         required String mediaRegion,
         required String mediaPlacementAudioHostUrl,
@@ -114,14 +115,6 @@ class Chime
         return _methodChannel.invokeMethod('UnbindVideoView', params);
     }
 
-    /// Send a message.
-    static Future<String?> sendDataMessage(Map<String, dynamic> data)
-    async
-    {
-        var params = {"Data": data};
-        return _methodChannel.invokeMethod('SendDataMessage', params);
-    }
-
     /// Mutes local audio.
     static Future<String?> mute()
     async
@@ -149,5 +142,13 @@ class Chime
     {
         var params = {'Label': label};
         return _methodChannel.invokeMethod('ChooseAudioDevice', params);
+    }
+
+    /// Send a data message.
+    static Future<String?> sendDataMessage(Map<String, dynamic> data)
+    async
+    {
+        var params = {"Data": data};
+        return _methodChannel.invokeMethod('SendDataMessage', params);
     }
 }
