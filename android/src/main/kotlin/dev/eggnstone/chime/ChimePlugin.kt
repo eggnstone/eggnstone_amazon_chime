@@ -77,6 +77,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
             "GetVersion" -> result.success("Chime SDK " + sdkVersion())
             "ListAudioDevices" -> handleListAudioDevices(result)
             "Mute" -> handleMute(result)
+            "SendDataMessage" -> handleSendDataMessage(call, result)
             "UnbindVideoView" -> handleUnbindVideoView(call, result)
             "Unmute" -> handleUnmute(result)
             else -> result.notImplemented()
@@ -192,7 +193,7 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         safeAudioVideoFacade.addDeviceChangeObserver(ChimeDeviceChangeObserver(safeEventSink))
         // addEventAnalyticsObserver: onEventReceived
         safeAudioVideoFacade.addMetricsObserver(ChimeMetricsObserver(safeEventSink))
-        // addRealtimeDataMessageObserver: onDataMessageReceived
+        safeAudioVideoFacade.addRealtimeDataMessageObserver("CHAT", ChimeDataMessageObserver(safeEventSink))
         safeAudioVideoFacade.addRealtimeObserver(ChimeRealtimeObserver(safeEventSink))
         safeAudioVideoFacade.addVideoTileObserver(ChimeVideoTileObserver(safeEventSink))
 
@@ -310,6 +311,26 @@ class ChimePlugin : FlutterPlugin, MethodCallHandler
         val videoRenderView: VideoRenderView = view.videoRenderView
 
         safeAudioVideoFacade.bindVideoView(videoRenderView, tileId)
+        result.success(null)
+    }
+
+    private fun handleSendDataMessage(call: MethodCall, result: MethodChannel.Result)
+    {
+        val safeAudioVideoFacade: AudioVideoFacade? = _audioVideoFacade
+        if (safeAudioVideoFacade == null)
+        {
+            result.error(NO_AUDIO_VIDEO_FACADE__ERROR_CODE, NO_AUDIO_VIDEO_FACADE__ERROR_MESSAGE, null)
+            return
+        }
+
+        val data = call.argument<Map<String,Any>>("Data")
+        if (data == null)
+        {
+            result.error(UNEXPECTED_NULL_PARAMETER__ERROR_CODE, UNEXPECTED_NULL_PARAMETER__ERROR_MESSAGE + "data", null)
+            return
+        }
+
+        safeAudioVideoFacade.realtimeSendDataMessage("CHAT", data, 0)
         result.success(null)
     }
 
