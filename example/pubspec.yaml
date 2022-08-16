@@ -18,8 +18,8 @@ dependencies:
     path: ../
 
   device_info: ^2.0.3
-  http: ^0.13.4
-  permission_handler: ^9.2.0
+  http: ^0.13.5
+  permission_handler: ^10.0.0
 
 dev_dependencies:
   flutter_test:

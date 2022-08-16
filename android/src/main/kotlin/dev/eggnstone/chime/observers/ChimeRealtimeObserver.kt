@@ -10,6 +10,7 @@ import org.json.JSONObject
 
 class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserver
 {
+    // Handles attendee(s) being dropped due to network.
     override fun onAttendeesDropped(attendeeInfos: Array<AttendeeInfo>)
     {
         val jsonObject = JSONObject()
@@ -20,6 +21,7 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
         _eventSink.success(jsonObject.toString())
     }
 
+    // Handles attendee(s) being added.
     override fun onAttendeesJoined(attendeeInfos: Array<AttendeeInfo>)
     {
         val jsonObject = JSONObject()
@@ -30,6 +32,7 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
         _eventSink.success(jsonObject.toString())
     }
 
+    // Handles attendee(s) being removed.
     override fun onAttendeesLeft(attendeeInfos: Array<AttendeeInfo>)
     {
         val jsonObject = JSONObject()
@@ -40,6 +43,7 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
         _eventSink.success(jsonObject.toString())
     }
 
+    // Handles attendee(s) whose VolumeLevel has changed to muted.
     override fun onAttendeesMuted(attendeeInfos: Array<AttendeeInfo>)
     {
         val jsonObject = JSONObject()
@@ -50,6 +54,7 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
         _eventSink.success(jsonObject.toString())
     }
 
+    // Handles attendee(s) whose VolumeLevel has changed from muted.
     override fun onAttendeesUnmuted(attendeeInfos: Array<AttendeeInfo>)
     {
         val jsonObject = JSONObject()
@@ -60,6 +65,7 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
         _eventSink.success(jsonObject.toString())
     }
 
+    // Handles signal strength changes for attendees whose SignalStrength has changed.
     override fun onSignalStrengthChanged(signalUpdates: Array<SignalUpdate>)
     {
         val jsonObject = JSONObject()
@@ -70,6 +76,7 @@ class ChimeRealtimeObserver(private val _eventSink: EventSink) : RealtimeObserve
         _eventSink.success(jsonObject.toString())
     }
 
+    // Handles volume changes for attendees whose VolumeLevel has changed.
     override fun onVolumeChanged(volumeUpdates: Array<VolumeUpdate>)
     {
         val jsonObject = JSONObject()
