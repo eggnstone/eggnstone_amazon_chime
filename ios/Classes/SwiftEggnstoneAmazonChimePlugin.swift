@@ -99,6 +99,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStart") == false {
             return
         }
+
         do {
             try _audioVideoFacade?.start();
             result(nil)
@@ -111,6 +112,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStop") == false {
             return
         }
+
         do {
             _audioVideoFacade?.stop()
             result(nil)
@@ -123,6 +125,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStartLocalVideo") == false{
             return
         }
+
         do {
             try _audioVideoFacade?.startLocalVideo()
             result(nil)
@@ -135,6 +138,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStopLocalVideo") == false {
             return
         }
+
         do {
             try _audioVideoFacade?.stopLocalVideo()
             result(nil)
@@ -147,6 +151,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStartRemoteVideo") == false {
             return
         }
+
         do {
             try _audioVideoFacade?.startRemoteVideo()
             result(nil)
@@ -159,6 +164,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         if checkAudioVideoFacade(result: result, source: "AudioVideoStopRemoteVideo") == false {
             return
         }
+
         do {
             try _audioVideoFacade?.stopRemoteVideo()
             result(nil)
@@ -182,6 +188,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
 
             try? _audioVideoFacade?.bindVideoView(videoView: videoRenderView , tileId: tileId)
         }
+
         result(nil)
     }
 
@@ -196,6 +203,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             let tileId = myArgs["tileId"] as? Int {
             try? _audioVideoFacade?.unbindVideoView(tileId: tileId)
         }
+
         result(nil)
     }
 
@@ -225,6 +233,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         if checkAudioVideoFacade(result: result, source: "ListAudioDevices") == false {
             return
         }
+
         do {
             let concatenatedDevices : String
 
@@ -259,6 +268,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
                 return true
             }
         }
+
         print("audioVideoFacade not available")
 
         return false
@@ -271,8 +281,8 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
 
         let args = call.arguments as? [String: Any]
         if let myArgs = args,
-           let data = myArgs["Data"] as? Dictionary<String, Any>{
-
+            // TODO: topic
+            let data = myArgs["Data"] as? Dictionary<String, Any> {
             do {
                 // TODO: topic
                 try  _audioVideoFacade?.realtimeSendDataMessage(topic: "CHAT", data: data, lifetimeMs: 0)
@@ -280,8 +290,8 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
             } catch {
                 result(FlutterError())
             }
-
         }
+
         result(nil)
     }
 
@@ -291,6 +301,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
 
         try? _audioVideoFacade?.realtimeLocalMute()
+
         result(nil)
     }
 
@@ -300,6 +311,7 @@ public class SwiftEggnstoneAmazonChimePlugin: NSObject, FlutterPlugin {
         }
 
         try? _audioVideoFacade?.realtimeLocalUnmute()
+
         result(nil)
     }
 }
@@ -313,6 +325,7 @@ class ExampleStreamHandler: NSObject, FlutterStreamHandler {
         if _exampleStreamHandler != nil {
             return _exampleStreamHandler!
         }
+
         else {
             _exampleStreamHandler = ExampleStreamHandler()
             return _exampleStreamHandler!
@@ -325,13 +338,17 @@ class ExampleStreamHandler: NSObject, FlutterStreamHandler {
 
     func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         print("ExampleStreamHandler onListen")
+
         _eventSink = events
+
         return nil
     }
 
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
-        _eventSink = nil
         print("ExampleStreamHandler onCancel")
+
+        _eventSink = nil
+
         return nil
     }
 }
