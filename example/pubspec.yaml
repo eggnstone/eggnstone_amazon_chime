@@ -1,6 +1,6 @@
 name: chime_example
 description: Demonstrates how to use the chime plugin.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
@@ -14,7 +14,7 @@ dependencies:
     #   eggnstone_amazon_chime: ^x.y.z
     # See https://dart.dev/tools/pub/dependencies#version-constraints
     # The example app is bundled with the plugin so we use a path dependency on
-    # the parent directory to use the current plugin's version. 
+    # the parent directory to use the current plugin's version.
     path: ../
 
   device_info: ^2.0.3
