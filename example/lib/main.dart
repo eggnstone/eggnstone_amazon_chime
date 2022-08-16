@@ -48,7 +48,7 @@ class _AppState extends State<App>
     {
         super.initState();
 
-        _getPermission();
+        _getPermissions();
         _startChime();
     }
 
@@ -190,13 +190,10 @@ class _AppState extends State<App>
                 body: Column(children: [Text(_version), Expanded(child: content)])));
     }
 
-    Future<void> _getPermission()
+    Future<void> _getPermissions()
     async
     {
-        Map<Permission, PermissionStatus> statuses = await [
-            Permission.camera,
-            Permission.microphone,
-        ].request();
+        await [Permission.camera, Permission.microphone].request();
     }
 
     void _startChime()
