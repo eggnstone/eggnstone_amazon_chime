@@ -212,10 +212,11 @@ class _AppState extends State<App>
             }
             else
             {
-                setState(()
-                {
-                    _isAndroidEmulator = true;
-                });
+                if (mounted)
+                    setState(()
+                    {
+                        _isAndroidEmulator = true;
+                    });
             }
         }
         else if (Platform.isIOS)
@@ -229,10 +230,11 @@ class _AppState extends State<App>
             }
             else
             {
-                setState(()
-                {
-                    _isIosSimulator = true;
-                });
+                if (mounted)
+                    setState(()
+                    {
+                        _isIosSimulator = true;
+                    });
             }
         }
         else
@@ -291,8 +293,7 @@ class _AppState extends State<App>
                     _handleOnAttendeesUnmuted(eventArguments);
                     break;
                 default:
-                    debugPrint(
-                        'Chime.eventChannel.receiveBroadcastStream().listen()/onData()');
+                    debugPrint('Chime.eventChannel.receiveBroadcastStream().listen()/onData()');
                     debugPrint('Warning: Unhandled event: $eventName');
                     debugPrint('Data: $data');
                     break;
@@ -300,14 +301,13 @@ class _AppState extends State<App>
         },
             onDone: ()
             {
-                debugPrint(
-                    'Chime.eventChannel.receiveBroadcastStream().listen()/onDone()');
+                debugPrint('Chime.eventChannel.receiveBroadcastStream().listen()/onDone()');
             },
             onError: (e)
             {
-                debugPrint(
-                    'Chime.eventChannel.receiveBroadcastStream().listen()/onError()');
-            });
+                debugPrint('Chime.eventChannel.receiveBroadcastStream().listen()/onError()');
+            }
+        );
     }
 
     Future<void> _createMeetingSession()
@@ -528,12 +528,10 @@ class _AppState extends State<App>
         }
 
         if (mounted)
-        {
             setState(()
             {
                 _audioVideoMuteResult = result;
             });
-        }
     }
 
     Future<void> _audioVideoUnmute()
@@ -554,12 +552,10 @@ class _AppState extends State<App>
         }
 
         if (mounted)
-        {
             setState(()
             {
                 _audioVideoMuteResult = result;
             });
-        }
     }
 
     Future<void> _sendDataMessage(String text)
@@ -580,12 +576,10 @@ class _AppState extends State<App>
         }
 
         if (mounted)
-        {
             setState(()
             {
                 _sendDataMessageResult = result;
             });
-        }
     }
 
     Future<void> _listAudioDevices()
@@ -608,13 +602,11 @@ class _AppState extends State<App>
         }
 
         if (mounted)
-        {
             setState(()
             {
                 _audioDeviceList = resultList;
                 _listAudioDevicesResult = result;
             });
-        }
     }
 
     Future<List<AudioDevice>> _getListAudioDevices()
@@ -622,12 +614,10 @@ class _AppState extends State<App>
     {
         final String? listAudioDevices = await Chime.listAudioDevices();
         if (listAudioDevices == null)
-        {
             return [];
-        }
+
         List<AudioDevice> list = [];
         final List<dynamic> data = jsonDecode(listAudioDevices);
-
         for (dynamic audioDevice in data)
         {
             list = [
@@ -636,7 +626,7 @@ class _AppState extends State<App>
                     audioDevice['Type'],
                     audioDevice['Order'],
                     audioDevice['Port'],
-                    audioDevice['Description'],
+                    audioDevice['Description']
                 ),
                 ...list
             ];
@@ -662,12 +652,10 @@ class _AppState extends State<App>
         }
 
         if (mounted)
-        {
             setState(()
             {
                 _listAudioDevicesResult = result;
             });
-        }
     }
 
     void _handleOnVideoTileAdded(dynamic arguments)
@@ -682,7 +670,7 @@ class _AppState extends State<App>
         Attendee? attendee = _attendees.getByTileId(tileId);
         if (attendee != null)
         {
-            debugPrint('HandleOnVideoTileAdded called but already mapped. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView}');
+            debugPrint('Error: HandleOnVideoTileAdded called but already mapped. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView}');
             return;
         }
 
@@ -691,17 +679,22 @@ class _AppState extends State<App>
         _attendees.add(attendee);
 
         Attendee nonNullAttendee = attendee;
-        setState(()
-        {
-            nonNullAttendee.setVideoView(ChimeDefaultVideoRenderView(
-                onPlatformViewCreated: (int viewId)
-                async {
-                    nonNullAttendee.setViewId(viewId);
-                    debugPrint('ChimeDefaultVideoRenderView created. TileId=${nonNullAttendee.tileId}, ViewId=${nonNullAttendee.viewId}, VideoView=${nonNullAttendee.videoView} => binding');
-                    await Chime.bindVideoView(nonNullAttendee.viewId!, nonNullAttendee.tileId);
-                    debugPrint('ChimeDefaultVideoRenderView created. TileId=${nonNullAttendee.tileId}, ViewId=${nonNullAttendee.viewId}, VideoView=${nonNullAttendee.videoView} => bound');
-                }));
-        });
+        if (mounted)
+            setState(()
+            {
+                nonNullAttendee.setVideoView(
+                    ChimeDefaultVideoRenderView(
+                        onPlatformViewCreated: (int viewId)
+                        async
+                        {
+                            nonNullAttendee.setViewId(viewId);
+                            debugPrint('ChimeDefaultVideoRenderView created. TileId=${nonNullAttendee.tileId}, ViewId=${nonNullAttendee.viewId}, VideoView=${nonNullAttendee.videoView} => binding');
+                            await Chime.bindVideoView(nonNullAttendee.viewId!, nonNullAttendee.tileId);
+                            debugPrint('ChimeDefaultVideoRenderView created. TileId=${nonNullAttendee.tileId}, ViewId=${nonNullAttendee.viewId}, VideoView=${nonNullAttendee.videoView} => bound');
+                        }
+                    )
+                );
+            });
     }
 
     void _handleOnVideoTileRemoved(dynamic arguments)
@@ -721,8 +714,11 @@ class _AppState extends State<App>
         await Chime.unbindVideoView(tileId);
         debugPrint('HandleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbound');
 
-        setState(()
-        {});
+        if (mounted)
+            setState(()
+            {
+                // refresh
+            });
     }
 
     void _handleOnAttendeesJoined(dynamic arguments)
@@ -730,24 +726,23 @@ class _AppState extends State<App>
     {
         for (final info in arguments['AttendeeInfos'])
         {
-            AttendeeInfo? attendeeInfo =
-            _attendeeInfos.getByAttendeeId(info['AttendeeId']);
-            if (attendeeInfo != null)
+            AttendeeInfo? attendeeInfo = _attendeeInfos.getByAttendeeId(info['AttendeeId']);
+            if (attendeeInfo == null)
             {
-                debugPrint('HandleOnAttendeesJoined called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
+                final AttendeeInfo newAttendeeInfo = AttendeeInfo(info['AttendeeId'], info['ExternalUserId']);
+                _attendeeInfos.add(newAttendeeInfo);
             }
             else
             {
-                final AttendeeInfo newAttendeeInfo = AttendeeInfo(
-                    info['AttendeeId'],
-                    info['ExternalUserId'],
-                );
-                _attendeeInfos.add(newAttendeeInfo);
+                debugPrint('HandleOnAttendeesJoined called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
             }
         }
 
-        setState(()
-        {});
+        if (mounted)
+            setState(()
+            {
+                // refresh
+            });
     }
 
     void _handleOnAttendeesLeft(dynamic arguments)
@@ -755,12 +750,10 @@ class _AppState extends State<App>
     {
         for (final info in arguments['AttendeeInfos'])
         {
-            AttendeeInfo? attendeeInfo =
-            _attendeeInfos.getByAttendeeId(info['AttendeeId']);
+            AttendeeInfo? attendeeInfo = _attendeeInfos.getByAttendeeId(info['AttendeeId']);
             if (attendeeInfo == null)
             {
-                debugPrint(
-                    'Error: HandleOnAttendeesLeft: Could not find attendee for AttendeeId=${info['AttendeeId']}, ExternalUserId=${info['ExternalUserId']}');
+                debugPrint('Error: HandleOnAttendeesLeft: Could not find attendee for AttendeeId=${info['AttendeeId']}, ExternalUserId=${info['ExternalUserId']}');
             }
             else
             {
@@ -768,8 +761,11 @@ class _AppState extends State<App>
             }
         }
 
-        setState(()
-        {});
+        if (mounted)
+            setState(()
+            {
+                // refresh
+            });
     }
 
     void _handleOnAttendeesUnmuted(dynamic arguments)
@@ -777,12 +773,10 @@ class _AppState extends State<App>
     {
         for (final info in arguments['AttendeeInfos'])
         {
-            AttendeeInfo? attendeeInfo =
-            _attendeeInfosMute.getByAttendeeId(info['AttendeeId']);
+            AttendeeInfo? attendeeInfo = _attendeeInfosMute.getByAttendeeId(info['AttendeeId']);
             if (attendeeInfo == null)
             {
                 debugPrint('Error: HandleOnAttendeesUnmuted: Could not find attendee for AttendeeId=${info['AttendeeId']}, ExternalUserId=${info['ExternalUserId']}');
-                return;
             }
             else
             {
@@ -790,8 +784,11 @@ class _AppState extends State<App>
             }
         }
 
-        setState(()
-        {});
+        if (mounted)
+            setState(()
+            {
+                // refresh
+            });
     }
 
     void _handleOnAttendeesMuted(dynamic arguments)
@@ -799,24 +796,23 @@ class _AppState extends State<App>
     {
         for (final info in arguments['AttendeeInfos'])
         {
-            AttendeeInfo? attendeeInfo =
-            _attendeeInfosMute.getByAttendeeId(info['AttendeeId']);
-            if (attendeeInfo != null)
+            AttendeeInfo? attendeeInfo = _attendeeInfosMute.getByAttendeeId(info['AttendeeId']);
+            if (attendeeInfo == null)
+            {
+                final AttendeeInfo newAttendeeInfo = AttendeeInfo(info['AttendeeId'], info['ExternalUserId']);
+                _attendeeInfosMute.add(newAttendeeInfo);
+            }
+            else
             {
                 debugPrint('HandleOnAttendeesMuted called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
                 return;
             }
-            else
-            {
-                final AttendeeInfo newAttendeeInfo = AttendeeInfo(
-                    info['AttendeeId'],
-                    info['ExternalUserId'],
-                );
-                _attendeeInfosMute.add(newAttendeeInfo);
-            }
         }
 
-        setState(()
-        {});
+        if (mounted)
+            setState(()
+            {
+                // refresh
+            });
     }
 }

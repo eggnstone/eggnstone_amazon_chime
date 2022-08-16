@@ -2,6 +2,6 @@ class AttendeeInfo
 {
     AttendeeInfo(this.attendeeId, this.externalUserId);
 
-    String attendeeId;
-    String externalUserId;
+    final String attendeeId;
+    final String externalUserId;
 }
