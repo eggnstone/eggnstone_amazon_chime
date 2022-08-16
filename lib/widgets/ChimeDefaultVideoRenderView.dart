@@ -27,7 +27,7 @@ class _ChimeDefaultVideoRenderViewState extends State<ChimeDefaultVideoRenderVie
             return AndroidView(
                 viewType: 'ChimeDefaultVideoRenderView',
                 onPlatformViewCreated: (int viewId)
-                => widget.onPlatformViewCreated?.call(viewId),
+                => widget.onPlatformViewCreated?.call(viewId)
             );
         }
         else if (Platform.isIOS)
@@ -35,10 +35,12 @@ class _ChimeDefaultVideoRenderViewState extends State<ChimeDefaultVideoRenderVie
             return UiKitView(
                 viewType: 'ChimeDefaultVideoRenderView',
                 onPlatformViewCreated: (int viewId)
-                => widget.onPlatformViewCreated?.call(viewId),
+                => widget.onPlatformViewCreated?.call(viewId)
             );
         }
         else
+        {
             throw Exception('Not implemented');
+        }
     }
 }

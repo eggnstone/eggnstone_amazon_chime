@@ -30,7 +30,8 @@ class Chime
         required String mediaPlacementTurnControlUrl,
         required String attendeeId,
         required String externalUserId,
-        required String joinToken})
+        required String joinToken
+    })
     async
     {
         var params =
