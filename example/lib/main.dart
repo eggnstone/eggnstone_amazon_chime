@@ -58,11 +58,9 @@ class _AppState extends State<App>
         var chimeViewChildren = List<Widget>.empty(growable: true);
 
         if (_attendees.length == 0)
-            chimeViewChildren                .add(Expanded(child: Center(child: Text('No attendees yet.'))));
+            chimeViewChildren.add(Expanded(child: Center(child: Text('No attendees yet.'))));
         else
-            for (int attendeeIndex = 0;
-            attendeeIndex < _attendees.length;
-            attendeeIndex++)
+            for (int attendeeIndex = 0; attendeeIndex < _attendees.length; attendeeIndex++)
             {
                 Attendee attendee = _attendees[attendeeIndex];
                 if (attendee.videoView != null)
@@ -81,107 +79,120 @@ class _AppState extends State<App>
             content = Padding(
                 padding: const EdgeInsets.all(16),
                 child: Center(
-                    child: Text(                        'Chime does not support Android/iOS emulators/simulators.\n\nIf you see the SDK version above then the connection to the SDK works though.')));
+                    child: Text('Chime does not support Android/iOS emulators/simulators.\n\nIf you see the SDK version above then the connection to the SDK works though.')));
         else
-            content = Column(children: [
-                Text(_createMeetingSessionResult),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-                    Text('Audio/Video:'),
-                    ElevatedButton(
-                        child: Text('Start'), onPressed: ()
-                    => _audioVideoStart()),
-                    ElevatedButton(
-                        child: Text('Stop'), onPressed: ()
-                    => _audioVideoStop())
-                ]),
-                Text(_audioVideoStartResult),
-                SizedBox(height: 8),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-                    Text('Local Video:'),
-                    ElevatedButton(
-                        child: Text('Start'),
-                        onPressed: ()
-                        => _audioVideoStartLocalVideo()),
-                    ElevatedButton(
-                        child: Text('Stop'), onPressed: ()
-                    => _audioVideoStopLocalVideo())
-                ]),
-                Text(_audioVideoStartLocalVideoResult),
-                SizedBox(height: 8),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-                    Text('Remote Video:'),
-                    ElevatedButton(
-                        child: Text('Start'),
-                        onPressed: ()
-                        => _audioVideoStartRemoteVideo()),
-                    ElevatedButton(
-                        child: Text('Stop'),
-                        onPressed: ()
-                        => _audioVideoStopRemoteVideo())
-                ]),
-                Text(_audioVideoStartRemoteVideoResult),
-                SizedBox(height: 8),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-                    Text('Mute Microphone:'),
-                    ElevatedButton(
-                        child: Text('Start'), onPressed: ()
-                    => _audioVideoMute()),
-                    ElevatedButton(
-                        child: Text('Stop'), onPressed: ()
-                    => _audioVideoUnmute())
-                ]),
-                Text(_audioVideoMuteResult),
-                SizedBox(height: 8),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                        Text('Send Message:'),
-                        ElevatedButton(
-                            child: const Text('Start'),
-                            onPressed: ()
-                            => _sendDataMessage('message')),
-                    ],
-                ),
-                Text(_sendDataMessageResult),
-                SizedBox(height: 16),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                        Text('Number Of Attendees:'),
-                        Text(_attendeeInfos.length.toString()),
-                    ],
-                ),
-                SizedBox(height: 8),
-                ExpansionTile(
-                    trailing: TextButton(
-                        child: Text('Get List'),
-                        onPressed: ()
-                        => _listAudioDevices(),
+            content = Column(
+                children: [
+                    Text(_createMeetingSessionResult),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                            Text('Audio/Video:'),
+                            ElevatedButton(
+                                child: Text('Start'),
+                                onPressed: ()
+                                => _audioVideoStart()),
+                            ElevatedButton(
+                                child: Text('Stop'),
+                                onPressed: ()
+                                => _audioVideoStop())
+                        ]
                     ),
-                    title: Text('Audio Lists:'),
-                    children: [
-                        for (AudioDevice _audioDevice in _audioDeviceList)
-                            ListTile(
-                                title: Text(_audioDevice.label),
-                                onTap: ()
-                                => _chooseAudioDevice(_audioDevice.label),
-                            ),
-                    ],
-                ),
-                Text(_listAudioDevicesResult),
-                SizedBox(height: 8),
-                Expanded(child: chimeViewColumn)
-            ]);
+                    Text(_audioVideoStartResult),
+                    SizedBox(height: 8),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                            Text('Local Video:'),
+                            ElevatedButton(
+                                child: Text('Start'),
+                                onPressed: ()
+                                => _audioVideoStartLocalVideo()),
+                            ElevatedButton(
+                                child: Text('Stop'), onPressed: ()
+                            => _audioVideoStopLocalVideo())
+                        ]),
+                    Text(_audioVideoStartLocalVideoResult),
+                    SizedBox(height: 8),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                            Text('Remote Video:'),
+                            ElevatedButton(
+                                child: Text('Start'),
+                                onPressed: ()
+                                => _audioVideoStartRemoteVideo()),
+                            ElevatedButton(
+                                child: Text('Stop'),
+                                onPressed: ()
+                                => _audioVideoStopRemoteVideo())
+                        ]
+                    ),
+                    Text(_audioVideoStartRemoteVideoResult),
+                    SizedBox(height: 8),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                            Text('Mute Microphone:'),
+                            ElevatedButton(
+                                child: Text('Start'),
+                                onPressed: ()
+                                => _audioVideoMute()),
+                            ElevatedButton(
+                                child: Text('Stop'),
+                                onPressed: ()
+                                => _audioVideoUnmute())
+                        ]
+                    ),
+                    Text(_audioVideoMuteResult),
+                    SizedBox(height: 8),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                            Text('Send Message:'),
+                            ElevatedButton(
+                                child: const Text('Start'),
+                                onPressed: ()
+                                => _sendDataMessage('message')),
+                        ]
+                    ),
+                    Text(_sendDataMessageResult),
+                    SizedBox(height: 16),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                            Text('Number Of Attendees:'),
+                            Text(_attendeeInfos.length.toString()),
+                        ]
+                    ),
+                    SizedBox(height: 8),
+                    ExpansionTile(
+                        trailing: TextButton(
+                            child: Text('Get List'),
+                            onPressed: ()
+                            => _listAudioDevices(),
+                        ),
+                        title: Text('Audio Lists:'),
+                        children: [
+                            for (AudioDevice _audioDevice in _audioDeviceList)
+                                ListTile(
+                                    title: Text(_audioDevice.label),
+                                    onTap: ()
+                                    => _chooseAudioDevice(_audioDevice.label),
+                                )
+                        ]
+                    ),
+                    Text(_listAudioDevicesResult),
+                    SizedBox(height: 8),
+                    Expanded(child: chimeViewColumn)
+                ]
+            );
 
         return MaterialApp(
             home: Scaffold(
                 appBar: AppBar(title: Text('ChimePlugin')),
-                body:
-                Column(children: [Text(_version), Expanded(child: content)])));
+                body: Column(children: [Text(_version), Expanded(child: content)])));
     }
 
     Future<void> _getPermission()
-    async {
+    async
+    {
         Map<Permission, PermissionStatus> statuses = await [
             Permission.camera,
             Permission.microphone,
@@ -189,7 +200,8 @@ class _AppState extends State<App>
     }
 
     void _startChime()
-    async {
+    async
+    {
         await _getVersion();
 
         if (Platform.isAndroid)
@@ -256,7 +268,8 @@ class _AppState extends State<App>
     void _addListener()
     {
         Chime.eventChannel.receiveBroadcastStream().listen((data)
-        async {
+        async
+        {
             dynamic event = JsonDecoder().convert(data);
             String eventName = event['Name'];
             dynamic eventArguments = event['Arguments'];
@@ -287,19 +300,22 @@ class _AppState extends State<App>
                     debugPrint('Data: $data');
                     break;
             }
-        }, onDone: ()
-        {
-            debugPrint(
-                'Chime.eventChannel.receiveBroadcastStream().listen()/onDone()');
-        }, onError: (e)
-        {
-            debugPrint(
-                'Chime.eventChannel.receiveBroadcastStream().listen()/onError()');
-        });
+        },
+            onDone: ()
+            {
+                debugPrint(
+                    'Chime.eventChannel.receiveBroadcastStream().listen()/onDone()');
+            },
+            onError: (e)
+            {
+                debugPrint(
+                    'Chime.eventChannel.receiveBroadcastStream().listen()/onError()');
+            });
     }
 
     Future<void> _createMeetingSession()
-    async {
+    async
+    {
         if (await Permission.microphone
             .request()
             .isGranted == false)
@@ -348,7 +364,8 @@ class _AppState extends State<App>
     }
 
     Future<void> _audioVideoStart()
-    async {
+    async
+    {
         String result;
 
         try
@@ -372,7 +389,8 @@ class _AppState extends State<App>
     }
 
     Future<void> _audioVideoStop()
-    async {
+    async
+    {
         String result;
 
         try
@@ -396,7 +414,8 @@ class _AppState extends State<App>
     }
 
     Future<void> _audioVideoStartLocalVideo()
-    async {
+    async
+    {
         String result;
 
         try
@@ -420,7 +439,8 @@ class _AppState extends State<App>
     }
 
     Future<void> _audioVideoStopLocalVideo()
-    async {
+    async
+    {
         String result;
 
         try
@@ -444,7 +464,8 @@ class _AppState extends State<App>
     }
 
     Future<void> _audioVideoStartRemoteVideo()
-    async {
+    async
+    {
         String result;
 
         try
@@ -468,7 +489,8 @@ class _AppState extends State<App>
     }
 
     Future<void> _audioVideoStopRemoteVideo()
-    async {
+    async
+    {
         String result;
 
         try
@@ -492,7 +514,8 @@ class _AppState extends State<App>
     }
 
     Future<void> _audioVideoMute()
-    async {
+    async
+    {
         String result;
         try
         {
@@ -517,7 +540,8 @@ class _AppState extends State<App>
     }
 
     Future<void> _audioVideoUnmute()
-    async {
+    async
+    {
         String result;
         try
         {
@@ -542,7 +566,8 @@ class _AppState extends State<App>
     }
 
     Future<void> _sendDataMessage(String text)
-    async {
+    async
+    {
         String result;
         try
         {
@@ -567,7 +592,8 @@ class _AppState extends State<App>
     }
 
     Future<void> _listAudioDevices()
-    async {
+    async
+    {
         String result;
         List<AudioDevice> resultList = [];
         try
@@ -595,7 +621,8 @@ class _AppState extends State<App>
     }
 
     Future<List<AudioDevice>> _getListAudioDevices()
-    async {
+    async
+    {
         final String? listAudioDevices = await Chime.listAudioDevices();
         if (listAudioDevices == null)
         {
@@ -621,7 +648,8 @@ class _AppState extends State<App>
     }
 
     Future<void> _chooseAudioDevice(String label)
-    async {
+    async
+    {
         String result;
         try
         {
@@ -646,7 +674,8 @@ class _AppState extends State<App>
     }
 
     void _handleOnVideoTileAdded(dynamic arguments)
-    async {
+    async
+    {
         bool isLocalTile = arguments['IsLocalTile'];
         int tileId = arguments['TileId'];
         String attendeeId = arguments['AttendeeId'];
@@ -656,15 +685,12 @@ class _AppState extends State<App>
         Attendee? attendee = _attendees.getByTileId(tileId);
         if (attendee != null)
         {
-            debugPrint(
-                'HandleOnVideoTileAdded called but already mapped. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView}');
+            debugPrint('HandleOnVideoTileAdded called but already mapped. TileId=${attendee.tileId}, ViewId=${attendee.viewId}, VideoView=${attendee.videoView}');
             return;
         }
 
-        debugPrint(
-            'HandleOnVideoTileAdded: New attendee: TileId=$tileId => creating ChimeDefaultVideoRenderView');
-        attendee = Attendee(tileId, isLocalTile, attendeeId,
-            videoStreamContentHeight, videoStreamContentWidth);
+        debugPrint('HandleOnVideoTileAdded: New attendee: TileId=$tileId => creating ChimeDefaultVideoRenderView');
+        attendee = Attendee(tileId, isLocalTile, attendeeId, videoStreamContentHeight, videoStreamContentWidth);
         _attendees.add(attendee);
 
         Attendee nonNullAttendee = attendee;
@@ -674,49 +700,44 @@ class _AppState extends State<App>
                 onPlatformViewCreated: (int viewId)
                 async {
                     nonNullAttendee.setViewId(viewId);
-                    debugPrint(
-                        'ChimeDefaultVideoRenderView created. TileId=${nonNullAttendee.tileId}, ViewId=${nonNullAttendee.viewId}, VideoView=${nonNullAttendee.videoView} => binding');
-                    await Chime.bindVideoView(
-                        nonNullAttendee.viewId!, nonNullAttendee.tileId);
-                    debugPrint(
-                        'ChimeDefaultVideoRenderView created. TileId=${nonNullAttendee.tileId}, ViewId=${nonNullAttendee.viewId}, VideoView=${nonNullAttendee.videoView} => bound');
+                    debugPrint('ChimeDefaultVideoRenderView created. TileId=${nonNullAttendee.tileId}, ViewId=${nonNullAttendee.viewId}, VideoView=${nonNullAttendee.videoView} => binding');
+                    await Chime.bindVideoView(nonNullAttendee.viewId!, nonNullAttendee.tileId);
+                    debugPrint('ChimeDefaultVideoRenderView created. TileId=${nonNullAttendee.tileId}, ViewId=${nonNullAttendee.viewId}, VideoView=${nonNullAttendee.videoView} => bound');
                 }));
         });
     }
 
     void _handleOnVideoTileRemoved(dynamic arguments)
-    async {
+    async
+    {
         int tileId = arguments['TileId'];
 
         Attendee? attendee = _attendees.getByTileId(tileId);
         if (attendee == null)
         {
-            debugPrint(
-                'Error: HandleOnVideoTileRemoved: Could not find attendee for TileId=$tileId');
+            debugPrint('Error: HandleOnVideoTileRemoved: Could not find attendee for TileId=$tileId');
             return;
         }
 
-        debugPrint(
-            'HandleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbinding');
+        debugPrint('HandleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbinding');
         _attendees.remove(attendee);
         await Chime.unbindVideoView(tileId);
-        debugPrint(
-            'HandleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbound');
+        debugPrint('HandleOnVideoTileRemoved: Found attendee: TileId=${attendee.tileId}, ViewId=${attendee.viewId} => unbound');
 
         setState(()
         {});
     }
 
     void _handleOnAttendeesJoined(dynamic arguments)
-    async {
+    async
+    {
         for (final info in arguments['AttendeeInfos'])
         {
             AttendeeInfo? attendeeInfo =
             _attendeeInfos.getByAttendeeId(info['AttendeeId']);
             if (attendeeInfo != null)
             {
-                debugPrint(
-                    'HandleOnAttendeesJoined called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
+                debugPrint('HandleOnAttendeesJoined called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
             }
             else
             {
@@ -733,7 +754,8 @@ class _AppState extends State<App>
     }
 
     void _handleOnAttendeesLeft(dynamic arguments)
-    async {
+    async
+    {
         for (final info in arguments['AttendeeInfos'])
         {
             AttendeeInfo? attendeeInfo =
@@ -754,15 +776,15 @@ class _AppState extends State<App>
     }
 
     void _handleOnAttendeesUnmuted(dynamic arguments)
-    async {
+    async
+    {
         for (final info in arguments['AttendeeInfos'])
         {
             AttendeeInfo? attendeeInfo =
             _attendeeInfosMute.getByAttendeeId(info['AttendeeId']);
             if (attendeeInfo == null)
             {
-                debugPrint(
-                    'Error: HandleOnAttendeesUnmuted: Could not find attendee for AttendeeId=${info['AttendeeId']}, ExternalUserId=${info['ExternalUserId']}');
+                debugPrint('Error: HandleOnAttendeesUnmuted: Could not find attendee for AttendeeId=${info['AttendeeId']}, ExternalUserId=${info['ExternalUserId']}');
                 return;
             }
             else
@@ -776,15 +798,15 @@ class _AppState extends State<App>
     }
 
     void _handleOnAttendeesMuted(dynamic arguments)
-    async {
+    async
+    {
         for (final info in arguments['AttendeeInfos'])
         {
             AttendeeInfo? attendeeInfo =
             _attendeeInfosMute.getByAttendeeId(info['AttendeeId']);
             if (attendeeInfo != null)
             {
-                debugPrint(
-                    'HandleOnAttendeesMuted called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
+                debugPrint('HandleOnAttendeesMuted called but already mapped. AttendeeId=${attendeeInfo.attendeeId}, ExternalUserId=${attendeeInfo.externalUserId}');
                 return;
             }
             else
