@@ -2,7 +2,7 @@ name: eggnstone_amazon_chime
 copyright: 2020-2022 Mark Eggenstein
 description: A wrapper for the Amazon Chime SDKs. Allows to join Chime meetings using audio and video.
 homepage: https://github.com/eggnstone/eggnstone_amazon_chime
-version: 4.2.7
+version: 4.2.8
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
